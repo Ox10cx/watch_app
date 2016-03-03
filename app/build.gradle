@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 'Google Inc.:Google APIs:21'
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.uacent.watchapp"
+        minSdkVersion 8
+        targetSdkVersion 19
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+android {
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:21.0.3'
+    compile files('libs/alipay.jar')
+    compile files('libs/baidumapapi_v3_2_0.jar')
+    compile files('libs/httpcore-4.3.3.jar')
+    compile files('libs/httpmime-4.3.6.jar')
+    compile files('libs/jpush-sdk-release1.7.1.jar')
+    compile files('libs/locSDK_4.1.jar')
+    compile files('libs/universal-image-loader-1.5.6-with-src.jar')
+}
