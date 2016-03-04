@@ -25,6 +25,7 @@ public class PreferenceUtil {
 	public static final String LAT = "lat";
 	public static final String SHIBI = "shibi";
 	public static final String PHONE = "phone";
+	public static final String TOKEN = "token";
 
 	public static synchronized PreferenceUtil getInstance(Context context) {
 		if (preference == null)
@@ -47,6 +48,17 @@ public class PreferenceUtil {
 		edit.putString(UID, value);
 		edit.commit();
 	}
+
+	public String getToken() {
+		String value = sharedPreference.getString(TOKEN, "");
+		return value;
+	}
+	public void setToken(String value) {
+		Editor edit = sharedPreference.edit();
+		edit.putString(TOKEN, value);
+		edit.commit();
+	}
+
 	public String getString(String name,String defValue) {
 		String value = sharedPreference.getString(name, defValue);
 		return value;

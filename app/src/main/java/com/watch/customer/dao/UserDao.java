@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.watch.customer.model.User;
 
@@ -52,24 +53,38 @@ public class UserDao {
 		values.put("create_time", user.getCreate_time());
 		values.put("image_thumb", user.getImage_thumb());
 		values.put("image", user.getImage());
+		values.put("token", user.getToken());
 		int id = (int) db.insert(TABLE_NAME, null, values);
 		db.close();
+		Log.e("hjq", "insert id = " + id);
 		return id;
 	}
+
 	public int updatePassWordById(String password,String id) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("password", password);
-		int index = (int) db.update(TABLE_NAME, values, "id = ?",new String[]{id});
+		int index = (int) db.update(TABLE_NAME, values, "id = ?", new String[]{id});
 		db.close();
 		return index;
 	}
+
+    public int updateTokenById(String token, String id) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("token", token);
+        int index = (int) db.update(TABLE_NAME, values, "id = ?", new String[]{id});
+        db.close();
+        return index;
+    }
+
 	public int update(User user) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("password", user.getPassword());
 		values.put("name", user.getName());
 		values.put("sex", user.getSex());
+        values.put("token", user.getToken());
 		int index = (int) db.update(TABLE_NAME, values, "id = ?",new String[]{user.getId()});
 		db.close();
 		return index;
@@ -101,7 +116,8 @@ public class UserDao {
 			String create_time = cursor.getString(cursor.getColumnIndex("create_time"));
 			String image_thumb = cursor.getString(cursor.getColumnIndex("image_thumb"));
 			String image = cursor.getString(cursor.getColumnIndex("image"));
-			ss.add(new User(id, name, phone, sex, password, create_time, image_thumb, image));
+            String token = cursor.getString(cursor.getColumnIndex("token"));
+			ss.add(new User(id, name, phone, sex, password, create_time, image_thumb, image, token));
 		}
 		cursor.close();
 		db.close();
@@ -121,7 +137,8 @@ public class UserDao {
 			String create_time = cursor.getString(cursor.getColumnIndex("create_time"));
 			String image_thumb = cursor.getString(cursor.getColumnIndex("image_thumb"));
 			String image = cursor.getString(cursor.getColumnIndex("image"));
-			user = new User(id, name, phone, sex, password, create_time, image_thumb, image);
+            String token = cursor.getString(cursor.getColumnIndex("token"));
+			user = new User(id, name, phone, sex, password, create_time, image_thumb, image, token);
 		}
 		cursor.close();
 		db.close();

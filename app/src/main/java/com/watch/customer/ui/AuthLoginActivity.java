@@ -47,36 +47,49 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 					if (JsonUtil.getInt(json, JsonUtil.CODE) != 1) {
 						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
 					} else {
+                        JSONObject msgobj = json.getJSONObject("msg");
+                        String token = msgobj.getString("token");
+
 						JSONObject userobj = json.getJSONObject("user");
 						String id = userobj.getString(JsonUtil.ID);
 						String name = userobj.getString(JsonUtil.NAME);
 						String phone = userobj.getString(JsonUtil.PHONE);
 						String sex = userobj.getString(JsonUtil.SEX);
-						String password = userobj.getString(JsonUtil.PASSWORD);
-						String create_time = userobj.getString(JsonUtil.CREATE_TIME);
-						String image_thumb = userobj.getString(JsonUtil.IMAGE_THUMB);
-						String image = userobj.getString(JsonUtil.IMAGE);
-						User user = new User(id, name, phone, sex, password, create_time, image_thumb, image);
+						//String password = userobj.getString(JsonUtil.PASSWORD);
+                        String create_time  = userobj.getString(JsonUtil.CREATE_TIME);
+
+                        String image_thumb = null;
+                        String image = null;
+                        try {
+                            image_thumb = userobj.getString(JsonUtil.IMAGE_THUMB);
+                            image = userobj.getString(JsonUtil.IMAGE);
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+
+						User user = new User(id, name, phone, sex, password, create_time, image_thumb, image, token);
 						new UserDao(AuthLoginActivity.this).insert(user);
-						showLongToast("登录成功");
+						showLongToast(getString(R.string.login_success));
 						PreferenceUtil.getInstance(AuthLoginActivity.this).setUid(user.getId());
 						PreferenceUtil.getInstance(AuthLoginActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
+                        PreferenceUtil.getInstance(AuthLoginActivity.this).setToken(user.getToken());
 				
-						JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
-					    JPushInterface.init(AuthLoginActivity.this);     		// 初始化 JPush
-					    ThreadPoolManager.getInstance().addTask(new Runnable() {
-							
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-							String result = HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
-										new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(AuthLoginActivity.this).getUid()));
-							Message msg = new Message();
-							msg.obj = result;
-							msg.what = getmycoin_what;
-							mHandler.sendMessage(msg);
-							}
-						});
+//						JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
+//					    JPushInterface.init(AuthLoginActivity.this);     		// 初始化 JPush
+//					    ThreadPoolManager.getInstance().addTask(new Runnable() {
+//
+//							@Override
+//							public void run() {
+//								// TODO Auto-generated method stub
+//							String result = HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
+//										new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(AuthLoginActivity.this).getUid()));
+//							Message msg = new Message();
+//							msg.obj = result;
+//							msg.what = getmycoin_what;
+//							mHandler.sendMessage(msg);
+//							}
+//						});
 					}
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -158,6 +171,7 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 								new BasicNameValuePair(JsonUtil.PASSWORD,
 										password));
 						Log.e("hjq", result);
+
 						Message msg = new Message();
 						msg.obj = result;
 						msg.what = 0;

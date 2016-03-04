@@ -26,7 +26,7 @@ import cn.jpush.android.api.JPushInterface;
 public class FirstActivity extends BaseActivity {
 	private String phone;
 	private String password;
-	private final String TAG = FirstActivity.class.getName();
+	private final String TAG = "hjq";
     private final int MSG_LOGIN = 0;
 
 	private Handler mHandler = new Handler() {
@@ -41,20 +41,33 @@ public class FirstActivity extends BaseActivity {
                         if (JsonUtil.getInt(json, JsonUtil.CODE) != 1) {
                             showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
                         } else {
+                            JSONObject msgobj = json.getJSONObject("msg");
+                            String token = msgobj.getString("token");
+
                             JSONObject userobj = json.getJSONObject("user");
                             String id = userobj.getString(JsonUtil.ID);
                             String name = userobj.getString(JsonUtil.NAME);
                             String phone = userobj.getString(JsonUtil.PHONE);
                             String sex = userobj.getString(JsonUtil.SEX);
-                            String password = userobj.getString(JsonUtil.PASSWORD);
+                         //   String password = userobj.getString(JsonUtil.PASSWORD);
                             String create_time = userobj.getString(JsonUtil.CREATE_TIME);
-                            String image_thumb = userobj.getString(JsonUtil.IMAGE_THUMB);
-                            String image = userobj.getString(JsonUtil.IMAGE);
-                            User user = new User(id, name, phone, sex, password, create_time, image_thumb, image);
+
+							String image_thumb = null;
+							String image = null;
+							try {
+								image_thumb = userobj.getString(JsonUtil.IMAGE_THUMB);
+								image = userobj.getString(JsonUtil.IMAGE);
+							} catch (Exception e)
+							{
+								e.printStackTrace();
+							}
+
+                            User user = new User(id, name, phone, sex, password, create_time, image_thumb, image, token);
                             new UserDao(FirstActivity.this).insert(user);
-                            showLongToast("µÇÂ¼³É¹¦");
+                            showLongToast(getString(R.string.login_success));
                             PreferenceUtil.getInstance(FirstActivity.this).setUid(user.getId());
                             PreferenceUtil.getInstance(FirstActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
+                            PreferenceUtil.getInstance(FirstActivity.this).setToken(user.getToken());
 
                             startActivity(new Intent(FirstActivity.this, MainActivity.class));
                         }
@@ -85,6 +98,8 @@ public class FirstActivity extends BaseActivity {
         {
             user = list.get(0);
         }
+
+		Log.e("hjq", "user " + user);
 		if (user != null) {
 			phone = user.getPhone();
 			password = user.getPassword();

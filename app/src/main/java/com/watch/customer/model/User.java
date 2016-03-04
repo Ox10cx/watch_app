@@ -9,9 +9,11 @@ public class User {
 	private String create_time;
 	private String image_thumb;
 	private String image;
+	private String token;
+
 	public User(String id, String name, String phone, String sex,
 			String password, String create_time, String image_thumb,
-			String image) {
+			String image, String token) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -21,6 +23,7 @@ public class User {
 		this.create_time = create_time;
 		this.image_thumb = image_thumb;
 		this.image = image;
+        this.token = token;
 	}
 	public String getId() {
 		return id;
@@ -70,11 +73,12 @@ public class User {
 	public void setImage(String image) {
 		this.image = image;
 	}
+    public String getToken() { return token; }
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", phone=" + phone
 				+ ", sex=" + sex + ", password=" + password + ", create_time="
-				+ create_time + ", image_thumb=" + image_thumb + ", image="
+				+ create_time + ", token = " + token + ", image_thumb=" + image_thumb + ", image="
 				+ image + "]";
 	}
 	

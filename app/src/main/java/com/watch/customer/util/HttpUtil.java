@@ -24,6 +24,9 @@ import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.watch.customer.app.MyApplication;
+import com.watch.customer.ui.AuthLoginActivity;
+
 /**
  * 访问网络的工具类
  * 
@@ -94,8 +97,11 @@ public class HttpUtil {
 		for (int i = 0; i < nameValuePairs.length; i++) {
 			params.add(nameValuePairs[i]);
 		}
+
+		String token = PreferenceUtil.getInstance(MyApplication.getInstance()).getString(PreferenceUtil.TOKEN, "");
 		try {
 			post.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+            post.addHeader("Authorization", "Bearer " + token);
 			HttpResponse response = httpClient.execute(post);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				msg = EntityUtils.toString(response.getEntity());

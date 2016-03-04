@@ -45,6 +45,8 @@ public class AuthRegisterActivity extends BaseActivity {
 	private final int regist_what = 0;
 	private final int getcode_what = 1;
 	private Timer mTimer;
+    private final String TAG = AuthRegisterActivity.class.getName();
+
 	private Handler timerHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			int num = msg.what;
@@ -186,7 +188,7 @@ public class AuthRegisterActivity extends BaseActivity {
                     // TODO Auto-generated method stub
                     String result = HttpUtil.get(HttpUtil.URL_CHECKMOBILE
                             + "?mobile=" + phone);
-                    Log.e("hjq", result);
+                    Log.e(TAG, result);
                     Message msg = new Message();
                     msg.what = getcode_what;
                     msg.obj = result;

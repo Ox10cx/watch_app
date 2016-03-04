@@ -59,10 +59,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ "username varchar(20)," + "password varchar(20))");
 
 		db.execSQL("create table if not exists user("
-				+ "id varchar(10) PRIMARY KEY," + "name varchar(20),"
+				+ "id varchar(25) PRIMARY KEY," + "name varchar(20),"
 				+ "phone varchar(15)," + "sex varchar(10),"
 				+ "password varchar(15)," + "create_time varchar(20),"
-				+ "image_thumb varchar(30)," + "image varchar(30))");
+				+ "image_thumb varchar(30)," + "image varchar(30)" + ", token varchar(24))");
 	}
 
 	@Override

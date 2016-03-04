@@ -10,7 +10,7 @@ import org.json.JSONObject;
  */
 public class JsonUtil {
 	// 传入的参数
-	public static final String NAME = "name";
+	public static final String NAME = "username";
 	public static final String PHONE = "phone";
 	public static final String SEX = "sex";
 	public static final String PASSWORD = "password";
