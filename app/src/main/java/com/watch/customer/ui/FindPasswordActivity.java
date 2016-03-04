@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,12 +32,14 @@ public class FindPasswordActivity extends BaseActivity {
 	private Button getcode;
 	private Button save;
 	private Timer mTimer;
-	private String phonestr="";
-	private String codestr="";
-	private String passwordstr="";
-	private String repasswordstr="";
+	private String phonestr = "";
+	private String codestr = "";
+	private String passwordstr = "";
+	private String repasswordstr = "";
 	private final int save_what = 0;
 	private final int getcode_what = 1;
+    private final String TAG = FindPasswordActivity.class.getName();
+
 	private Handler timerHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			int num = msg.what;
@@ -49,132 +52,150 @@ public class FindPasswordActivity extends BaseActivity {
 			}
 		};
 	};
+
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			closeLoadingDialog();
 			String result = msg.obj.toString();
-			Log.e("hjq", result);
+			Log.e(TAG, result);
 			switch (msg.what) {
-			case save_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (JsonUtil.getInt(json, JsonUtil.CODE) == 0) {
-						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
-					} else {
-						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
-						finish();
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			case getcode_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (!JsonUtil.getStr(json, JsonUtil.MSG).equals("success")) {	
-						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
-						getcode.setEnabled(true);
-						getcode.setText(R.string.register_button_code);
-					} else {
-						codestr=String.valueOf(JsonUtil.getInt(json, JsonUtil.CODE));
-						showLongToast("验证码已发送，注意查收");	
-						mTimer = new Timer();
-						mTimer.schedule(new TimerTask() {
-							int num = 90;
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-								Message msg = new Message();
-								msg.what = num;
-								timerHandler.sendMessage(msg);
-								num--;
-							}
-						}, new Date(), 1000);
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
+			case save_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (JsonUtil.getInt(json, JsonUtil.CODE) == 0) {
+                        showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                    } else {
+                        showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
+
+			case getcode_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (!JsonUtil.getStr(json, JsonUtil.MSG).equals("success")) {
+                        showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                        getcode.setEnabled(true);
+                        getcode.setText(R.string.register_button_code);
+                    } else {
+                        codestr = String.valueOf(JsonUtil.getInt(json, JsonUtil.CODE));
+                        showLongToast("验证码已发送，注意查收");
+                        mTimer = new Timer();
+                        mTimer.schedule(new TimerTask() {
+                            int num = 90;
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                Message msg = new Message();
+                                msg.what = num;
+                                timerHandler.sendMessage(msg);
+                                num--;
+                            }
+                        }, new Date(), 1000);
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
 
 			default:
 				break;
 			}
 		}
-		};
+    };
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_findpassword);
-		phone=(EditText)findViewById(R.id.phone);
-		code=(EditText)findViewById(R.id.code);
-		password=(EditText)findViewById(R.id.password);
-		repassword=(EditText)findViewById(R.id.repassword);
-		getcode=(Button)findViewById(R.id.getcode);
-		save=(Button)findViewById(R.id.save);
+
+		phone = (EditText)findViewById(R.id.phone);
+		code = (EditText)findViewById(R.id.code);
+		password = (EditText)findViewById(R.id.password);
+		repassword = (EditText)findViewById(R.id.repassword);
+		getcode = (Button)findViewById(R.id.getcode);
+		save = (Button)findViewById(R.id.save);
 		findViewById(R.id.back).setOnClickListener(this);
 		getcode.setOnClickListener(this);
 		save.setOnClickListener(this);
 		phone.setText(getLocalPhoneNumber());
 	}
+
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		super.onClick(v);
 		switch (v.getId()) {
-		case R.id.back:
-			onBackPressed();
-			break;
-		case R.id.getcode:
-			phonestr = phone.getText().toString().trim();
-			if (phone.equals("")) {
-				showShortToast("手机号码不能为空");
-				return;
-			}
-			getcode.setText("正在发送");
-			getcode.setEnabled(false);
-			ThreadPoolManager.getInstance().addTask(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					String result = HttpUtil.get(HttpUtil.URL_FORGETPSDCHECKMOBILE
-							+"?mobile="+phonestr);
-					Message msg = new Message();
-					msg.what=getcode_what;
-					msg.obj = result;
-					mHandler.sendMessage(msg);
-				}
-			});
-			break;
-		case R.id.save:
-			if (checkdata()) {
-				ThreadPoolManager.getInstance().addTask(new Runnable() {
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						String result = HttpUtil.post(HttpUtil.URL_FORGETPASSWORD,
-								new BasicNameValuePair(JsonUtil.PHONE, phonestr),
-								new BasicNameValuePair(JsonUtil.PASSWORD,passwordstr));
-						Message msg = new Message();
-						msg.what=save_what;
-						msg.obj = result;
-						mHandler.sendMessage(msg);
-					}
-				});
-				showLoadingDialog();
-			}
-			break;
+		case R.id.back: {
+            onBackPressed();
+
+            break;
+        }
+		case R.id.getcode: {
+            phonestr = phone.getText().toString().trim();
+            if (phone.equals("")) {
+                showShortToast("手机号码不能为空");
+                return;
+            }
+            getcode.setText("正在发送");
+            getcode.setEnabled(false);
+            ThreadPoolManager.getInstance().addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    String result = HttpUtil.get(HttpUtil.URL_FORGETPSDCHECKMOBILE
+                            + "?mobile=" + phonestr);
+
+                    Message msg = new Message();
+                    msg.what = getcode_what;
+                    msg.obj = result;
+                    mHandler.sendMessage(msg);
+                }
+            });
+
+            break;
+        }
+
+		case R.id.save: {
+            if (checkdata()) {
+                ThreadPoolManager.getInstance().addTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        String result = HttpUtil.post(HttpUtil.URL_FORGETPASSWORD,
+                                new BasicNameValuePair(JsonUtil.PHONE, phonestr),
+                                new BasicNameValuePair(JsonUtil.PASSWORD, passwordstr));
+                        Message msg = new Message();
+                        msg.what = save_what;
+                        msg.obj = result;
+                        mHandler.sendMessage(msg);
+                    }
+                });
+                showLoadingDialog();
+            }
+
+            break;
+        }
+
 		default:
 			break;
 		}
 	}
+
 	private boolean checkdata() {
 		phonestr = phone.getText().toString().trim();
 		String codestr1 = code.getText().toString().trim();
 		passwordstr = password.getText().toString().trim();
-		repasswordstr =repassword.getText().toString().trim();
+		repasswordstr = repassword.getText().toString().trim();
+
 		if (phonestr.equals("")) {
 			showLongToast("电话号码不能为空");
 			return false;
@@ -196,9 +217,11 @@ public class FindPasswordActivity extends BaseActivity {
 		} else if (!codestr.equals(codestr1)) {
 			showLongToast("验证码不正确");
 			return false;
-		} 
+		}
+
 		return true;
 	}
+
 	private String getLocalPhoneNumber() {
 		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		String phoneId = tm.getLine1Number();

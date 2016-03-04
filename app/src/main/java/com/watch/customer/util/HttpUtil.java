@@ -30,7 +30,7 @@ import android.webkit.CookieSyncManager;
  * @author 黄家强
  */
 public class HttpUtil {
-	public static String IP="120.24.230.39:9000";
+	public static String IP="112.74.23.39:3000";
 	public static String SERVER="http://"+IP+"/server/";
 	public static String URL_LOGIN = "http://"+IP+"/server/User/login";
 	public static String URL_REGISTER = "http://"+IP+"/server/User/register";

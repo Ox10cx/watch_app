@@ -35,8 +35,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("create table if not exists search("
 				+ "id integer PRIMARY KEY AUTOINCREMENT,"
 				+ "content varchar(20)," + "time varchar(20))");
+
 		db.execSQL("create table if not exists type("
 				+ "id varchar(10) PRIMARY KEY," + "name varchar(20))");
+
 		db.execSQL("create table if not exists shop("
 				+ "id varchar(10) PRIMARY KEY," + "name varchar(30),"
 				+ "type_name varchar(10)," + "city varchar(10),"
@@ -55,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ "is_group varchar(5)," + "is_card varchar(5),"
 				+ "is_pay varchar(5)," + "intro varchar(100),"
 				+ "username varchar(20)," + "password varchar(20))");
+
 		db.execSQL("create table if not exists user("
 				+ "id varchar(10) PRIMARY KEY," + "name varchar(20),"
 				+ "phone varchar(15)," + "sex varchar(10),"

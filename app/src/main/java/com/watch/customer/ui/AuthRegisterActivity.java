@@ -37,7 +37,7 @@ public class AuthRegisterActivity extends BaseActivity {
 	private Button getcodebtn;
 	private TextView protocoltv;
 	private String phone;
-	private String code="";
+	private String code = "";
 	private String name;
 	private String password;
 	private String password1;
@@ -57,55 +57,60 @@ public class AuthRegisterActivity extends BaseActivity {
 			}
 		};
 	};
+
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			closeLoadingDialog();
 			String result = msg.obj.toString();
 			switch (msg.what) {
-			case regist_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (JsonUtil.getInt(json, JsonUtil.CODE) == 0) {
-						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
-						getcodebtn.setEnabled(true);
-						getcodebtn.setText(R.string.register_button_code);
-					} else {
-						showLongToast("注册成功");
-						finish();
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			case getcode_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (!JsonUtil.getStr(json, JsonUtil.MSG).equals("success")) {	
-						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
-						getcodebtn.setEnabled(true);
-						getcodebtn.setText(R.string.register_button_code);
-					} else {
-						code=String.valueOf(JsonUtil.getInt(json, JsonUtil.CODE));
-						showLongToast("验证码已发送，注意查收");	
-						mTimer = new Timer();
-						mTimer.schedule(new TimerTask() {
-							int num = 90;
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-								Message msg = new Message();
-								msg.what = num;
-								timerHandler.sendMessage(msg);
-								num--;
-							}
-						}, new Date(), 1000);
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
+			case regist_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (JsonUtil.getInt(json, JsonUtil.CODE) == 0) {
+                        showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                        getcodebtn.setEnabled(true);
+                        getcodebtn.setText(R.string.register_button_code);
+                    } else {
+                        showLongToast("注册成功");
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
+
+			case getcode_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (!JsonUtil.getStr(json, JsonUtil.MSG).equals("success")) {
+                        showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                        getcodebtn.setEnabled(true);
+                        getcodebtn.setText(R.string.register_button_code);
+                    } else {
+                        code = String.valueOf(JsonUtil.getInt(json, JsonUtil.CODE));
+                        showLongToast("验证码已发送，注意查收");
+                        mTimer = new Timer();
+                        mTimer.schedule(new TimerTask() {
+                            int num = 90;
+
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                Message msg = new Message();
+                                msg.what = num;
+                                timerHandler.sendMessage(msg);
+                                num--;
+                            }
+                        }, new Date(), 1000);
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
 
 			default:
 				break;
@@ -118,6 +123,7 @@ public class AuthRegisterActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_auth_register);
+
 		phoneedit = (EditText) findViewById(R.id.register_phone);
 		codeedit = (EditText) findViewById(R.id.register_code);
 		nameedit = (EditText) findViewById(R.id.register_name);
@@ -138,66 +144,76 @@ public class AuthRegisterActivity extends BaseActivity {
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
-		case R.id.back:
-			onBackPressed();
-			break;
-		case R.id.registerbtn:
-			if (checkdata()) {
-				ThreadPoolManager.getInstance().addTask(new Runnable() {
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						String result = HttpUtil.post(HttpUtil.URL_REGISTER,
-								new BasicNameValuePair(JsonUtil.NAME, name),
-								new BasicNameValuePair(JsonUtil.PHONE, phone),
-								new BasicNameValuePair(JsonUtil.SEX, sex),
-								new BasicNameValuePair(JsonUtil.PASSWORD,password),
-								new BasicNameValuePair(JsonUtil.REPASSWORD, password1));
-						Message msg = new Message();
-						msg.what=regist_what;
-						msg.obj = result;
-						mHandler.sendMessage(msg);
-					}
-				});
-				showLoadingDialog();
-			}
-			break;
-		case R.id.register_getcode:
-			phone = phoneedit.getText().toString().trim();
-			if (phone.equals("")) {
-				showShortToast("手机号码不能为空");
-				return;
-			}
-			getcodebtn.setText("正在发送");
-			getcodebtn.setEnabled(false);
-			ThreadPoolManager.getInstance().addTask(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					String result = HttpUtil.get(HttpUtil.URL_CHECKMOBILE
-							+"?mobile="+phone);
-					Log.e("hjq", result);
-					Message msg = new Message();
-					msg.what = getcode_what;
-					msg.obj = result;
-					mHandler.sendMessage(msg);
-				}
-			});
-			break;
-		case R.id.register_textview_protocol:
-			Intent mIntent2=new Intent(this, StaticPageActivity.class);
-			mIntent2.putExtra(JsonUtil.TITLE, getString(R.string.register_textview_protocol));
-			startActivity(mIntent2);
-			break;
+		case R.id.back: {
+            onBackPressed();
+            break;
+        }
+
+		case R.id.registerbtn: {
+            if (checkdata()) {
+                ThreadPoolManager.getInstance().addTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        String result = HttpUtil.post(HttpUtil.URL_REGISTER,
+                                new BasicNameValuePair(JsonUtil.NAME, name),
+                                new BasicNameValuePair(JsonUtil.PHONE, phone),
+                                new BasicNameValuePair(JsonUtil.SEX, sex),
+                                new BasicNameValuePair(JsonUtil.PASSWORD, password),
+                                new BasicNameValuePair(JsonUtil.REPASSWORD, password1));
+                        Message msg = new Message();
+                        msg.what = regist_what;
+                        msg.obj = result;
+                        mHandler.sendMessage(msg);
+                    }
+                });
+                showLoadingDialog();
+            }
+            break;
+        }
+
+		case R.id.register_getcode: {
+            phone = phoneedit.getText().toString().trim();
+            if (phone.equals("")) {
+                showShortToast("手机号码不能为空");
+                return;
+            }
+            getcodebtn.setText("正在发送");
+            getcodebtn.setEnabled(false);
+            ThreadPoolManager.getInstance().addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    String result = HttpUtil.get(HttpUtil.URL_CHECKMOBILE
+                            + "?mobile=" + phone);
+                    Log.e("hjq", result);
+                    Message msg = new Message();
+                    msg.what = getcode_what;
+                    msg.obj = result;
+                    mHandler.sendMessage(msg);
+                }
+            });
+            break;
+        }
+
+		case R.id.register_textview_protocol: {
+            Intent mIntent2 = new Intent(this, StaticPageActivity.class);
+            mIntent2.putExtra(JsonUtil.TITLE, getString(R.string.register_textview_protocol));
+            startActivity(mIntent2);
+            break;
+        }
+
 		default:
 			break;
 		}
 	}
+
 	private String getLocalPhoneNumber() {
 		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		String phoneId = tm.getLine1Number();
 		return phoneId;
 	}
+
 	private boolean checkdata() {
 		phone = phoneedit.getText().toString().trim();
 		String inputcode = codeedit.getText().toString().trim();
@@ -205,7 +221,8 @@ public class AuthRegisterActivity extends BaseActivity {
 		password = passwordedit.getText().toString().trim();
 		password1 = passwordagainedit.getText().toString().trim();
 		int checkid = sexgroup.getCheckedRadioButtonId();
-		sex = sexgroup.getCheckedRadioButtonId()==R.id.radioMale?"1":"0";
+		sex = sexgroup.getCheckedRadioButtonId() == R.id.radioMale?"1":"0";
+
 		if ( phone.equals("")) {
 			showLongToast("电话号码不能为空");
 			return false;
@@ -233,7 +250,8 @@ public class AuthRegisterActivity extends BaseActivity {
 		} else if (!code.equals(inputcode)) {
 			showLongToast("验证码不正确");
 			return false;
-		} 
+		}
+
 		return true;
 	}
 

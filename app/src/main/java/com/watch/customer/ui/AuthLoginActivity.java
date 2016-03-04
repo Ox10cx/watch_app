@@ -33,8 +33,8 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 	private String phone;
 	private String password;
 	private Shop mShop;
-	private int type=0;
-	private final int getmycoin_what=1;
+	private int type = 0;
+	private final int getmycoin_what = 1;
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			String result = msg.obj.toString();
@@ -47,18 +47,18 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 					if (JsonUtil.getInt(json, JsonUtil.CODE) != 1) {
 						showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
 					} else {
-						JSONObject userobj=json.getJSONObject("user");
-						String id=userobj.getString(JsonUtil.ID);
-						String name=userobj.getString(JsonUtil.NAME);
-						String phone=userobj.getString(JsonUtil.PHONE);
-						String sex=userobj.getString(JsonUtil.SEX);
-						String password=userobj.getString(JsonUtil.PASSWORD);
-						String create_time=userobj.getString(JsonUtil.CREATE_TIME);
-						String image_thumb=userobj.getString(JsonUtil.IMAGE_THUMB);
-						String image=userobj.getString(JsonUtil.IMAGE);
-						User user=new User(id, name, phone, sex, password, create_time, image_thumb, image); 
+						JSONObject userobj = json.getJSONObject("user");
+						String id = userobj.getString(JsonUtil.ID);
+						String name = userobj.getString(JsonUtil.NAME);
+						String phone = userobj.getString(JsonUtil.PHONE);
+						String sex = userobj.getString(JsonUtil.SEX);
+						String password = userobj.getString(JsonUtil.PASSWORD);
+						String create_time = userobj.getString(JsonUtil.CREATE_TIME);
+						String image_thumb = userobj.getString(JsonUtil.IMAGE_THUMB);
+						String image = userobj.getString(JsonUtil.IMAGE);
+						User user = new User(id, name, phone, sex, password, create_time, image_thumb, image);
 						new UserDao(AuthLoginActivity.this).insert(user);
-						showLongToast("登录成功");	
+						showLongToast("登录成功");
 						PreferenceUtil.getInstance(AuthLoginActivity.this).setUid(user.getId());
 						PreferenceUtil.getInstance(AuthLoginActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
 				
@@ -69,11 +69,11 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-							String result=HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
+							String result = HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
 										new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(AuthLoginActivity.this).getUid()));
-							Message msg=new Message();
-							msg.obj=result;
-							msg.what=getmycoin_what;
+							Message msg = new Message();
+							msg.obj = result;
+							msg.what = getmycoin_what;
 							mHandler.sendMessage(msg);
 							}
 						});
@@ -82,8 +82,8 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 				break;
+
             case getmycoin_what:
             	if (result.trim().equals("null")) {
             		PreferenceUtil.getInstance(AuthLoginActivity.this).setString(PreferenceUtil.SHIBI, "0");
@@ -91,7 +91,7 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
             		return ;
 				}
 				try {
-					JSONObject mycoinobj=new JSONObject(result);
+					JSONObject mycoinobj = new JSONObject(result);
 					String shibi=mycoinobj.getString(JsonUtil.SHIBI);
 					PreferenceUtil.getInstance(AuthLoginActivity.this).setString(PreferenceUtil.SHIBI, shibi);
 					finish();
@@ -104,8 +104,6 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 			default:
 				break;
 			}
-			
-			
 		}
 	};
 
@@ -113,7 +111,8 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_auth_login);
-		type=getIntent().getIntExtra("type", 0);
+
+		type = getIntent().getIntExtra("type", 0);
 		upatepassbtn = (TextView) findViewById(R.id.updatepassbtn);
 		registbtn = (TextView) findViewById(R.id.registbtn);
 		phoneedit = (EditText) findViewById(R.id.login_phone);
@@ -123,9 +122,9 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 		upatepassbtn.setOnClickListener(this);
 		registbtn.setOnClickListener(this);
 		loginbtn.setOnClickListener(this);
-		mShop=(Shop)getIntent().getSerializableExtra("object");
-		if (new UserDao(this).queryAll().size()>0) {
-			User mUser=new UserDao(this).queryAll().get(0);
+		mShop = (Shop)getIntent().getSerializableExtra("object");
+		if (new UserDao(this).queryAll().size() > 0) {
+			User mUser = new UserDao(this).queryAll().get(0);
 			phoneedit.setText(mUser.getPhone());
 		}else {
 			phoneedit.setText(PreferenceUtil.getInstance(this).getString(PreferenceUtil.PHONE, ""));
@@ -139,12 +138,15 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 		case R.id.back:
 			onBackPressed();
 			break;
+
 		case R.id.updatepassbtn:
 			startActivity(new Intent(this, FindPasswordActivity.class));
 			break;
+
 		case R.id.registbtn:
 			startActivity(new Intent(this, AuthRegisterActivity.class));
 			break;
+
 		case R.id.login_btn:
 			if (checkdata()) {
 				ThreadPoolManager.getInstance().addTask(new Runnable() {
@@ -158,23 +160,24 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 						Log.e("hjq", result);
 						Message msg = new Message();
 						msg.obj = result;
-						msg.what=0;
+						msg.what = 0;
 						mHandler.sendMessage(msg);
 					}
 				});
-				showLoadingDialog();				
+				showLoadingDialog();
 			}
 			break;
+
 		default:
 			break;
 		}
-
 	}
 
 	private boolean checkdata() {
 		boolean isright = false;
 		phone = phoneedit.getText().toString().trim();
 		password = passwordedit.getText().toString().trim();
+
 		if (phone == null || phone.equals("")) {
 			showLongToast("电话号码不能为空");
 		} else if (password == null || password.equals("")) {

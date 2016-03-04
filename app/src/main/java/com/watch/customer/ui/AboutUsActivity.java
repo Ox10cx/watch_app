@@ -40,7 +40,6 @@ public class AboutUsActivity extends BaseActivity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	
 	   };
    };
 	@Override
