@@ -53,6 +53,11 @@
     <string name="main_tabtext_person">我的</string>
     <string name="city_select">城市选择</string>
     <string name="city_unknown">未知</string>
+    <sring name="main_tabtext_device">设备</sring>
+    <sring name="main_tabtext_camera">拍照</sring>
+    <sring name="main_tabtext_location">定位</sring>
+    <sring name="main_tabtext_setting">设置</sring>
+    <sring name="main_tabtext_info">软件介绍</sring>
 
     <!-- shop list -->
     <string name="shop_list_section_discount">折扣</string>
