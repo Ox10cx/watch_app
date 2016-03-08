@@ -37,11 +37,26 @@ public class MainActivity extends TabActivity {
 	public static final String TAB_MAIN = "SHOPLIST_ACTIVITY";
 	public static final String TAB_BOOK = "ORDER_ACTIVITY";
 	public static final String TAB_CATEGORY = "PERSON_ACTIVITY";
+
+    public static final String TAB_DEVICE = "DEVICELIST_ACTIVITY";
+    public static final String TAB_CAMERA = "CAMERA_ACTIVITY";
+    public static final String TAB_LOCATION = "LOCATION_ACTIVITY";
+    public static final String TAB_SETTING = "SETTING_ACTIVITY";
+    public static final String TAB_INFO = "INFO_ACTIVITY";
+
+
 	public static final String ACTION_TAB="tabaction";
 	private RadioButton rButton1, rButton2, rButton3;
+    private RadioButton rButtonDevice;
+    private RadioButton rButtonCamera;
+    private RadioButton rButtonLocation;
+    private RadioButton rButtonSetting;
+    private RadioButton rButtonInfo;
+
 	public LocationClient  mLocClient;
 	public MyLocationListenner myListener = new MyLocationListenner();
 	public static boolean isForeground = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -49,6 +64,7 @@ public class MainActivity extends TabActivity {
 		setContentView(R.layout.activity_main);
 		findViewById();
 		initView();
+
         MyApplication.getInstance().addActivity(this);
         IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(ACTION_TAB);
@@ -63,6 +79,7 @@ public class MainActivity extends TabActivity {
 		option.setIsNeedAddress(true);
 		mLocClient.setLocOption(option);
 		mLocClient.start();
+
 		if (!PreferenceUtil.getInstance(this).getUid().equals("")) {
 			JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
 		    JPushInterface.init(this);
@@ -74,16 +91,28 @@ public class MainActivity extends TabActivity {
 		switch (index) {
 		case 1:
 			mTabHost.setCurrentTabByTag(TAB_MAIN);
-			mTabButtonGroup.check(R.id.home_tab_main);
+			mTabButtonGroup.check(R.id.home_tab_device);
 			break;
+
 		case 2:
 			mTabHost.setCurrentTabByTag(TAB_BOOK);
-			mTabButtonGroup.check(R.id.home_tab_search);
+			mTabButtonGroup.check(R.id.home_tab_camera);
 			break;
+
 		case 3:
 			mTabHost.setCurrentTabByTag(TAB_CATEGORY);
-			mTabButtonGroup.check(R.id.home_tab_category);
+			mTabButtonGroup.check(R.id.home_tab_location);
 			break;
+
+            case 4:
+                mTabHost.setCurrentTabByTag(TAB_SETTING);
+                mTabButtonGroup.check(R.id.home_tab_setting);
+                break;
+
+            case 5:
+                mTabHost.setCurrentTabByTag(TAB_INFO);
+                mTabButtonGroup.check(R.id.home_tab_info);
+                break;
 
 		default:
 			break;
@@ -108,11 +137,16 @@ protected void onPause() {
 }
 	private void findViewById() {
 		mTabButtonGroup = (RadioGroup) findViewById(R.id.home_radio_button_group);
-		rButton1 = (RadioButton) findViewById(R.id.home_tab_main);
-		rButton2 = (RadioButton) findViewById(R.id.home_tab_search);
-		rButton3 = (RadioButton) findViewById(R.id.home_tab_category);
+
+
+        rButtonDevice = (RadioButton) findViewById(R.id.home_tab_device);
+        rButtonCamera = (RadioButton) findViewById(R.id.home_tab_camera);
+        rButtonLocation = (RadioButton) findViewById(R.id.home_tab_location);
+        rButtonSetting = (RadioButton) findViewById(R.id.home_tab_setting);
+        rButtonInfo = (RadioButton) findViewById(R.id.home_tab_info);
+
 		if (PreferenceUtil.getInstance(MainActivity.this).getUid().equals("")) {
-			mTabButtonGroup.check(R.id.home_tab_main);
+			mTabButtonGroup.check(R.id.home_tab_device);
 		}
 	}
 
@@ -120,45 +154,64 @@ protected void onPause() {
 
 		mTabHost = getTabHost();
 
-		Intent i_main = new Intent(this, ShopListActivity.class);
-		Intent i_search = new Intent(this, OrderMainActivity.class);
-		Intent i_category = new Intent(this, PersonMainActivity.class);
+//		Intent i_main = new Intent(this, ShopListActivity.class);
+//		Intent i_search = new Intent(this, OrderMainActivity.class);
+//		Intent i_category = new Intent(this, PersonMainActivity.class);
 
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_MAIN).setIndicator(TAB_MAIN)
-				.setContent(i_main));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_BOOK).setIndicator(TAB_BOOK)
-				.setContent(i_search));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_CATEGORY)
-				.setIndicator(TAB_CATEGORY).setContent(i_category));
-		
+        Intent i_device = new Intent(this, DeviceListActivity.class);
+        Intent i_camera = new Intent(this, CameraActivity.class);
+        Intent i_location = new Intent(this, LocationActivity.class);
+        Intent i_setting = new Intent(this, SettingActivity.class);
+        Intent i_info = new Intent(this, InfoActivity.class);
+
+//		mTabHost.addTab(mTabHost.newTabSpec(TAB_MAIN).setIndicator(TAB_MAIN)
+//				.setContent(i_main));
+//		mTabHost.addTab(mTabHost.newTabSpec(TAB_BOOK).setIndicator(TAB_BOOK)
+//				.setContent(i_search));
+//		mTabHost.addTab(mTabHost.newTabSpec(TAB_CATEGORY)
+//				.setIndicator(TAB_CATEGORY).setContent(i_category));
+
+        mTabHost.addTab(mTabHost.newTabSpec(TAB_DEVICE).setIndicator(TAB_DEVICE)
+                .setContent(i_device));
+        mTabHost.addTab(mTabHost.newTabSpec(TAB_CAMERA).setIndicator(TAB_CAMERA)
+                .setContent(i_camera));
+        mTabHost.addTab(mTabHost.newTabSpec(TAB_LOCATION).setIndicator(TAB_LOCATION)
+                .setContent(i_location));
+        mTabHost.addTab(mTabHost.newTabSpec(TAB_SETTING).setIndicator(TAB_SETTING)
+                .setContent(i_setting));
+        mTabHost.addTab(mTabHost.newTabSpec(TAB_INFO).setIndicator(TAB_INFO)
+                .setContent(i_info));
+
 		mTabButtonGroup
 				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					public void onCheckedChanged(RadioGroup group, int checkedId) {
 						switch (checkedId) {
-						case R.id.home_tab_main:
-							mTabHost.setCurrentTabByTag(TAB_MAIN);
-							changeTextColor(1);
-							break;
-						case R.id.home_tab_search:
-							mTabHost.setCurrentTabByTag(TAB_BOOK);
-							changeTextColor(2);
-							if (PreferenceUtil.getInstance(MainActivity.this).getUid().equals("")) {
-								Intent loginintent=new Intent(MainActivity.this,AuthLoginActivity.class);
-								loginintent.putExtra("type", 1);
-								startActivity(loginintent);
-								mTabButtonGroup.check(R.id.home_tab_main);
-							}
-							break;
-						case R.id.home_tab_category:
-							mTabHost.setCurrentTabByTag(TAB_CATEGORY);
-							changeTextColor(3);
-							if (PreferenceUtil.getInstance(MainActivity.this).getUid().equals("")) {
-								Intent loginintent=new Intent(MainActivity.this,AuthLoginActivity.class);
-								loginintent.putExtra("type", 1);
-								startActivity(loginintent);
-								mTabButtonGroup.check(R.id.home_tab_main);
-							}
-							break;
+
+                            case R.id.home_tab_device:
+                                mTabHost.setCurrentTabByTag(TAB_DEVICE);
+                                changeTextColor(1);
+                                break;
+
+                            case R.id.home_tab_camera:
+                                mTabHost.setCurrentTabByTag(TAB_CAMERA);
+                                changeTextColor(2);
+                                break;
+
+                            case R.id.home_tab_location:
+                                mTabHost.setCurrentTabByTag(TAB_LOCATION);
+                                changeTextColor(3);
+                                break;
+
+                            case R.id.home_tab_setting:
+                                mTabHost.setCurrentTabByTag(TAB_SETTING);
+                                changeTextColor(4);
+                                break;
+
+                            case R.id.home_tab_info:
+                                mTabHost.setCurrentTabByTag(TAB_INFO);
+                                changeTextColor(5);
+                                break;
+
 						default:
 							break;
 						}
@@ -169,29 +222,70 @@ protected void onPause() {
 	private void changeTextColor(int index) {
 		switch (index) {
 		case 1:
-			rButton1.setTextColor(getResources().getColor(
+			rButtonDevice.setTextColor(getResources().getColor(
 					R.color.textcolor_select));
-			rButton2.setTextColor(getResources().getColor(
+			rButtonCamera.setTextColor(getResources().getColor(
 					R.color.textcolor_normal));
-			rButton3.setTextColor(getResources().getColor(
+			rButtonLocation.setTextColor(getResources().getColor(
 					R.color.textcolor_normal));
+            rButtonSetting.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonInfo.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
 			break;
+
 		case 2:
-			rButton1.setTextColor(getResources().getColor(
-					R.color.textcolor_normal));
-			rButton2.setTextColor(getResources().getColor(
-					R.color.textcolor_select));
-			rButton3.setTextColor(getResources().getColor(
-					R.color.textcolor_normal));
+            rButtonDevice.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonCamera.setTextColor(getResources().getColor(
+                    R.color.textcolor_select));
+            rButtonLocation.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonSetting.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonInfo.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
 			break;
+
 		case 3:
-			rButton1.setTextColor(getResources().getColor(
-					R.color.textcolor_normal));
-			rButton2.setTextColor(getResources().getColor(
-					R.color.textcolor_normal));
-			rButton3.setTextColor(getResources().getColor(
-					R.color.textcolor_select));
+            rButtonDevice.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonCamera.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonLocation.setTextColor(getResources().getColor(
+                    R.color.textcolor_select));
+            rButtonSetting.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
+            rButtonInfo.setTextColor(getResources().getColor(
+                    R.color.textcolor_normal));
 			break;
+
+            case 4:
+                rButtonDevice.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonCamera.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonLocation.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonSetting.setTextColor(getResources().getColor(
+                        R.color.textcolor_select));
+                rButtonInfo.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                break;
+
+
+            case 5:
+                rButtonDevice.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonCamera.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonLocation.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonSetting.setTextColor(getResources().getColor(
+                        R.color.textcolor_normal));
+                rButtonInfo.setTextColor(getResources().getColor(
+                        R.color.textcolor_select));
+                break;
 
 		default:
 			break;
@@ -254,16 +348,17 @@ protected void onPause() {
 			Log.e("hjq","addr="+addr);
 			Log.e("hjq","lon="+location.getLongitude());
 			Log.e("hjq","lat="+location.getLatitude());
-			if (addr != null) {
-				String[] adds = getLocalMsg(addr);
-				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.CITY, adds[1]);
-				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, ""+location.getLatitude());
-				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, ""+location.getLongitude());
-				 MyApplication.getInstance().islocation=1;
-				sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));  
-			} else {
-				Log.e("hjq","location no found!!!");
-			}
+
+//			if (addr != null) {
+//				String[] adds = getLocalMsg(addr);
+//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.CITY, adds[1]);
+//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, ""+location.getLatitude());
+//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, ""+location.getLongitude());
+//				 MyApplication.getInstance().islocation=1;
+//				sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));
+//			} else {
+//				Log.e("hjq","location no found!!!");
+//			}
 		}
 
 		public void onReceivePoi(BDLocation poiLocation) {

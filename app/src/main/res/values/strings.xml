@@ -53,11 +53,11 @@
     <string name="main_tabtext_person">我的</string>
     <string name="city_select">城市选择</string>
     <string name="city_unknown">未知</string>
-    <sring name="main_tabtext_device">设备</sring>
-    <sring name="main_tabtext_camera">拍照</sring>
-    <sring name="main_tabtext_location">定位</sring>
-    <sring name="main_tabtext_setting">设置</sring>
-    <sring name="main_tabtext_info">软件介绍</sring>
+    <string name="main_tabtext_device">设备</string>
+    <string name="main_tabtext_camera">拍照</string>
+    <string name="main_tabtext_location">定位</string>
+    <string name="main_tabtext_setting">设置</string>
+    <string name="main_tabtext_info">软件介绍</string>
 
     <!-- shop list -->
     <string name="shop_list_section_discount">折扣</string>
@@ -281,4 +281,10 @@
     <string name="submit">已提交</string>
     <string name="havepay">已付款</string>
     <string name="submit_msg">您的订单已提交，请等待商家确认，谢谢</string>
+
+    <string name="ble_not_supported">Bluetooth Low Energy not supported</string>
+
+    <!-- device list -->
+    <string name="devicelist">设备列表</string>
+    <string name="name1">测试设备1</string>
 </resources>

@@ -33,26 +33,40 @@
             android:orientation="horizontal" >
 
             <RadioButton
-                android:id="@+id/home_tab_main"
+                android:id="@+id/home_tab_device"
                 style="@style/home_tab_bottom"
                 android:checked="true"       
                 android:textColor="@color/textcolor_normal"   
-                android:text="@string/main_tabtext_shop"
+                android:text="@string/main_tabtext_device"
                 android:drawableTop="@drawable/menuhome_selector" />
 
             <RadioButton
-                android:id="@+id/home_tab_search"
+                android:id="@+id/home_tab_camera"
                 style="@style/home_tab_bottom"
                 android:drawableTop="@drawable/menuorder_selector"
                 android:textColor="@color/textcolor_normal"
-                android:text="@string/main_tabtext_order" />
+                android:text="@string/main_tabtext_camera" />
 
             <RadioButton
-                android:id="@+id/home_tab_category"
+                android:id="@+id/home_tab_location"
                 style="@style/home_tab_bottom"
                 android:drawableTop="@drawable/menuperson_selector"
                 android:textColor="@color/textcolor_normal"
-                android:text="@string/main_tabtext_person" />
+                android:text="@string/main_tabtext_location" />
+
+            <RadioButton
+                android:id="@+id/home_tab_setting"
+                style="@style/home_tab_bottom"
+                android:drawableTop="@drawable/menuperson_selector"
+                android:textColor="@color/textcolor_normal"
+                android:text="@string/main_tabtext_setting" />
+
+            <RadioButton
+                android:id="@+id/home_tab_info"
+                style="@style/home_tab_bottom"
+                android:drawableTop="@drawable/menuperson_selector"
+                android:textColor="@color/textcolor_normal"
+                android:text="@string/main_tabtext_info" />
 
         </RadioGroup>
     </LinearLayout>

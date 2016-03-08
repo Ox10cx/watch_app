@@ -100,37 +100,38 @@ public class FirstActivity extends BaseActivity {
         }
 
 		Log.e("hjq", "user " + user);
-		if (user != null) {
-			phone = user.getPhone();
-			password = user.getPassword();
-
-			ThreadPoolManager.getInstance().addTask(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-							new BasicNameValuePair(JsonUtil.PHONE, phone),
-							new BasicNameValuePair(JsonUtil.PASSWORD,
-									password));
-					Log.e(TAG, result);
-
-					Message msg = new Message();
-					msg.obj = result;
-					msg.what = MSG_LOGIN;
-					mHandler.sendMessage(msg);
-				}
-			});
-
-			showLoadingDialog();
-		} else {
+//		if (user != null) {
+//			phone = user.getPhone();
+//			password = user.getPassword();
+//
+//			ThreadPoolManager.getInstance().addTask(new Runnable() {
+//				@Override
+//				public void run() {
+//					// TODO Auto-generated method stub
+//					String result = HttpUtil.post(HttpUtil.URL_LOGIN,
+//							new BasicNameValuePair(JsonUtil.PHONE, phone),
+//							new BasicNameValuePair(JsonUtil.PASSWORD,
+//									password));
+//					Log.e(TAG, result);
+//
+//					Message msg = new Message();
+//					msg.obj = result;
+//					msg.what = MSG_LOGIN;
+//					mHandler.sendMessage(msg);
+//				}
+//			});
+//
+//			showLoadingDialog();
+//		} else
+        {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					Log.i(TAG, "postDelayed");
 					finish();
-					startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
+					startActivity(new Intent(FirstActivity.this, MainActivity.class));
 				}
-			}, 3000);
+			}, 1000);
 		}
 
 		ThreadPoolManager.getInstance().addTask(new Runnable() {

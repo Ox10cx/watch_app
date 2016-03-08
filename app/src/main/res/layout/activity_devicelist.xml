@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:contentDescription="@string/system_image_search"
+        android:background="@drawable/head_bg"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <ImageView
+            android:id="@+id/search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/system_image_search"
+            android:background="@drawable/search_head"
+          >
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/device_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/devicelist"
+            android:textColor="@color/text_white"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            style="@style/text_head" />
+
+        <ImageView
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/system_image_search"
+            android:background="@drawable/search_head"
+            android:adjustViewBounds="true"
+            android:baselineAlignBottom="false">
+        </ImageView>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.4dp"
+        android:background="#dddddd"/>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical" >
+
+        <com.watch.customer.SlideDeleteListView
+            android:id="@+id/devicelist"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+        </com.watch.customer.SlideDeleteListView>
+
+    </RelativeLayout>
+
+
+</LinearLayout>
