@@ -163,7 +163,8 @@
         <activity android:name="com.watch.customer.ui.ShopMenuAddSumActivity" >
         </activity>
 
-        <activity android:name="com.watch.customer.ui.DeviceListActivity" >
+        <activity android:name="com.watch.customer.ui.DeviceListActivity"
+            >
         </activity>
         <activity android:name="com.watch.customer.ui.CameraActivity" >
         </activity>

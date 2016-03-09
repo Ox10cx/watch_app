@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
         android:contentDescription="@string/system_image_search"
-        android:background="@drawable/head_bg"
+        android:background="@color/headbg"
         android:orientation="horizontal"
-        android:padding="10dp" >
+         >
 
         <ImageView
             android:id="@+id/search"
@@ -21,8 +20,10 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/system_image_search"
             android:background="@drawable/search_head"
-          >
-
+            android:focusable="true"
+            android:clickable="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="5dp">
         </ImageView>
 
         <TextView
@@ -31,24 +32,25 @@
             android:layout_height="match_parent"
             android:text="@string/devicelist"
             android:textColor="@color/text_white"
-            android:textSize="30sp"
+            android:textSize="18sp"
             android:layout_weight="1"
             style="@style/text_head" />
 
         <ImageView
-            android:id="@+id/delete"
+            android:id="@+id/testkey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/system_image_search"
             android:background="@drawable/search_head"
             android:adjustViewBounds="true"
-            android:baselineAlignBottom="false">
+            android:baselineAlignBottom="false"
+            android:focusable="true"
+            android:clickable="true"
+            android:visibility="visible"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="8dp">
         </ImageView>
     </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.4dp"
-        android:background="#dddddd"/>
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -58,10 +60,10 @@
         <com.watch.customer.SlideDeleteListView
             android:id="@+id/devicelist"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:divider="#1f1d1d"
+            android:dividerHeight="1dp">
         </com.watch.customer.SlideDeleteListView>
 
     </RelativeLayout>
-
-
 </LinearLayout>

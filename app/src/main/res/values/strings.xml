@@ -2,7 +2,7 @@
 <resources>
 
     <!-- system -->
-    <string name="system_name">掌上餐厅</string>
+    <string name="system_name">蓝牙防丢器</string>
     <string name="system_image_back">返回</string>
     <string name="system_image_logo">Logo</string>
     <string name="system_image_setting">设置</string>
@@ -283,7 +283,12 @@
     <string name="submit_msg">您的订单已提交，请等待商家确认，谢谢</string>
 
     <string name="ble_not_supported">Bluetooth Low Energy not supported</string>
+    <string name="disconnect">断开连接</string>
+    <string name="connect">连接</string>
+    <string name="connect_success">连接成功</string>
 
+    <string name="connected">已连接</string>
+    <string name="disconnected">未连接</string>
     <!-- device list -->
     <string name="devicelist">设备列表</string>
     <string name="name1">测试设备1</string>

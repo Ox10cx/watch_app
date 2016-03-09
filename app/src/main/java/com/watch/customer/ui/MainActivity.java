@@ -80,10 +80,10 @@ public class MainActivity extends TabActivity {
 		mLocClient.setLocOption(option);
 		mLocClient.start();
 
-		if (!PreferenceUtil.getInstance(this).getUid().equals("")) {
-			JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
-		    JPushInterface.init(this);
-		}
+//		if (!PreferenceUtil.getInstance(this).getUid().equals("")) {
+//			JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
+//		    JPushInterface.init(this);
+//		}
 	}
 	
 	private void selectTab(int index) {

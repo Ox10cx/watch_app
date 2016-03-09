@@ -129,7 +129,7 @@ public class FirstActivity extends BaseActivity {
 				public void run() {
 					Log.i(TAG, "postDelayed");
 					finish();
-					startActivity(new Intent(FirstActivity.this, MainActivity.class));
+					startActivity(new Intent(FirstActivity.this, MainActivity.class /*ShopListActivity.class*/));
 				}
 			}, 1000);
 		}

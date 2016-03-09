@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:padding="5dp"
-    android:descendantFocusability="blocksDescendants"
-    android:layout_height="match_parent">
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:showDividers="beginning">
 
     <LinearLayout
         android:id="@+id/ll_left"
@@ -12,8 +13,8 @@
         android:padding="5dp">
         <ImageView
             android:id="@+id/device_image"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/ic_launcher"/>
     </LinearLayout>
 
@@ -21,9 +22,9 @@
         android:id="@+id/textgroup"
         android:layout_width="match_parent"
         android:layout_weight="1.7"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:orientation="vertical"
-        >
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/device_name"
@@ -47,11 +48,12 @@
     <Button
         android:id="@+id/device_button"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_weight="2.2"
+        android:layout_height="40dp"
+        android:layout_weight="2.1"
         android:text="connect"
+        android:background="@drawable/shape"
         android:focusable="false"
-        />
+        android:layout_marginTop="10dp" />
 
     <ImageView
         android:id="@+id/right_arrow"
@@ -61,14 +63,4 @@
         android:src="@drawable/arrow_right"
         />
 
-    <Button
-        android:id="@+id/delete_button"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_weight="2.3"
-        android:text="@string/system_delete"
-        android:focusable="false"
-        android:visibility="gone"
-        android:background="@color/orange" />
-
-</LinearLayout>
+    </LinearLayout>

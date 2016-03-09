@@ -53,12 +53,21 @@ import java.util.UUID;
  * given Bluetooth LE device.
  */
 public class BluetoothLeClass {
-    private final static String TAG = BluetoothLeClass.class.getSimpleName();
+    private final static String TAG = "hjq";
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
+    protected BluetoothGatt mBluetoothGatt;
+
+    static final int BLE_STATE_INIT = 0;
+    static final int BLE_STATE_CONNECTED = 1;
+    static final int BLE_STATE_SERVICE_DISCOVERYING = 2;
+    static final int BLE_STATE_SERVICE_READY = 3;
+
+    protected int mBleStatus = BLE_STATE_INIT;
+
+    protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     public interface OnConnectListener {
         public void onConnect(BluetoothGatt gatt);
@@ -105,17 +114,19 @@ public class BluetoothLeClass {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                if(mOnConnectListener!=null)
+                if (mOnConnectListener != null)
                     mOnConnectListener.onConnect(gatt);
+                mBleStatus = BLE_STATE_CONNECTED;
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                if(mOnDisconnectListener!=null)
+                if (mOnDisconnectListener != null)
                     mOnDisconnectListener.onDisconnect(gatt);
                 Log.i(TAG, "Disconnected from GATT server.");
+                mBleStatus = BLE_STATE_INIT;
             }
         }
 
@@ -123,6 +134,7 @@ public class BluetoothLeClass {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS && mOnServiceDiscoverListener!=null) {
                 mOnServiceDiscoverListener.onServiceDiscover(gatt);
+                mBleStatus = BLE_STATE_SERVICE_READY;
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -252,17 +264,19 @@ public class BluetoothLeClass {
 
     /**
      * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
      */
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
+    public void setCharacteristicNotification(UUID serviceUuid, UUID characteristicUuid,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+
+        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(serviceUuid).getCharacteristic(characteristicUuid);
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
+        descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
+        mBluetoothGatt.writeDescriptor(descriptor);
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic){
@@ -279,5 +293,6 @@ public class BluetoothLeClass {
 
         return mBluetoothGatt.getServices();
     }
+
 }
 
