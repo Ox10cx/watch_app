@@ -2,10 +2,12 @@ package com.watch.customer.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,8 +21,10 @@ import android.widget.Toast;
 
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
+import com.watch.customer.device.BluetoothLeClass;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.model.Shop;
+import com.watch.customer.ui.BtDeviceSettingActivity;
 import com.watch.customer.ui.DeviceListActivity;
 
 import java.util.ArrayList;
@@ -32,7 +36,6 @@ public class DeviceListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<BtDevice> data;
     private Button curDel_btn;
-    private float x,ux;
 
     public DeviceListAdapter(Context context, ArrayList<BtDevice> list)
     {
@@ -85,11 +88,11 @@ public class DeviceListAdapter extends BaseAdapter {
 
         holderView.name.setText(data.get(position).getName());
 
-        if (data.get(position).getStatus() == BtDevice.CONNECTED) {
-            holderView.status.setText(R.string.connected);
-        } else {
-            holderView.status.setText(R.string.disconnected);
-        }
+//        if (data.get(position).getStatus() == BtDevice.CONNECTED) {
+//            holderView.status.setText(R.string.connected);
+//        } else {
+//            holderView.status.setText(R.string.disconnected);
+//        }
 
         holderView.button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,21 +100,20 @@ public class DeviceListAdapter extends BaseAdapter {
                 Log.d("hjq", "fffif");
                 Button v = (Button) view;
 
-                final BluetoothDevice device = data.get(position).getDevice();
+                final String address = data.get(position).getAddress();
 
-                if (device == null) return;
+                if (address == null) return;
 
                 DeviceListActivity activity = (DeviceListActivity) context;
 
-                if (data.get(position).getStatus() == BtDevice.CONNECTED) {
+                if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
                     activity.disconnectBLE();
                     v.setText(R.string.connect);
-                    data.get(position).setStatus(BtDevice.DISCONNECTED);
-
+                    data.get(position).setStatus(BluetoothLeClass.BLE_STATE_INIT);
                 } else {
-                    if (activity.connectBLE(device.getAddress())) {
+                    if (activity.connectBLE(address)) {
                         v.setText(R.string.disconnect);
-                        data.get(position).setStatus(BtDevice.CONNECTED);
+                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
                     }
                 }
 
@@ -119,7 +121,7 @@ public class DeviceListAdapter extends BaseAdapter {
             }
         });
 
-        if (data.get(position).getStatus() == BtDevice.CONNECTED) {
+        if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
             holderView.button.setText(R.string.disconnect);
         } else {
             holderView.button.setText(R.string.connect);
@@ -130,9 +132,16 @@ public class DeviceListAdapter extends BaseAdapter {
               public void onClick(View view) {
                   Toast.makeText(context, "right arrow postion " + position, Toast.LENGTH_SHORT).show();
                   Log.d("hjq", "gggg");
+                  Intent i = new Intent(context, BtDeviceSettingActivity.class);
+                  BtDevice d = data.get(position);
+                  Bundle b = new Bundle();
+                  b.putSerializable("device", d);
+                  i.putExtras(b);
+                  context.startActivity(i);
               }
           }
         );
+
         return convertView;
     }
 

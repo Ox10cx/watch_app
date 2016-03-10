@@ -175,6 +175,15 @@
         <activity android:name="com.watch.customer.ui.InfoActivity" >
         </activity>
 
+        <activity android:name="com.watch.customer.ui.BtDeviceSettingActivity" >
+
+        </activity>
+
+        <activity android:name="com.watch.customer.ui.SelectPicPopupWindow" android:theme="@style/MyDialogStyleBottom" >
+
+        </activity>
+
+
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="YoLes7xOMF7gOpGawfbTdCw6" >
@@ -269,7 +278,13 @@
         
         <!-- Required  . Enable it you can get statistics data with channel -->
         <meta-data android:name="JPUSH_CHANNEL" android:value="developer-default"/>
-        <meta-data android:name="JPUSH_APPKEY" android:value="c3baa08a732e032d1e0cfb7e" /> <!--  </>值来自开发者平台取得的AppKey-->
+        <meta-data android:name="JPUSH_APPKEY" android:value="c3baa08a732e032d1e0cfb7e" />
+        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+             App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <!--  </>值来自开发者平台取得的AppKey-->
     </application>
 
 </manifest>

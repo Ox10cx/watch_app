@@ -60,10 +60,10 @@ public class BluetoothLeClass {
     private String mBluetoothDeviceAddress;
     protected BluetoothGatt mBluetoothGatt;
 
-    static final int BLE_STATE_INIT = 0;
-    static final int BLE_STATE_CONNECTED = 1;
-    static final int BLE_STATE_SERVICE_DISCOVERYING = 2;
-    static final int BLE_STATE_SERVICE_READY = 3;
+    static public final int BLE_STATE_INIT = 0;
+    static public final int BLE_STATE_CONNECTED = 1;
+    static public final int BLE_STATE_SERVICE_DISCOVERYING = 2;
+    static public final int BLE_STATE_SERVICE_READY = 3;
 
     protected int mBleStatus = BLE_STATE_INIT;
 

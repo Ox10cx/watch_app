@@ -104,8 +104,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         mDeviceList = (SlideDeleteListView)findViewById(R.id.devicelist);
 
-        mDeviceList.setDivider(new ColorDrawable(Color.TRANSPARENT));
-        mDeviceList.setDividerHeight((int) getResources().getDimension(R.dimen.view_normal_margin));
+//        mDeviceList.setDivider(new ColorDrawable(Color.TRANSPARENT));
+//        mDeviceList.setDividerHeight((int) getResources().getDimension(R.dimen.view_normal_margin));
 
         mDeviceList.setRemoveListener(new SlideDeleteListView.RemoveListener() {
             @Override
@@ -170,7 +170,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private void fillListData() {
         mListData = new ArrayList<BtDevice>(10);
         scanLeDevice(true);
-        showLoadingDialog();
+        //showLoadingDialog();
         // Initializes list view adapter.
         mDeviceListAdapter = new DeviceListAdapter(
                 DeviceListActivity.this, mListData);
@@ -180,8 +180,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-
-
     }
 
     private void rescanDevice()
@@ -194,6 +192,12 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        scanLeDevice(false);
+        mListData.clear();
+        mBLE.disconnect();
+
+        mBLE.close();
     }
 
     @Override
@@ -205,11 +209,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     protected void onStop() {
         super.onStop();
 
-        scanLeDevice(false);
-        mListData.clear();
-        mBLE.disconnect();
-
-        mBLE.close();
     }
 
     @Override
@@ -237,7 +236,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         BtDevice d;
 
         for (i = 0; i < mListData.size(); i++) {
-            if (mListData.get(i).getDevice().getAddress().equals(device.getAddress())) {
+            if (mListData.get(i).getAddress().equals(device.getAddress())) {
                 deviceFound = true;
                 break;
             }
@@ -248,7 +247,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             d.setRssi(rssi);
         } else {
             d = new BtDevice();
-            d.setDevice(device);
+            d.setAddress(device.getAddress());
+            d.setName(device.getName());
+            d.setRssi(rssi);
+
             mListData.add(d);
         }
 
