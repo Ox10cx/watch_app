@@ -26,6 +26,8 @@ import com.watch.customer.model.BtDevice;
 import com.watch.customer.model.Shop;
 import com.watch.customer.ui.BtDeviceSettingActivity;
 import com.watch.customer.ui.DeviceListActivity;
+import com.watch.customer.util.CommonUtil;
+import com.watch.customer.util.ImageLoaderUtil;
 
 import java.util.ArrayList;
 
@@ -36,11 +38,13 @@ public class DeviceListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<BtDevice> data;
     private Button curDel_btn;
+    private int mId;
 
     public DeviceListAdapter(Context context, ArrayList<BtDevice> list)
     {
         this.context = context;
         data = list;
+        mId = 0;
     }
 
     @Override
@@ -59,6 +63,10 @@ public class DeviceListAdapter extends BaseAdapter {
     public long getItemId(int position) {
         // TODO Auto-generated method stub
         return position;
+    }
+
+    public int getmId() {
+        return mId;
     }
 
     @Override
@@ -83,8 +91,14 @@ public class DeviceListAdapter extends BaseAdapter {
             holderView = (ViewHolder)convertView.getTag();
         }
 
-        Drawable d = context.getResources().getDrawable(R.drawable.defaultpic);
-        holderView.image.setImageDrawable(d);
+        String path =  CommonUtil.getImageFilePath(data.get(position).getThumbnail());
+        Log.e("hjq", "path = " + path);
+        if (path != null) {
+            ImageLoaderUtil.displayImage("file://" + path, holderView.image, context);
+        }  else {
+            Drawable d = context.getResources().getDrawable(R.drawable.defaultpic);
+            holderView.image.setImageDrawable(d);
+        }
 
         holderView.name.setText(data.get(position).getName());
 
@@ -130,8 +144,10 @@ public class DeviceListAdapter extends BaseAdapter {
         holderView.right_arrow.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View view) {
-                  Toast.makeText(context, "right arrow postion " + position, Toast.LENGTH_SHORT).show();
+               //   Toast.makeText(context, "right arrow postion " + position, Toast.LENGTH_SHORT).show();
                   Log.d("hjq", "gggg");
+
+                  mId = position;
                   Intent i = new Intent(context, BtDeviceSettingActivity.class);
                   BtDevice d = data.get(position);
                   Bundle b = new Bundle();

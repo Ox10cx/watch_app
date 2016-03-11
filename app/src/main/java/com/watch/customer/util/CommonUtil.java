@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -77,7 +78,7 @@ public class CommonUtil {
 	public static String getTimestr(String create_time) {
 		String daString = create_time.substring(0, 17);
 		int weekid = Integer.parseInt(create_time.substring(create_time
-				.length() - 1));
+                .length() - 1));
 		String[] weekDays = { "周日", "周一", "周二", "周三", "周四", "周五", "周六" };
 		return daString.substring(0, 11) + weekDays[weekid] + " "
 				+ daString.substring(11, 17);
@@ -168,9 +169,9 @@ public class CommonUtil {
 	public static void saveMyBitmap(Bitmap mBitmap, String bitName)
 			throws IOException {
 		File f = new File(Environment.getExternalStorageDirectory()
-				+ "/peal_meal/" + bitName + ".png");
+				+ "/ble_anti_lost/" + bitName + ".png");
 		File dirFile = new File(Environment.getExternalStorageDirectory()
-				+ "/peal_meal/");
+				+ "/ble_anti_lost/");
 		if (!dirFile.exists()) {
 			dirFile.mkdirs();
 		}
@@ -200,7 +201,7 @@ public class CommonUtil {
 	public static Bitmap getImagePath(String bitName) {
 		String path = "";
 		File f = new File(Environment.getExternalStorageDirectory()
-				+ "/peal_meal/" + bitName + ".png");
+				+ "/ble_anti_lost/" + bitName + ".png");
 		try {
 			if (f.exists()) {
 				path = f.getAbsolutePath();
@@ -213,6 +214,19 @@ public class CommonUtil {
 		}
 		return null;
 	}
+
+    public static String getImageFilePath(String bitmapName) {
+        String path = "";
+        File f = new File(Environment.getExternalStorageDirectory()
+                + "/ble_anti_lost/" + bitmapName + ".png");
+
+        if (f.exists()) {
+            path = f.getAbsolutePath();
+            return path;
+        }
+
+        return null;
+    }
 
 	/**
 	 * 提交表单并上传文件到网站
@@ -273,5 +287,24 @@ public class CommonUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static String[] chars = new String[] { "a", "b", "c", "d", "e", "f",
+			"g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
+			"t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5",
+			"6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I",
+			"J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
+			"W", "X", "Y", "Z" };
+
+
+	public static String generateShortUuid() {
+		StringBuffer shortBuffer = new StringBuffer();
+		String uuid = UUID.randomUUID().toString().replace("-", "");
+		for (int i = 0; i < 8; i++) {
+			String str = uuid.substring(i * 4, i * 4 + 4);
+			int x = Integer.parseInt(str, 16);
+			shortBuffer.append(chars[x % 0x3E]);
+		}
+		return shortBuffer.toString();
 	}
 }

@@ -27,6 +27,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.uacent.watchapp.R;
+import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.HttpUtil;
@@ -53,6 +54,10 @@ public class BtDeviceSettingActivity extends BaseActivity {
     private final int editmsg_what = 1;
     private final int editimage_what = 2;
     private Bitmap bmp;
+    private BtDevice mDevice;
+    private ImageView ivIcon;
+    private BtDeviceDao mDeviceDao;
+
     /*** 使用照相机拍照获取图片
      */
     public static final int SELECT_PIC_BY_TACK_PHOTO = 1;
@@ -69,33 +74,81 @@ public class BtDeviceSettingActivity extends BaseActivity {
     private static final String[] text_array = {"Anti lost", "Find me", "Disconnect"};
     private static final int[] icon_array = {R.drawable.anti_lost, R.drawable.findme, R.drawable.disconnect};
 
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            String result = msg.obj.toString();
+            Log.e("hjq", result);
+            switch (msg.what) {
+                case editmsg_what:
+//                    try {
+//                            mUserDao.update(mUser);
+//                            showLongToast("修改完成");
+//                            text_name.setText(mUser.getName());
+//                            String sexstr = mUser.getSex().equals("1") ? "男" : "女";
+//                            text_sex.setText(sexstr);
+//                        }
+
+                    break;
+
+                case editimage_what:
+                    BtDevice d;
+                    d = mDeviceDao.queryById(mDevice.getId());
+
+                    if (d != null) {
+                        d.setThumbnail(result);
+                        mDeviceDao.deleteById(d.getId());
+                        Log.d("hjq", "d = " + d);
+                        mDeviceDao.insert(d);
+                    } else {
+                        mDevice.setThumbnail(result);
+                        Log.d("hjq", "mDevice = " + mDevice);
+                        mDeviceDao.insert(mDevice);
+                    }
+
+                    String path =  CommonUtil.getImageFilePath(result);
+                    if (path != null) {
+                        ImageLoaderUtil.displayImage("file://" + path, ivIcon, BtDeviceSettingActivity.this);
+                    }  else {
+
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+        };
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_btdevice_setting);
+        Intent i = getIntent();
+        mDevice = (BtDevice) i.getSerializableExtra("device");
+
 
         ImageView ivBack = (ImageView) findViewById(R.id.iv_back);
         ivBack.setOnClickListener(this);
 
-        ImageView image = (ImageView) findViewById(R.id.imageView);
-        Animation hyperspaceJump = AnimationUtils.loadAnimation(this, R.anim.hyperspace_jump);
-        image.startAnimation(hyperspaceJump);
+        ivIcon = (ImageView) findViewById(R.id.imageView);
+        ivIcon.setOnClickListener(this);
 
-        image.setOnClickListener(this);
+        String path =  CommonUtil.getImageFilePath(mDevice.getThumbnail());
+        if (path != null) {
+            ImageLoaderUtil.displayImage("file://" + path, ivIcon, BtDeviceSettingActivity.this);
+        }  else {
 
-        Intent i = getIntent();
-        BtDevice d = (BtDevice) i.getSerializableExtra("device");
+        }
 
         TextView tv = (TextView) findViewById(R.id.device_text);
-
-        tv.setText(d.getName());
-
+        tv.setText(mDevice.getName());
         mEdit = (EditText) findViewById(R.id.editText);
-        mEdit.setText(d.getName());
+        mEdit.setText(mDevice.getName());
 
         mList = (ListView) findViewById(R.id.ls_listview);
-
         mList.setAdapter(new SimpleAdapter(this, getData(), R.layout.list_item2,
                 new String[]{"icon", "text"},
                 new int[]{R.id.img_icon, R.id.list_text}));
@@ -104,12 +157,32 @@ public class BtDeviceSettingActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos,
                                     long id) {
+
                 Map<String, Object> item = (Map<String, Object>) parent.getItemAtPosition(pos);
-                Toast.makeText(getApplicationContext(), (String) item.get("text"),
-                        Toast.LENGTH_SHORT).show();
+
+                if (pos == 0) {
+                    Intent i = new Intent(BtDeviceSettingActivity.this, AntiLostSettingActivity.class);
+                    Bundle b = new Bundle();
+                    b.putSerializable("btdevice", mDevice);
+                    i.putExtras(b);
+                    startActivity(i);
+                } else if (pos == 1) {
+                    Intent i = new Intent(BtDeviceSettingActivity.this, FindmeSettingActivity.class);
+                    Bundle b = new Bundle();
+                    b.putSerializable("btdevice", mDevice);
+                    i.putExtras(b);
+                    startActivity(i);
+                } else {
+
+                }
+
+
+//                Toast.makeText(getApplicationContext(), (String) item.get("text"),
+//                        Toast.LENGTH_SHORT).show();
             }
         });
 
+        mDeviceDao = new BtDeviceDao(this);
     }
 
     private List<Map<String, Object>> getData() {
@@ -128,14 +201,30 @@ public class BtDeviceSettingActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_back:
+            case R.id.iv_back: {
+                BtDevice d;
+
+                d = mDeviceDao.queryById(mDevice.getId());
+                if (d != null) {
+                    d.setName(mEdit.getText().toString());
+                    mDeviceDao.deleteById(d.getId());
+                    Log.d("hjq", "d = " + d);
+                    mDeviceDao.insert(d);
+                } else {
+                    d.setName(mEdit.getText().toString());
+                    Log.d("hjq", "mDevice = " + mDevice);
+                    mDeviceDao.insert(mDevice);
+                }
+
                 finish();
                 break;
+            }
 
             case R.id.imageView:
 //                Intent i = new Intent(BtDeviceSettingActivity.this, SelectPicPopupWindow.class);
@@ -206,10 +295,12 @@ public class BtDeviceSettingActivity extends BaseActivity {
                     // 选择自拍结果
                     beginCrop(photoUri);
                     break;
+
                 case SELECT_PIC_BY_PICK_PHOTO:
                     // 选择图库图片结果
                     beginCrop(data.getData());
                     break;
+
                 case CUT_PHOTO:
                     handleCrop(data);
                     break;
@@ -259,7 +350,15 @@ public class BtDeviceSettingActivity extends BaseActivity {
         if (extras != null) {
             bmp = extras.getParcelable("data");
             try {
-                CommonUtil.saveMyBitmap(bmp, "photo");
+                String filename = CommonUtil.generateShortUuid();
+                CommonUtil.saveMyBitmap(bmp, filename);
+
+                Message msg = new Message();
+                msg.obj = filename;
+                msg.what = editimage_what;
+                mHandler.sendMessage(msg);
+
+
 //                new Thread(new Runnable() {
 //
 //                    @Override

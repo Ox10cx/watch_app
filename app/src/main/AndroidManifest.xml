@@ -176,13 +176,14 @@
         </activity>
 
         <activity android:name="com.watch.customer.ui.BtDeviceSettingActivity" >
-
         </activity>
 
         <activity android:name="com.watch.customer.ui.SelectPicPopupWindow" android:theme="@style/MyDialogStyleBottom" >
-
         </activity>
 
+        <activity android:name="com.watch.customer.ui.AntiLostSettingActivity"> </activity>
+        <activity android:name="com.watch.customer.ui.FindmeSettingActivity"> </activity>
+        <activity android:name="com.watch.customer.ui.RingtoneSelectActivity"> </activity>
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"

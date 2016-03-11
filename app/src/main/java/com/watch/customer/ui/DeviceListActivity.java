@@ -33,12 +33,14 @@ import android.widget.Toast;
 import com.uacent.watchapp.R;
 import com.watch.customer.SlideDeleteListView;
 import com.watch.customer.adapter.DeviceListAdapter;
+import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.device.BluetoothAntiLostDevice;
 import com.watch.customer.device.BluetoothLeClass;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -57,6 +59,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private BluetoothAntiLostDevice mBLE;
     private boolean mScanning;
     private ActionBar mActionbar;
+
+    private BtDeviceDao mDeviceDao;
 
     private final String TAG = "hjq";
     private static final long SCAN_PERIOD = 10000; //10 seconds
@@ -82,6 +86,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         testbtn.setOnClickListener(this);
 
         mHandler = new Handler();
+
+        mDeviceDao = new BtDeviceDao(this);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -168,7 +174,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             };
 
     private void fillListData() {
-        mListData = new ArrayList<BtDevice>(10);
+        mListData = mDeviceDao.queryAll();
+
         scanLeDevice(true);
         //showLoadingDialog();
         // Initializes list view adapter.
@@ -180,6 +187,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
+
+        // update the setting.
+        int position = mDeviceListAdapter.getmId();
+        BtDevice d = mDeviceDao.queryById(mListData.get(position).getId());
+        Log.d("hjq", "d = " + d);
+        if (d != null) {
+            mListData.set(position, d);
+        }
+
+        mDeviceListAdapter.notifyDataSetChanged();
     }
 
     private void rescanDevice()
@@ -242,6 +259,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             }
         }
 
+        Log.d("hjq", "found device = " + deviceFound);
+
         if (deviceFound) {
             d = mListData.get(i);
             d.setRssi(rssi);
@@ -251,7 +270,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             d.setName(device.getName());
             d.setRssi(rssi);
 
-            mListData.add(d);
+            mDeviceDao.insert(d);
+            mListData.add(0, d);
         }
 
         mDeviceListAdapter.notifyDataSetChanged();
