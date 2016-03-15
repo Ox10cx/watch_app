@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
@@ -44,15 +45,13 @@ public class BleComService extends Service {
     private static final String  TAG = "hjq";
     private static final int SCAN_PERIOD = 10000;
     private BluetoothAntiLostDevice mBLE;
-
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler = new Handler();
 
     private RemoteCallbackList<ICallback> mCallbacks = new RemoteCallbackList<ICallback>();
 
-
     public class LocalBinder extends Binder {
-        BleComService getService() {
+        public BleComService getService() {
             return BleComService.this;
         }
     }
@@ -60,7 +59,15 @@ public class BleComService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
+        initialize();
         return mBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        mCallbacks.kill();
+
+        super.onDestroy();
     }
 
     @Override
@@ -68,113 +75,149 @@ public class BleComService extends Service {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
+        close();
 
         return super.onUnbind(intent);
     }
 
     private IService.Stub mBinder = new IService.Stub() {
         @Override
+        public boolean initialize() throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean connect(String addr) throws RemoteException {
+            return connectBtDevice(addr);
+        }
+
+        @Override
+        public void disconnect() throws RemoteException {
+            disconnectBtDevice();
+        }
+
         public void unregisterCallback(ICallback cb){
             if (cb != null) {
                 mCallbacks.unregister(cb);
             }
         }
 
-        @Override
         public void registerCallback(ICallback cb){
             if (cb != null) {
                 mCallbacks.register(cb);
             }
         }
 
-        @Override
-        public boolean initialize() {
-            mBLE = new BluetoothAntiLostDevice(BleComService.this);
-
-            //发现BLE终端的Service时回调
-            mBLE.setOnServiceDiscoverListener(mOnServiceDiscover);
-            //收到BLE终端数据交互的事件
-            mBLE.setOnDataAvailableListener(mOnDataAvailable);
-            mBLE.setOnConnectListener(mOnConnectListener);
-            mBLE.setOnDisconnectListener(mOnDisconnectListener);
-
-            BluetoothManager mBluetoothManager;
-            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            if (mBluetoothManager == null) {
-                Log.e(TAG, "Unable to initialize BluetoothManager.");
-                return false;
-            }
-
-            mBluetoothAdapter = mBluetoothManager.getAdapter();
-
-            return true;
+        public void turnOffImmediateAlert() {
+            mBLE.turnOffImmediateAlert();
         }
 
-        /**
-         * Initializes a reference to the local Bluetooth adapter.
-         *
-         * @return Return true if the initialization is successful.
-         */
-
-
-        /**
-         * Connects to the GATT server hosted on the Bluetooth LE device.
-         *
-         * @param address The device address of the destination device.
-         *
-         * @return Return true if the connection is initiated successfully. The connection result
-         *         is reported asynchronously through the
-         *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-         *         callback.
-         */
-        @Override
-        public boolean connect(String address) {
-            boolean ret;
-
-            ret = mBLE.connect(address);
-            if (ret)  {
-                Log.d(TAG, "connect to " + address + " success");
-            } else {
-                Log.d(TAG, "connect to " + address + " failed");
-            }
-
-            return true;
+        public void turnOnImmediateAlert() {
+            mBLE.turnOnImmediateAlert();
         }
 
-        /**
-         * Disconnects an existing connection or cancel a pending connection. The disconnection result
-         * is reported asynchronously through the
-         * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-         * callback.
-         */
-        @Override
-        public void disconnect() {
-            mBLE.disconnect();
+        public void scanBtDevices(boolean enable) {
+            scanLeDevice(enable);
         }
-
-        /**
-         * After using a given BLE device, the app must call this method to ensure resources are
-         * released properly.
-         */
-        public void close() {
-            mBLE.close();
-        }
-
-
     };
 
+    boolean initialize() {
+        mBLE = new BluetoothAntiLostDevice(BleComService.this);
+
+        mBLE.initialize();
+
+        //发现BLE终端的Service时回调
+        mBLE.setOnServiceDiscoverListener(mOnServiceDiscover);
+        //收到BLE终端数据交互的事件
+        mBLE.setOnDataAvailableListener(mOnDataAvailable);
+        mBLE.setOnConnectListener(mOnConnectListener);
+        mBLE.setOnDisconnectListener(mOnDisconnectListener);
+
+        BluetoothManager mBluetoothManager;
+        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (mBluetoothManager == null) {
+            Log.e(TAG, "Unable to initialize BluetoothManager.");
+            return false;
+        }
+
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+        return true;
+    }
+
+
+    /**
+     * Connects to the GATT server hosted on the Bluetooth LE device.
+     *
+     * @param address The device address of the destination device.
+     *
+     * @return Return true if the connection is initiated successfully. The connection result
+     *         is reported asynchronously through the
+     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
+     *         callback.
+     */
+    boolean connectBtDevice(String address) {
+        boolean ret;
+
+        ret = mBLE.connect(address);
+        if (ret)  {
+            Log.d(TAG, "connect to " + address + " success");
+        } else {
+            Log.d(TAG, "connect to " + address + " failed");
+        }
+
+        return true;
+    }
+
+    /**
+     * Disconnects an existing connection or cancel a pending connection. The disconnection result
+     * is reported asynchronously through the
+     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
+     * callback.
+     */
+    void disconnectBtDevice() {
+        mBLE.disconnect();
+    }
+
+    /**
+     * After using a given BLE device, the app must call this method to ensure resources are
+     * released properly.
+     */
+    void close() {
+        mBLE.close();
+    }
 
     private BluetoothLeClass.OnDisconnectListener mOnDisconnectListener = new BluetoothLeClass.OnDisconnectListener() {
         @Override
         public void onDisconnect(BluetoothGatt gatt) {
-
+            int n = mCallbacks.beginBroadcast();
+            Log.d("hjq", "n = " + n);
+            try {
+                int i;
+                for (i = 0; i < n; i++) {
+                    mCallbacks.getBroadcastItem(i).onDisconnect(gatt.getDevice().getAddress());
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "remote call exception", e);
+            }
+            mCallbacks.finishBroadcast();
         }
     };
 
     private BluetoothLeClass.OnConnectListener mOnConnectListener = new BluetoothLeClass.OnConnectListener() {
         @Override
         public void onConnect(BluetoothGatt gatt) {
-
+                int n = mCallbacks.beginBroadcast();
+                Log.d("hjq", "n = " + n);
+                try {
+                        int i;
+                        for (i = 0; i < n; i++) {
+                            mCallbacks.getBroadcastItem(i).onConnect(gatt.getDevice().getAddress());
+                        }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "remote call exception", e);
+                }
+                mCallbacks.finishBroadcast();
         }
 
     };
@@ -247,10 +290,17 @@ public class BleComService extends Service {
             new BluetoothAdapter.LeScanCallback() {
                 @Override
                 public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-//                    final Intent intent = new Intent(ACTION_NEW_BT_DEVICE);
-//                    intent.putExtra("address", device.getAddress());
-//                    intent.putExtra("rssi", rssi);
-//                    sendBroadcast(intent);
+                    int n = mCallbacks.beginBroadcast();
+                    Log.d("hjq", "n = " + n);
+                    try {
+                        int i;
+                        for (i = 0; i < n; i++) {
+                            mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(),  rssi);
+                        }
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "remote call exception", e);
+                    }
+                    mCallbacks.finishBroadcast();
                 }
             };
 

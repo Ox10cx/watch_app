@@ -91,7 +91,7 @@ public class DeviceListAdapter extends BaseAdapter {
         }
 
         String path =  CommonUtil.getImageFilePath(data.get(position).getThumbnail());
-        Log.e("hjq", "path = " + path);
+       // Log.e("hjq", "path = " + path);
         if (path != null) {
             ImageLoaderUtil.displayImage("file://" + path, holderView.image, context);
         }  else {
@@ -154,7 +154,6 @@ public class DeviceListAdapter extends BaseAdapter {
                         }
                         break;
                     }
-
                 }
 
                 notifyDataSetChanged();
@@ -163,7 +162,7 @@ public class DeviceListAdapter extends BaseAdapter {
 
         int status2 = data.get(position).getStatus();
 
-        Log.d("hjq", "status2 = " + status2);
+      //  Log.d("hjq", "status2 = " + status2);
         switch (status2) {
             case BluetoothLeClass.BLE_STATE_CONNECTED: {
                 holderView.button.setText(R.string.alert);

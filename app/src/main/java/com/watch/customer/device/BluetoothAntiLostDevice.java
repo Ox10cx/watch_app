@@ -115,20 +115,28 @@ public class BluetoothAntiLostDevice extends BluetoothLeClass {
 
     public void setImmediateAlert(int val) {
         Log.e(TAG, "setImmediateAlert() value = " + val);
-//        if (!checkBleStatus()) {
-//            return;
-//        }
-        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(ALERT_SERVICE_UUID).getCharacteristic(ALERT_FUNC_UUID);
-        if (characteristic == null) {
-            Log.e(TAG, "not support the immediate alert service?");
+        if (!checkBleStatus()) {
             return;
         }
 
-        if (characteristic != null) {
-            characteristic.setValue(new byte[] { (byte)val });
-            //往蓝牙模块写入数据
-            writeCharacteristic(characteristic);
+        BluetoothGattService service = mBluetoothGatt.getService(ALERT_SERVICE_UUID);
+
+        if (service != null) {
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(ALERT_FUNC_UUID);
+            if (characteristic == null) {
+                Log.e(TAG, "not support the immediate alert funcion?");
+                return;
+            }
+
+            if (characteristic != null) {
+                characteristic.setValue(new byte[] { (byte)val });
+                //往蓝牙模块写入数据
+                writeCharacteristic(characteristic);
+            }
+        } else {
+            Log.e(TAG, "not support the immediate alert service?");
         }
+
     }
 
     public void turnOnImmediateAlert() {

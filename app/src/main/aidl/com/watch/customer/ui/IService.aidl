@@ -11,4 +11,9 @@ interface IService {
     boolean initialize();
     boolean connect(String addr);
     void disconnect();
+
+    void turnOnImmediateAlert();
+    void turnOffImmediateAlert();
+
+    void scanBtDevices(boolean enable);
 }

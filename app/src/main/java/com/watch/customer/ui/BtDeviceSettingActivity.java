@@ -1,15 +1,20 @@
 package com.watch.customer.ui;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +34,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.uacent.watchapp.R;
 import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
+import com.watch.customer.service.BleComService;
 import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.ImageLoaderUtil;
@@ -47,6 +53,8 @@ import java.util.Map;
  * Created by Administrator on 16-3-10.
  */
 public class BtDeviceSettingActivity extends BaseActivity {
+    static public final String TAG = "hjq";
+
     ListView mList;
     EditText mEdit;
     protected static final int SELECT_PICTURE = 0;
@@ -57,6 +65,8 @@ public class BtDeviceSettingActivity extends BaseActivity {
     private BtDevice mDevice;
     private ImageView ivIcon;
     private BtDeviceDao mDeviceDao;
+
+    private IService mService;
 
     /*** 使用照相机拍照获取图片
      */
@@ -124,6 +134,52 @@ public class BtDeviceSettingActivity extends BaseActivity {
             }
         };
     };
+    private ICallback.Stub mCallback = new ICallback.Stub() {
+
+        @Override
+        public void addDevice(String address, String name, int rssi) throws RemoteException {
+
+        }
+
+        @Override
+        public void onConnect(String address) throws RemoteException {
+
+        }
+
+        @Override
+        public void onDisconnect(String address) throws RemoteException {
+
+        }
+
+        @Override
+        public void onRead(String address, byte[] val) throws RemoteException {
+
+        }
+
+        @Override
+        public void onSignalChanged(String address, int rssi) throws RemoteException {
+
+        }
+    };
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected2");
+            mService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "onServiceConnected2");
+            mService = IService.Stub.asInterface(service);
+            try {
+                mService.registerCallback(mCallback);
+            } catch (RemoteException e) {
+                Log.e(TAG, "", e);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,8 +231,12 @@ public class BtDeviceSettingActivity extends BaseActivity {
                     b.putSerializable("device", mDevice);
                     i.putExtras(b);
                     startActivityForResult(i, CHANGE_FIND_ME_SETTING);
-                } else {
-
+                } else if (pos == 2) {
+                    try {
+                        mService.disconnect();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
 
 
@@ -186,6 +246,9 @@ public class BtDeviceSettingActivity extends BaseActivity {
         });
 
         mDeviceDao = new BtDeviceDao(this);
+
+        Intent intent  = new Intent(this, BleComService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     private List<Map<String, Object>> getData() {
@@ -249,6 +312,12 @@ public class BtDeviceSettingActivity extends BaseActivity {
     public void onStart() {
         super.onStart();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(mConnection);
+        super.onDestroy();
     }
 
     public void getimage() {
