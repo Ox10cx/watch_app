@@ -41,7 +41,11 @@ public class BluetoothAntiLostDevice extends BluetoothLeClass {
 
     public boolean checkBleStatus(){
         Log.e(TAG, "check ble status = " + mBleStatus);
-        return mBleStatus == BLE_STATE_SERVICE_READY;
+        return mBleStatus == BLE_STATE_CONNECTED;
+    }
+
+    public int getBleStatus() {
+        return mBleStatus;
     }
 
     public void enableKeyReport(boolean on) {
@@ -111,9 +115,9 @@ public class BluetoothAntiLostDevice extends BluetoothLeClass {
 
     public void setImmediateAlert(int val) {
         Log.e(TAG, "setImmediateAlert() value = " + val);
-        if (!checkBleStatus()) {
-            return;
-        }
+//        if (!checkBleStatus()) {
+//            return;
+//        }
         BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(ALERT_SERVICE_UUID).getCharacteristic(ALERT_FUNC_UUID);
         if (characteristic == null) {
             Log.e(TAG, "not support the immediate alert service?");
@@ -134,6 +138,5 @@ public class BluetoothAntiLostDevice extends BluetoothLeClass {
     public void turnOffImmediateAlert() {
         setImmediateAlert(ALERT_OFF);
     }
-
 }
 

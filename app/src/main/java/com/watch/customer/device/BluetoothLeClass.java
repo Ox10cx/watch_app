@@ -62,8 +62,9 @@ public class BluetoothLeClass {
 
     static public final int BLE_STATE_INIT = 0;
     static public final int BLE_STATE_CONNECTED = 1;
-    static public final int BLE_STATE_SERVICE_DISCOVERYING = 2;
-    static public final int BLE_STATE_SERVICE_READY = 3;
+    static public final int BLE_STATE_CONNECTING = 2;
+    static public final int BLE_STATE_ERROR = 3;
+    static public final int BLE_STATE_ALERTING = 4;
 
     protected int mBleStatus = BLE_STATE_INIT;
 
@@ -134,9 +135,10 @@ public class BluetoothLeClass {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS && mOnServiceDiscoverListener!=null) {
                 mOnServiceDiscoverListener.onServiceDiscover(gatt);
-                mBleStatus = BLE_STATE_SERVICE_READY;
+                mBleStatus = BLE_STATE_CONNECTED;
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
+                mBleStatus = BLE_STATE_ERROR;
             }
         }
 
@@ -177,7 +179,6 @@ public class BluetoothLeClass {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }
-
         return true;
     }
 
@@ -289,8 +290,9 @@ public class BluetoothLeClass {
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices() {
-        if (mBluetoothGatt == null) return null;
-
+        if (mBluetoothGatt == null) {
+            return null;
+        }
         return mBluetoothGatt.getServices();
     }
 

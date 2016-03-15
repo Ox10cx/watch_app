@@ -37,8 +37,10 @@ public class UartService extends Service {
 
     public final static String ACTION_GATT_CONNECTED =
             "com.nordicsemi.nrfUART.ACTION_GATT_CONNECTED";
+
     public final static String ACTION_GATT_DISCONNECTED =
             "com.nordicsemi.nrfUART.ACTION_GATT_DISCONNECTED";
+
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.nordicsemi.nrfUART.ACTION_GATT_SERVICES_DISCOVERED";
 

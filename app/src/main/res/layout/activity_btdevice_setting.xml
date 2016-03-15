@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape">
+>
 
     <LinearLayout
         android:id="@+id/header"
@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:id="@+id/imageView"
-            android:src="@drawable/defaultpic" />
+            android:src="@drawable/default_perimage" />
 
         <EditText
             android:layout_width="match_parent"

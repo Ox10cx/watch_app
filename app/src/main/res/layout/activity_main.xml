@@ -13,6 +13,7 @@
         <FrameLayout
             android:id="@android:id/tabcontent"
             android:layout_width="match_parent"
+
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
@@ -29,7 +30,7 @@
             android:paddingRight="30dp"
             android:layout_gravity="bottom"
             android:gravity="center_vertical"
-            android:background="#eeeeee"
+            android:background="@color/headbg"
             android:orientation="horizontal" >
 
             <RadioButton
@@ -38,33 +39,33 @@
                 android:checked="true"       
                 android:textColor="@color/textcolor_normal"   
                 android:text="@string/main_tabtext_device"
-                android:drawableTop="@drawable/menuhome_selector" />
+                android:drawableTop="@drawable/device_bg" />
 
             <RadioButton
                 android:id="@+id/home_tab_camera"
                 style="@style/home_tab_bottom"
-                android:drawableTop="@drawable/menuorder_selector"
+                android:drawableTop="@drawable/take_photo_bg"
                 android:textColor="@color/textcolor_normal"
                 android:text="@string/main_tabtext_camera" />
 
             <RadioButton
                 android:id="@+id/home_tab_location"
                 style="@style/home_tab_bottom"
-                android:drawableTop="@drawable/menuperson_selector"
+                android:drawableTop="@drawable/location_check_bg"
                 android:textColor="@color/textcolor_normal"
                 android:text="@string/main_tabtext_location" />
 
             <RadioButton
                 android:id="@+id/home_tab_setting"
                 style="@style/home_tab_bottom"
-                android:drawableTop="@drawable/menuperson_selector"
+                android:drawableTop="@drawable/setup_bg"
                 android:textColor="@color/textcolor_normal"
                 android:text="@string/main_tabtext_setting" />
 
             <RadioButton
                 android:id="@+id/home_tab_info"
                 style="@style/home_tab_bottom"
-                android:drawableTop="@drawable/menuperson_selector"
+                android:drawableTop="@drawable/soft_intro_bg"
                 android:textColor="@color/textcolor_normal"
                 android:text="@string/main_tabtext_info" />
 

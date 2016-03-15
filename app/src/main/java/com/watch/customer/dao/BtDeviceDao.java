@@ -110,10 +110,10 @@ public class BtDeviceDao {
             int distance = cursor.getInt(cursor.getColumnIndex("alertDistance"));
             boolean lostAlertSwitch = cursor.getInt(cursor.getColumnIndex("lostAlertSwitch")) == 1;
             int alertVolume = cursor.getInt(cursor.getColumnIndex("alertVolume"));
-            String alertRingtone = cursor.getString(cursor.getColumnIndex("alertRingtone"));
+            int alertRingtone = cursor.getInt(cursor.getColumnIndex("alertRingtone"));
             boolean alertFindSwitch = cursor.getInt(cursor.getColumnIndex("alertFindSwitch")) == 1;
             int findAlertVolume = cursor.getInt(cursor.getColumnIndex("findAlertVolume"));
-            String findAlertRingtone = cursor.getString(cursor.getColumnIndex("findAlertRingtone"));
+            int findAlertRingtone = cursor.getInt(cursor.getColumnIndex("findAlertRingtone"));
             String image_thumb = cursor.getString(cursor.getColumnIndex("thumbnail"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
 
@@ -141,10 +141,10 @@ public class BtDeviceDao {
             int distance = cursor.getInt(cursor.getColumnIndex("alertDistance"));
             boolean lostAlertSwitch = cursor.getInt(cursor.getColumnIndex("lostAlertSwitch")) == 1;
             int alertVolume = cursor.getInt(cursor.getColumnIndex("alertVolume"));
-            String alertRingtone = cursor.getString(cursor.getColumnIndex("alertRingtone"));
+            int alertRingtone = cursor.getInt(cursor.getColumnIndex("alertRingtone"));
             boolean alertFindSwitch = cursor.getInt(cursor.getColumnIndex("alertFindSwitch")) == 1;
             int findAlertVolume = cursor.getInt(cursor.getColumnIndex("findAlertVolume"));
-            String findAlertRingtone = cursor.getString(cursor.getColumnIndex("findAlertRingtone"));
+            int findAlertRingtone = cursor.getInt(cursor.getColumnIndex("findAlertRingtone"));
             String image_thumb = cursor.getString(cursor.getColumnIndex("thumbnail"));
             String name = cursor.getString(cursor.getColumnIndex("name"));
 

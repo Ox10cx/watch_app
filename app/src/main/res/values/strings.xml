@@ -289,6 +289,9 @@
 
     <string name="connected">已连接</string>
     <string name="disconnected">未连接</string>
+    <string name="connecting">正在连接</string>
+    <string name="alert">告警</string>
+    <string name="stop_alert">停止告警</string>
     <!-- device list -->
     <string name="devicelist">设备列表</string>
     <string name="name1">测试设备1</string>

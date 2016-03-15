@@ -37,6 +37,8 @@ import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.device.BluetoothAntiLostDevice;
 import com.watch.customer.device.BluetoothLeClass;
 import com.watch.customer.model.BtDevice;
+import com.watch.customer.util.CommonUtil;
+import com.watch.customer.util.ImageLoaderUtil;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
@@ -58,18 +60,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private Handler mHandler;
     private BluetoothAntiLostDevice mBLE;
     private boolean mScanning;
-    private ActionBar mActionbar;
 
     private BtDeviceDao mDeviceDao;
 
     private final String TAG = "hjq";
     private static final long SCAN_PERIOD = 10000; //10 seconds
 
-    public static final UUID TEMP_SERVICE_UUID = UUID.fromString("00001809-0000-1000-8000-00805f9b34fb");
-    public static final UUID POWER_SERVICE_UUID = UUID.fromString("00002a07-0000-1000-8000-00805f9b34fb");
-    public static final UUID BATTERY_SERVICE_UUID = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
-    public static final UUID KEY_SERVICE_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
-    public static final UUID ALERT_SERVICE_UUID = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +83,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         testbtn.setOnClickListener(this);
 
         mHandler = new Handler();
-
         mDeviceDao = new BtDeviceDao(this);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -109,9 +105,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         mDeviceList = (SlideDeleteListView)findViewById(R.id.devicelist);
-
-//        mDeviceList.setDivider(new ColorDrawable(Color.TRANSPARENT));
-//        mDeviceList.setDividerHeight((int) getResources().getDimension(R.dimen.view_normal_margin));
 
         mDeviceList.setRemoveListener(new SlideDeleteListView.RemoveListener() {
             @Override
@@ -189,14 +182,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         super.onResume();
 
         // update the setting.
-        int position = mDeviceListAdapter.getmId();
-        BtDevice d = mDeviceDao.queryById(mListData.get(position).getId());
-        Log.d("hjq", "d = " + d);
-        if (d != null) {
-            mListData.set(position, d);
-        }
+        if (mListData.size() != 0) {
+            int position = mDeviceListAdapter.getmId();
+            BtDevice d = mDeviceDao.queryById(mListData.get(position).getId());
+            Log.d("hjq", "d = " + d);
+            if (d != null) {
+                mListData.set(position, d);
+            }
 
-        mDeviceListAdapter.notifyDataSetChanged();
+            mDeviceListAdapter.notifyDataSetChanged();
+        }
     }
 
     private void rescanDevice()
@@ -225,7 +220,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onStop() {
         super.onStop();
+    }
 
+    public void turnOnImmediateAlert() {
+        mBLE.turnOnImmediateAlert();
+    }
+
+    public void turnOffImmediateAlert() {
+        mBLE.turnOffImmediateAlert();
     }
 
     @Override
@@ -303,13 +305,19 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Log.d("hjq", "xxx");
+        Log.d("hjq", "xxx id = " + id);
     }
 
     private BluetoothLeClass.OnConnectListener mOnConnectListener = new BluetoothLeClass.OnConnectListener() {
         @Override
         public void onConnect(BluetoothGatt gatt) {
-//            Toast.makeText(DeviceListActivity.this, R.string.connect_success, Toast.LENGTH_SHORT).show();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(DeviceListActivity.this, R.string.connect_success, Toast.LENGTH_SHORT).show();
+                    mDeviceListAdapter.notifyDataSetChanged();
+                }
+            });
         }
     };
 
@@ -361,7 +369,19 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     };
 
     private void displayGattServices(List<BluetoothGattService> gattServices) {
-        if (gattServices == null) return;
+        if (gattServices == null) {
+            return;
+        }
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                int position = mDeviceListAdapter.getmId();
+                mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+                mDeviceListAdapter.notifyDataSetChanged();
+            }
+        });
+
 
         for (BluetoothGattService gattService : gattServices) {
             //-----Service的字段信息-----//
@@ -386,37 +406,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 if (data != null && data.length > 0) {
                     Log.e(TAG,"---->char value:"+new String(data));
                 }
-
-                //UUID_KEY_DATA是可以跟蓝牙模块串口通信的Characteristic
-//                if(gattCharacteristic.getUuid().equals(KEY_SERVICE_UUID)){
-//                    //测试读取当前Characteristic数据，会触发mOnDataAvailable.onCharacteristicRead()
-//                    Log.e(TAG, "enable notification");
-////                    mHandler.postDelayed(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                            mBLE.setCharacteristicNotification(serviceUUID, gattCharacteristic.getUuid(), true);
-////                        }
-////                    }, 500);
-//
-//                    //接受Characteristic被写的通知,收到蓝牙模块的数据后会触发mOnDataAvailable.onCharacteristicWrite()
-//                    mBLE.setCharacteristicNotification(gattService.getUuid(), gattCharacteristic.getUuid(), true);
-//                    //设置数据内容
-//                    gattCharacteristic.setValue("send data->");
-//                    //往蓝牙模块写入数据
-//                    mBLE.writeCharacteristic(gattCharacteristic);
-//                }
-
-//                if (gattCharacteristic.getUuid().equals(ALERT_SERVICE_UUID)){
-//                    //测试读取当前Characteristic数据，会触发mOnDataAvailable.onCharacteristicRead()
-//                    Log.e(TAG, "ALARM notification");
-//
-//                    //接受Characteristic被写的通知,收到蓝牙模块的数据后会触发mOnDataAvailable.onCharacteristicWrite()
-//                    mBLE.setCharacteristicNotification(gattService.getUuid(), gattCharacteristic.getUuid(), true);
-//                    //设置数据内容
-//                    gattCharacteristic.setValue(new byte[] {0x2});
-//                    //往蓝牙模块写入数据
-//                    mBLE.writeCharacteristic(gattCharacteristic);
-//                }
 
                 //-----Descriptors的字段信息-----//
                 List<BluetoothGattDescriptor> gattDescriptors = gattCharacteristic.getDescriptors();

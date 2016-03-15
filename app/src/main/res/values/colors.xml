@@ -13,7 +13,7 @@
     <color name="btnbg_blue">#1197a6</color>
     <color name="btnbg_orange">#ff9900</color>
     <color name="btnbg_grey">#9e9e9e</color>
-    <color name="headbg">#1197a6</color>
+    <color name="headbg">#424242</color>
     <color name="textcolor_normal">#696969</color>
-    <color name="textcolor_select">#14a19c</color>
+    <color name="textcolor_select">#22aa33</color>
 </resources>

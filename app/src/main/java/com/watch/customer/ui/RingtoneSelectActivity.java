@@ -1,9 +1,15 @@
 package com.watch.customer.ui;
 
 import android.content.Intent;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -11,6 +17,8 @@ import android.widget.SimpleAdapter;
 
 import com.uacent.watchapp.R;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +31,7 @@ public class RingtoneSelectActivity extends BaseActivity {
     private ListView mListView;
     private int lastPos;
     static final int NR_RINGTONE = 11;
+    MediaPlayer mPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +47,9 @@ public class RingtoneSelectActivity extends BaseActivity {
                 new String[]{"text", "icon"},
                 new int[]{R.id.list_text, R.id.img_icon}));
 
-        lastPos = 0;
 
+        Intent i = getIntent();
+        lastPos = i.getIntExtra("index", 0);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos,
@@ -61,16 +71,27 @@ public class RingtoneSelectActivity extends BaseActivity {
                 iv = (ImageView) wantedView.findViewById(R.id.img_icon);
                 iv.setVisibility(View.VISIBLE);
                 lastPos = pos;
+
+                playSound((int) item.get("audio_id"));
             }
         });
 
-//        int wantedChild;
-//        ImageView iv;
-//        wantedChild = getActualPosition(lastPos);
-//        View wantedView = mListView.getChildAt(wantedChild);
-//        iv = (ImageView) wantedView.findViewById(R.id.img_icon);
-//        iv.setVisibility(View.VISIBLE);
+        mListView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                int wantedChild;
+                ImageView iv;
+
+                wantedChild = getActualPosition(lastPos);
+                View wantedView = mListView.getChildAt(wantedChild);
+                iv = (ImageView) wantedView.findViewById(R.id.img_icon);
+                iv.setVisibility(View.VISIBLE);
+
+                return true;
+            }
+        });
     }
+
 
     int getActualPosition(int pos) {
         int wantedPosition = pos; // Whatever position you're looking for
@@ -90,7 +111,18 @@ public class RingtoneSelectActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back: {
-                finish();
+                //数据是使用Intent返回
+                Intent intent = new Intent();
+                //把返回数据存入Intent
+
+                Map<String, Object> map = (Map<String, Object>) mListView.getAdapter().getItem(lastPos);
+                intent.putExtra("audio_id", (int) map.get("audio_id"));
+
+                //设置返回数据
+                RingtoneSelectActivity.this.setResult(RESULT_OK, intent);
+                //关闭Activity
+                RingtoneSelectActivity.this.finish();
+
                 break;
             }
 
@@ -99,18 +131,64 @@ public class RingtoneSelectActivity extends BaseActivity {
         super.onClick(v);
     }
 
+    static final int audio_mp3_res[] = { R.raw.alarm, R.raw.alarm_bird, R.raw.alarm_car, R.raw.alarm_cat,
+                                R.raw.alarm_chatcall, R.raw.alarm_dog, R.raw.alarm_fire, R.raw.alarm_music,
+                                R.raw.alarm_radar, R.raw.alarm_trumpet, R.raw.alarm_whistle
+                            };
+
+    static public int getIndexFromResid(int resid) {
+        int i;
+
+        for (i = 0; i < audio_mp3_res.length; i++) {
+            if (resid == audio_mp3_res[i]) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
+        }
+    }
 
     private List<Map<String, Object>> getData() {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
-        for (int i = 1; i <= NR_RINGTONE; i++) {
+        for (int i = 0; i < NR_RINGTONE; i++) {
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("text", "Alarmtone " + i);
-            map.put("icon", R.drawable.check_true);
+            int index = i + 1;
+            map.put("text", "Alarmtone " + index);
+            map.put("audio_id", audio_mp3_res[i]);
+            map.put("icon", R.drawable.select_icon);
             list.add(map);
         }
 
         return list;
     }
 
+    private void playSound(int audio_id) {
+        Log.d("hjq", "id = " + audio_id);
+
+        if (mPlayer != null) {
+            mPlayer.release();
+        }
+
+        mPlayer = MediaPlayer.create(RingtoneSelectActivity.this, audio_id);
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mPlayer.release();
+                mPlayer = null;
+            }
+        });
+        mPlayer.setVolume(1.0f, 1.0f);
+        mPlayer.start();
+    }
 }

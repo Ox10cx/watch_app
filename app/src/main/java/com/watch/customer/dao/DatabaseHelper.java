@@ -68,9 +68,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ "id varchar(25) PRIMARY KEY," + "name varchar(20),"
 				+ "anitiLostSwitch integer," + "alertDistance integer,"
 				+ "lostAlertSwitch integer," + "alertVolume integer,"
-				+ "thumbnail varchar(30)," + "alertRingtone varchar(255),"
+				+ "thumbnail varchar(30)," + "alertRingtone int,"
                 + "alertFindSwitch integer," + "findAlertVolume integer,"
-                + "findAlertRingtone varchar(255))");
+                + "findAlertRingtone int)");
 	}
 
 	@Override

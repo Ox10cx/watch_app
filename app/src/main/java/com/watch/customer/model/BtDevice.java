@@ -38,7 +38,7 @@ public class BtDevice implements Serializable {
         this.alertVolume = alertVolume;
     }
 
-    public void setAlertRingtone(String alertRingtone) {
+    public void setAlertRingtone(int alertRingtone) {
         this.alertRingtone = alertRingtone;
     }
 
@@ -50,7 +50,7 @@ public class BtDevice implements Serializable {
         this.findAlertVolume = findAlertVolume;
     }
 
-    public void setFindAlertRingtone(String findAlertRingtone) {
+    public void setFindAlertRingtone(int findAlertRingtone) {
         this.findAlertRingtone = findAlertRingtone;
     }
 
@@ -77,7 +77,7 @@ public class BtDevice implements Serializable {
         return alertVolume;
     }
 
-    public String getAlertRingtone() {
+    public int getAlertRingtone() {
         return alertRingtone;
     }
 
@@ -89,7 +89,7 @@ public class BtDevice implements Serializable {
         return findAlertVolume;
     }
 
-    public String getFindAlertRingtone() {
+    public int getFindAlertRingtone() {
         return findAlertRingtone;
     }
 
@@ -103,12 +103,12 @@ public class BtDevice implements Serializable {
     public final static int ALERT_DISTANCE_FAR = 3;
 
     private int alertVolume;
-    private String alertRingtone;
+    private int alertRingtone;
 
     //
     private boolean findAlertSwitch;
     private int findAlertVolume;
-    private String findAlertRingtone;
+    private int findAlertRingtone;
     private int rssi;
 
     public int getStatus() {
@@ -152,7 +152,7 @@ public class BtDevice implements Serializable {
 
     public BtDevice(String thumbnail, String name, String address, boolean antiLostSwitch,
                     boolean lostAlertSwitch, int alertDistance, int alertVolume,
-                    String alertRingtone, boolean findAlertSwitch, int findAlertVolume, String findAlertRingtone) {
+                    int alertRingtone, boolean findAlertSwitch, int findAlertVolume, int findAlertRingtone) {
         this.thumbnail = thumbnail;
         this.name = name;
         this.address = address;
@@ -182,10 +182,10 @@ public class BtDevice implements Serializable {
         lostAlertSwitch = false;
         alertDistance = ALERT_DISTANCE_FAR;
         alertVolume = 0;
-        alertRingtone = "";
+        alertRingtone = 0;
         findAlertSwitch = false;
         findAlertVolume = 0;
-        findAlertRingtone = "";
+        findAlertRingtone = 0;
     }
 
 }

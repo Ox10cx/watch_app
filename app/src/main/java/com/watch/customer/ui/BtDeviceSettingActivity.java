@@ -67,12 +67,17 @@ public class BtDeviceSettingActivity extends BaseActivity {
     public static final int SELECT_PIC_BY_PICK_PHOTO = 2;
 
     private static final int CUT_PHOTO = 3;
+
+    public static final int CHANGE_ANTI_LOST_SETTING = 4;
+
+    public static final int CHANGE_FIND_ME_SETTING = 5;
+
     private Uri photoUri;
     /** 通过centerIndex来决定采用那种存储方式 **/
     private int centerIndex;
 
     private static final String[] text_array = {"Anti lost", "Find me", "Disconnect"};
-    private static final int[] icon_array = {R.drawable.anti_lost, R.drawable.findme, R.drawable.disconnect};
+    private static final int[] icon_array = {R.drawable.antilost_service_icon, R.drawable.found_service_icon, R.drawable.service};
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -120,7 +125,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
         };
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,7 +132,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
         setContentView(R.layout.activity_btdevice_setting);
         Intent i = getIntent();
         mDevice = (BtDevice) i.getSerializableExtra("device");
-
 
         ImageView ivBack = (ImageView) findViewById(R.id.iv_back);
         ivBack.setOnClickListener(this);
@@ -163,15 +166,15 @@ public class BtDeviceSettingActivity extends BaseActivity {
                 if (pos == 0) {
                     Intent i = new Intent(BtDeviceSettingActivity.this, AntiLostSettingActivity.class);
                     Bundle b = new Bundle();
-                    b.putSerializable("btdevice", mDevice);
+                    b.putSerializable("device", mDevice);
                     i.putExtras(b);
-                    startActivity(i);
+                    startActivityForResult(i, CHANGE_ANTI_LOST_SETTING);
                 } else if (pos == 1) {
                     Intent i = new Intent(BtDeviceSettingActivity.this, FindmeSettingActivity.class);
                     Bundle b = new Bundle();
-                    b.putSerializable("btdevice", mDevice);
+                    b.putSerializable("device", mDevice);
                     i.putExtras(b);
-                    startActivity(i);
+                    startActivityForResult(i, CHANGE_FIND_ME_SETTING);
                 } else {
 
                 }
@@ -201,7 +204,11 @@ public class BtDeviceSettingActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -304,6 +311,15 @@ public class BtDeviceSettingActivity extends BaseActivity {
                 case CUT_PHOTO:
                     handleCrop(data);
                     break;
+
+                case CHANGE_ANTI_LOST_SETTING:
+                case CHANGE_FIND_ME_SETTING:
+                {
+                    Bundle bundle = data.getExtras();
+                    BtDevice device = (BtDevice) bundle.getSerializable("device");
+                    mDevice = device;
+                    break;
+                }
             }
 
         }

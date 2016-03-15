@@ -37,7 +37,6 @@ import java.util.ArrayList;
 public class DeviceListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<BtDevice> data;
-    private Button curDel_btn;
     private int mId;
 
     public DeviceListAdapter(Context context, ArrayList<BtDevice> list)
@@ -71,7 +70,7 @@ public class DeviceListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
-        ViewHolder holderView = null;
+        ViewHolder holderView;
 
         if (convertView == null) {
             holderView = new ViewHolder();
@@ -96,17 +95,21 @@ public class DeviceListAdapter extends BaseAdapter {
         if (path != null) {
             ImageLoaderUtil.displayImage("file://" + path, holderView.image, context);
         }  else {
-            Drawable d = context.getResources().getDrawable(R.drawable.defaultpic);
+            Drawable d = context.getResources().getDrawable(R.drawable.device_icon);
             holderView.image.setImageDrawable(d);
         }
 
         holderView.name.setText(data.get(position).getName());
 
-//        if (data.get(position).getStatus() == BtDevice.CONNECTED) {
-//            holderView.status.setText(R.string.connected);
-//        } else {
-//            holderView.status.setText(R.string.disconnected);
-//        }
+
+        if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED ||
+                data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_ALERTING) {
+            holderView.status.setText(R.string.connected);
+        } else if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTING) {
+            holderView.status.setText(R.string.connecting);
+        } else {
+            holderView.status.setText(R.string.disconnected);
+        }
 
         holderView.button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,36 +118,77 @@ public class DeviceListAdapter extends BaseAdapter {
                 Button v = (Button) view;
 
                 final String address = data.get(position).getAddress();
-
-                if (address == null) return;
+                if (address == null) {
+                    return;
+                }
 
                 DeviceListActivity activity = (DeviceListActivity) context;
+                mId = position;
+                int status = data.get(position).getStatus();
 
-                if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
-                    activity.disconnectBLE();
-                    v.setText(R.string.connect);
-                    data.get(position).setStatus(BluetoothLeClass.BLE_STATE_INIT);
-                } else {
-                    if (activity.connectBLE(address)) {
-                        v.setText(R.string.disconnect);
-                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
+                Log.d("hjq", "status = " + status);
+                switch (status) {
+                    case BluetoothLeClass.BLE_STATE_CONNECTED: {
+                        activity.turnOnImmediateAlert();
+                        v.setText(R.string.stop_alert);
+                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_ALERTING);
+                        break;
                     }
+
+                    case BluetoothLeClass.BLE_STATE_ALERTING: {
+                        activity.turnOffImmediateAlert();
+                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
+                        v.setText(R.string.alert);
+                        break;
+                    }
+
+                    case BluetoothLeClass.BLE_STATE_CONNECTING: {
+                        break;
+                    }
+
+                    default:
+                    case BluetoothLeClass.BLE_STATE_INIT:{
+                        if (activity.connectBLE(address)) {
+                            v.setText(R.string.disconnect);
+                            data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTING);
+                        }
+                        break;
+                    }
+
                 }
 
                 notifyDataSetChanged();
             }
         });
 
-        if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
-            holderView.button.setText(R.string.disconnect);
-        } else {
-            holderView.button.setText(R.string.connect);
+        int status2 = data.get(position).getStatus();
+
+        Log.d("hjq", "status2 = " + status2);
+        switch (status2) {
+            case BluetoothLeClass.BLE_STATE_CONNECTED: {
+                holderView.button.setText(R.string.alert);
+                break;
+            }
+
+            case BluetoothLeClass.BLE_STATE_ALERTING: {
+                holderView.button.setText(R.string.stop_alert);
+                break;
+            }
+
+            case BluetoothLeClass.BLE_STATE_CONNECTING: {
+                break;
+            }
+
+            case BluetoothLeClass.BLE_STATE_INIT:
+            default: {
+                holderView.button.setText(R.string.connect);
+                break;
+            }
         }
 
         holderView.right_arrow.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View view) {
-               //   Toast.makeText(context, "right arrow postion " + position, Toast.LENGTH_SHORT).show();
                   Log.d("hjq", "gggg");
 
                   mId = position;
@@ -171,7 +215,6 @@ public class DeviceListAdapter extends BaseAdapter {
         data.remove(position);
         notifyDataSetChanged();
     }
-
 
     private final static class ViewHolder {
         public ImageView image;
