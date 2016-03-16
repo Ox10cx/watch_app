@@ -43,6 +43,7 @@ public class BaseActivity extends Activity implements OnClickListener {
 		dialog.setCancelable(true);
 		dialog.show();
 	}
+
 	public void showLoadingDialog(String msg) {
 		dialog = DialogUtil.createLoadingDialog(this, msg);
 		dialog.setCancelable(true);

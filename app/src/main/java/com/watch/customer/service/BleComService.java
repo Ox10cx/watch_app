@@ -8,34 +8,25 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanRecord;
-import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.ParcelUuid;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.uacent.watchapp.R;
 import com.watch.customer.device.BluetoothAntiLostDevice;
 import com.watch.customer.device.BluetoothLeClass;
-import com.watch.customer.ui.AntiLostSettingActivity;
 import com.watch.customer.ui.ICallback;
 import com.watch.customer.ui.IService;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,6 +35,7 @@ import java.util.UUID;
 public class BleComService extends Service {
     private static final String  TAG = "hjq";
     private static final int SCAN_PERIOD = 10000;
+    private static final long LIVE_PERIOD = 1000 * 7;       //点击开始扫描后的10秒停止扫描
     private BluetoothAntiLostDevice mBLE;
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler = new Handler();
@@ -295,7 +287,7 @@ public class BleComService extends Service {
                     try {
                         int i;
                         for (i = 0; i < n; i++) {
-                            mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(),  rssi);
+                            mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(), rssi);
                         }
                     } catch (RemoteException e) {
                         Log.e(TAG, "remote call exception", e);

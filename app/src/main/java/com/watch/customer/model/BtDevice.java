@@ -111,6 +111,16 @@ public class BtDevice implements Serializable {
     private int findAlertRingtone;
     private int rssi;
 
+    public boolean isLostAlert() {
+        return lostAlert;
+    }
+
+    public void setLostAlert(boolean lostAlert) {
+        this.lostAlert = lostAlert;
+    }
+
+    private boolean lostAlert;
+
     public int getStatus() {
         return status;
     }
@@ -167,6 +177,7 @@ public class BtDevice implements Serializable {
 
         rssi = -9999;
         status = -1;
+        lostAlert = false;
 
         if (name == null) {
             this.name = "unkown";
@@ -186,6 +197,8 @@ public class BtDevice implements Serializable {
         findAlertSwitch = false;
         findAlertVolume = 0;
         findAlertRingtone = 0;
+
+        lostAlert = false;
     }
 
 }
