@@ -111,6 +111,22 @@ public class BtDevice implements Serializable {
     private int findAlertRingtone;
     private int rssi;
 
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    private int position;
+
+    static public final int  LOST = 0;
+    static public final int  FAR = 1;
+    static public final int  MIDDLE = 2;
+    static public final int  NEAR = 3;
+    static public final int  OK = 4;
+
     public boolean isLostAlert() {
         return lostAlert;
     }
@@ -178,6 +194,7 @@ public class BtDevice implements Serializable {
         rssi = -9999;
         status = -1;
         lostAlert = false;
+        position = -1;
 
         if (name == null) {
             this.name = "unkown";
@@ -198,6 +215,7 @@ public class BtDevice implements Serializable {
         findAlertVolume = 0;
         findAlertRingtone = 0;
 
+        position = -1;
         lostAlert = false;
     }
 

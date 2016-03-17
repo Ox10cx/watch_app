@@ -27,6 +27,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -64,7 +71,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private SlideDeleteListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
-    private Map<String,List<Integer>> livingRssiData = new HashMap<String,List<Integer>>();
     private Handler mHandler;
     private BtDeviceDao mDeviceDao;
     private IService mService;
@@ -108,33 +114,92 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         });
 
         mDeviceList.setOnItemClickListener(DeviceListActivity.this);
-
+        mDeviceList.setLayoutAnimation(getAnimationController());
         fillListData();
 
         Intent i = new Intent(this, BleComService.class);
         getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    protected LayoutAnimationController getAnimationController() {
+        int duration=300;
+        AnimationSet set = new AnimationSet(true);
+
+        Animation animation = new AlphaAnimation(0.0f, 1.0f);
+        animation.setDuration(duration);
+        set.addAnimation(animation);
+
+        animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
+                -1.0f, Animation.RELATIVE_TO_SELF, 0.0f);
+        animation.setDuration(duration);
+        set.addAnimation(animation);
+
+        LayoutAnimationController controller = new LayoutAnimationController(set, 0.5f);
+        controller.setOrder(LayoutAnimationController.ORDER_NORMAL);
+        return controller;
+    }
+
+
+    void checkUI()
+    {
         final Runnable fnCheck = new Runnable() {
             @Override
             public void run() {
-                int i;
+                boolean restart = false;
 
-                checkAntiLost();
-
-                for (i = 0; i < mListData.size(); i++) {
+                for (int i = 0; i < mListData.size(); i++) {
                     BtDevice d = mListData.get(i);
                     if (d.isLostAlert() && d.isAntiLostSwitch()) {
                         playAlertRingtone(d);
                         startFlash(i);
+                        restart = true;
                     } else {
                         stopFlash(i);
                     }
                 }
 
-                mHandler.postDelayed(this, 3000);
+                if (restart) {
+                    mHandler.postDelayed(this, 3000);
+                }
             }
         };
 
         mHandler.postDelayed(fnCheck, 3000);
+    }
+
+    private void showItemViewAnimation(final View v, final int index) {
+        Animation myAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha_anim);
+        v.startAnimation(myAnimation);
+    }
+
+    private void collapse(final View v, Animation.AnimationListener al) {
+        final int initialHeight = v.getMeasuredHeight();
+
+        Animation anim = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                if (interpolatedTime == 1) {
+                    v.setVisibility(View.GONE);
+                }
+                else {
+                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                    v.requestLayout();
+                }
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        if (al != null) {
+            anim.setAnimationListener(al);
+        }
+
+        anim.setDuration(500);
+        v.startAnimation(anim);
     }
 
     int getActualPosition(int pos) {
@@ -156,7 +221,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         View wantedView = mDeviceList.getChildAt(wantedChild);
         if (wantedView != null) {
             wantedView.setTag(R.id.tag_second, true);
+            wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
+            wantedView.clearAnimation();
         }
+
     }
 
     void startFlash(final int position) {
@@ -166,43 +234,45 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         View wantedView = mDeviceList.getChildAt(wantedChild);
         if (wantedView != null) {
             wantedView.setTag(R.id.tag_second, false);
+            wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
+            showItemViewAnimation(wantedView, position);
         }
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                int wantedChild;
-
-                wantedChild = getActualPosition(position);
-                View wantedView = mDeviceList.getChildAt(wantedChild);
-                if (wantedView != null) {
-                    int tag = 0;
-                    boolean stopped;
-
-                    stopped = (boolean)wantedView.getTag(R.id.tag_second);
-                    if (stopped) {
-                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
-                        return;
-                    }
-
-                    if (wantedView.getTag(R.id.tag_first) == null) {
-                        tag = 0;
-                    } else {
-                        tag = (int) wantedView.getTag(R.id.tag_first);
-                    }
-
-                    if (tag == 0) {
-                        wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
-                    } else {
-                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
-                    }
-
-                    wantedView.setTag(R.id.tag_first, tag == 0 ? 1 : 0);
-                }
-
-                mHandler.postDelayed(this, 500);
-            }
-        }, 1000);
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                int wantedChild;
+//
+//                wantedChild = getActualPosition(position);
+//                View wantedView = mDeviceList.getChildAt(wantedChild);
+//                if (wantedView != null) {
+//                    int tag = 0;
+//                    boolean stopped;
+//
+//                    stopped = (boolean)wantedView.getTag(R.id.tag_second);
+//                    if (stopped) {
+//                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
+//                        return;
+//                    }
+//
+//                    if (wantedView.getTag(R.id.tag_first) == null) {
+//                        tag = 0;
+//                    } else {
+//                        tag = (int) wantedView.getTag(R.id.tag_first);
+//                    }
+//
+//                    if (tag == 0) {
+//                        wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
+//                    } else {
+//                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
+//                    }
+//
+//                    wantedView.setTag(R.id.tag_first, tag == 0 ? 1 : 0);
+//                }
+//
+//                mHandler.postDelayed(this, 500);
+//            }
+//        }, 1000);
     }
 
     private void playAlertRingtone(BtDevice d) {
@@ -331,9 +401,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                             break;
                         }
                     }
-
-             //       Log.d("hjq", "found device = " + deviceFound);
-
                     if (deviceFound) {
                         d = mListData.get(i);
                         d.setRssi(rssi);
@@ -346,19 +413,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         mDeviceDao.insert(d);
                         mListData.add(d);
                     }
-
-                    List<Integer> list = livingRssiData.get(d.getAddress());
-                    if (list == null) {
-                        list = new ArrayList<Integer>(10);
-                        livingRssiData.put(d.getAddress(), list);
-                    }
-
-                    if (list.size() > 20) {
-                        list.remove(0);
-                    }
-
-                    list.add(rssi);
-
                     mDeviceListAdapter.notifyDataSetChanged();
                 }
             });
@@ -370,10 +424,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             int position = mDeviceListAdapter.getmId();
             mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
 
+
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     mDeviceListAdapter.notifyDataSetChanged();
+                    try {
+                        mService.setAntiLost(false);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
@@ -388,6 +448,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 @Override
                 public void run() {
                     mDeviceListAdapter.notifyDataSetChanged();
+                    checkAntiLost();
                 }
             });
         }
@@ -399,7 +460,27 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         @Override
         public void onSignalChanged(String address, int rssi) throws RemoteException {
-            Log.d("hjq", "onSignalChanged called");
+            Log.d("hjq", "onSignalChanged called address = " + address + " rssi = " + rssi);
+
+            for (int i = 0; i < mListData.size(); i++) {
+                BtDevice d = mListData.get(i);
+                if (d.getAddress().equals(address)) {
+                    d.setRssi(rssi);
+                }
+            }
+        }
+
+        public void onPositionChanged(String address, int position) throws RemoteException {
+            Log.d("hjq", "onPositionChanged called address = " + address + " newpos = " + position);
+
+            for (int i = 0; i < mListData.size(); i++) {
+                BtDevice d = mListData.get(i);
+                if (d.getAddress().equals(address)) {
+                    d.setPosition(position);
+                }
+            }
+
+            checkAntiLost();
         }
     };
 
@@ -416,18 +497,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             mService = IService.Stub.asInterface(service);
             try {
                 mService.registerCallback(mCallback);
-                if (checkAntiLost()) {
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mService.scanBtDevices(true);
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, 20000);
-                }
+                checkAntiLost();
                 mService.scanBtDevices(true);
             } catch (RemoteException e) {
                 Log.e(TAG, "", e);
@@ -436,21 +506,42 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     };
 
     boolean checkAntiLost() {
-        Map<String, Double> rssidata = PreventAntiLostCore.getDeviceState(livingRssiData);
         boolean ret = false;
 
         for (BtDevice d : mListData) {
             if (d.isAntiLostSwitch()) {
-                Double rssi = rssidata.get(d.getAddress());
-                Log.d("hjq", "calculated rssi = " + rssi + " device rssi = " + d.getRssi());
+              switch (d.getPosition()) {
+                  case BtDevice.LOST:
+                  case BtDevice.FAR: {
+                      d.setLostAlert(true);
+                      break;
+                  }
 
-                if (rssi == null || d.getRssi() < rssi) {
-                    d.setLostAlert(true);
-                } else {
-                    d.setLostAlert(false);
-                }
+                  case BtDevice.OK: {
+                      d.setLostAlert(false);
+                      break;
+                  }
+
+                  default:
+                      break;
+              }
 
                 ret = true;
+            }
+        }
+
+        if (ret) {
+            try {
+                mService.setAntiLost(true);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            checkUI();
+        } else {
+            try {
+                mService.setAntiLost(false);
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
         }
 

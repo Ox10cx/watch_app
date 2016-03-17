@@ -19,13 +19,17 @@ import android.util.Log;
 
 import com.watch.customer.device.BluetoothAntiLostDevice;
 import com.watch.customer.device.BluetoothLeClass;
+import com.watch.customer.model.BtDevice;
 import com.watch.customer.ui.ICallback;
 import com.watch.customer.ui.IService;
+import com.watch.customer.util.PreventAntiLostCore;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,7 +44,12 @@ public class BleComService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler = new Handler();
 
+    private Map<String, Integer> mScaningRssi = new HashMap<String, Integer>();
+    private Map<String,List<Integer>> mlivingRssiData = new HashMap<String,List<Integer>>();
+
     private RemoteCallbackList<ICallback> mCallbacks = new RemoteCallbackList<ICallback>();
+    private boolean antiLostEnabled;
+    private Object mSync = new Object();
 
     public class LocalBinder extends Binder {
         public BleComService getService() {
@@ -111,7 +120,108 @@ public class BleComService extends Service {
         public void scanBtDevices(boolean enable) {
             scanLeDevice(enable);
         }
+
+        public void setAntiLost(boolean enable) {
+            setBleAntiLost(enable);
+        }
     };
+
+
+    void setBleAntiLost(boolean enable) {
+
+        if (antiLostEnabled == enable) {
+            return;
+        }
+
+        antiLostEnabled = enable;
+
+        if (enable) {
+            Thread th = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (antiLostEnabled) {
+                        mScaningRssi.clear();
+                        mBluetoothAdapter.startLeScan(mAntiLostCallback);
+
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        mBluetoothAdapter.stopLeScan(mAntiLostCallback);
+
+                        // 判断蓝牙设备是否丢失
+                        for (String k : mlivingRssiData.keySet()) {
+                            int val = -130;    // 蓝牙设备已经丢失的信号值
+                            if (mScaningRssi.get(k) != null) {
+                                val = mScaningRssi.get(k);
+                                mScaningRssi.remove(k);
+                            }
+                            List<Integer> list = mlivingRssiData.get(k);
+                            if (list.size() > 20) {
+                                list.remove(0);
+                            }
+                            list.add(val);
+                        }
+
+                        for (String key : mScaningRssi.keySet()) {
+                            List<Integer> list = new ArrayList<Integer>();
+                            list.add(mScaningRssi.get(key));
+
+                            mlivingRssiData.put(key, list);
+                        }
+
+                        Map<String, Double> rssidata = PreventAntiLostCore.getDeviceState(mlivingRssiData);
+                        for (String key : rssidata.keySet()) {
+                            int rssi = rssidata.get(key).intValue();
+                            int pos;
+
+                            Log.d("hjq", "rssi = " + rssi);
+                            if (rssi < -100) {
+                                pos = BtDevice.LOST;
+                            }
+//                            else if (rssi < -90) {
+//                                pos = BtDevice.FAR;
+//                            } else if (rssi < -80) {
+//                                pos = BtDevice.MIDDLE;
+//                            } else if (rssi < -70) {
+//                                pos = BtDevice.NEAR;
+//                            }
+                            else {
+                                pos = BtDevice.OK;
+                            }
+
+                            synchronized (mSync) {
+                                int n = mCallbacks.beginBroadcast();
+                                try {
+                                    int i;
+                                    for (i = 0; i < n; i++) {
+                                        mCallbacks.getBroadcastItem(i).onPositionChanged(key, pos);
+                                        mCallbacks.getBroadcastItem(i).onSignalChanged(key, rssi);
+                                    }
+                                } catch (RemoteException e) {
+                                    Log.e(TAG, "remote call exception", e);
+                                }
+                                mCallbacks.finishBroadcast();
+                            }
+
+                        }
+
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+            th.start();
+        } else {
+            mBluetoothAdapter.stopLeScan(mAntiLostCallback);
+        }
+    }
 
     boolean initialize() {
         mBLE = new BluetoothAntiLostDevice(BleComService.this);
@@ -182,34 +292,36 @@ public class BleComService extends Service {
     private BluetoothLeClass.OnDisconnectListener mOnDisconnectListener = new BluetoothLeClass.OnDisconnectListener() {
         @Override
         public void onDisconnect(BluetoothGatt gatt) {
-            int n = mCallbacks.beginBroadcast();
-            Log.d("hjq", "n = " + n);
-            try {
-                int i;
-                for (i = 0; i < n; i++) {
-                    mCallbacks.getBroadcastItem(i).onDisconnect(gatt.getDevice().getAddress());
+            synchronized (mSync) {
+                int n = mCallbacks.beginBroadcast();
+                try {
+                    int i;
+                    for (i = 0; i < n; i++) {
+                        mCallbacks.getBroadcastItem(i).onDisconnect(gatt.getDevice().getAddress());
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "remote call exception", e);
                 }
-            } catch (RemoteException e) {
-                Log.e(TAG, "remote call exception", e);
+                mCallbacks.finishBroadcast();
             }
-            mCallbacks.finishBroadcast();
         }
     };
 
     private BluetoothLeClass.OnConnectListener mOnConnectListener = new BluetoothLeClass.OnConnectListener() {
         @Override
         public void onConnect(BluetoothGatt gatt) {
+            synchronized (mSync) {
                 int n = mCallbacks.beginBroadcast();
-                Log.d("hjq", "n = " + n);
                 try {
-                        int i;
-                        for (i = 0; i < n; i++) {
-                            mCallbacks.getBroadcastItem(i).onConnect(gatt.getDevice().getAddress());
-                        }
+                    int i;
+                    for (i = 0; i < n; i++) {
+                        mCallbacks.getBroadcastItem(i).onConnect(gatt.getDevice().getAddress());
+                    }
                 } catch (RemoteException e) {
                     Log.e(TAG, "remote call exception", e);
                 }
                 mCallbacks.finishBroadcast();
+            }
         }
 
     };
@@ -278,21 +390,32 @@ public class BleComService extends Service {
         }
     }
 
+
+    private BluetoothAdapter.LeScanCallback mAntiLostCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+                    Log.d("hjq", "address = " + device.getAddress() + " rssi = " + rssi);
+                   mScaningRssi.put(device.getAddress(), rssi);
+                }
+            };
+
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
                 @Override
                 public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-                    int n = mCallbacks.beginBroadcast();
-                    Log.d("hjq", "n = " + n);
-                    try {
-                        int i;
-                        for (i = 0; i < n; i++) {
-                            mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(), rssi);
+                    synchronized (mSync) {
+                        int n = mCallbacks.beginBroadcast();
+                        try {
+                            int i;
+                            for (i = 0; i < n; i++) {
+                                mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(), rssi);
+                            }
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "remote call exception", e);
                         }
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "remote call exception", e);
+                        mCallbacks.finishBroadcast();
                     }
-                    mCallbacks.finishBroadcast();
                 }
             };
 
@@ -340,4 +463,5 @@ public class BleComService extends Service {
             }
         }
     }
+
 }

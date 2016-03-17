@@ -160,6 +160,10 @@ public class BtDeviceSettingActivity extends BaseActivity {
         public void onSignalChanged(String address, int rssi) throws RemoteException {
 
         }
+
+        public void onPositionChanged(String address, int rssi) throws RemoteException {
+
+        }
     };
 
     private ServiceConnection mConnection = new ServiceConnection() {

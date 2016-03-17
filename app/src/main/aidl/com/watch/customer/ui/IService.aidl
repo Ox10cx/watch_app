@@ -16,4 +16,6 @@ interface IService {
     void turnOffImmediateAlert();
 
     void scanBtDevices(boolean enable);
+
+    void setAntiLost(boolean enable);
 }

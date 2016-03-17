@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
  * Created by Administrator on 16-3-7.
  */
 public class DeviceListAdapter extends BaseAdapter {
+    private static final long ANIMATION_DURATION = 300;
     private Context context;
     private ArrayList<BtDevice> data;
     private int mId;
@@ -197,12 +200,56 @@ public class DeviceListAdapter extends BaseAdapter {
                   b.putSerializable("device", d);
                   i.putExtras(b);
                   context.startActivity(i);
+ //                 showCell(view, 0);
               }
           }
         );
 
         return convertView;
     }
+
+    private void showCell(final View v, final int index) {
+        Animation.AnimationListener al = new Animation.AnimationListener() {
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+
+            }
+            @Override public void onAnimationRepeat(Animation animation) {}
+            @Override public void onAnimationStart(Animation animation) {}
+        };
+
+        collapse(v, al);
+    }
+
+    private void collapse(final View v, Animation.AnimationListener al) {
+        final int initialHeight = v.getMeasuredHeight();
+
+        Animation anim = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                if (interpolatedTime == 1) {
+                    v.setVisibility(View.GONE);
+                }
+                else {
+                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                    v.requestLayout();
+                }
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        if (al != null) {
+            anim.setAnimationListener(al);
+        }
+
+        anim.setDuration(ANIMATION_DURATION);
+        v.startAnimation(anim);
+    }
+
 
     @Override
     public void notifyDataSetChanged() {
