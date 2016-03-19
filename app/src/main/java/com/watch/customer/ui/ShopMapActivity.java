@@ -11,7 +11,7 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.navi.BaiduMapNavigation;
-import com.baidu.mapapi.navi.NaviPara;
+
 import com.uacent.watchapp.R;
 import com.watch.customer.model.Shop;
 import com.watch.customer.util.PreferenceUtil;
@@ -58,10 +58,7 @@ public class ShopMapActivity extends BaseActivity implements
 				LatLng pt1 = new LatLng(mLat1, mLon1);
 				LatLng pt2 = new LatLng(latitude, longitude);
 				// 构建 导航参数
-				NaviPara para = new NaviPara();
-				para.startPoint = pt1;
-				para.endPoint = pt2;
-				BaiduMapNavigation.openWebBaiduMapNavi(para,ShopMapActivity.this);
+
 			}
 		});
 		mBaidumap = mMapView.getMap();

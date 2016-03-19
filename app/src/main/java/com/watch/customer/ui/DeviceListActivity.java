@@ -108,7 +108,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             public void removeItem(SlideDeleteListView.RemoveDirection direction, int position) {
                 BtDevice d = mListData.get(position);
                 mDeviceDao.deleteById(d.getAddress());
-                stopFlash(position);
+                stopAnimation(position);
                 mDeviceListAdapter.updateDataSet(position - mDeviceList.getHeaderViewsCount());
             }
         });
@@ -152,10 +152,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     BtDevice d = mListData.get(i);
                     if (d.isLostAlert() && d.isAntiLostSwitch()) {
                         playAlertRingtone(d);
-                        startFlash(i);
+                        startAnimation(i);
                         restart = true;
                     } else {
-                        stopFlash(i);
+                        stopAnimation(i);
                     }
                 }
 
@@ -214,7 +214,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         return wantedChild;
     }
 
-    void stopFlash(final int position) {
+    void stopAnimation(final int position) {
         int wantedChild;
 
         wantedChild = getActualPosition(position);
@@ -224,10 +224,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
             wantedView.clearAnimation();
         }
-
     }
 
-    void startFlash(final int position) {
+    void startAnimation(final int position) {
         int wantedChild;
 
         wantedChild = getActualPosition(position);
@@ -237,42 +236,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
             showItemViewAnimation(wantedView, position);
         }
-
-//        mHandler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                int wantedChild;
-//
-//                wantedChild = getActualPosition(position);
-//                View wantedView = mDeviceList.getChildAt(wantedChild);
-//                if (wantedView != null) {
-//                    int tag = 0;
-//                    boolean stopped;
-//
-//                    stopped = (boolean)wantedView.getTag(R.id.tag_second);
-//                    if (stopped) {
-//                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
-//                        return;
-//                    }
-//
-//                    if (wantedView.getTag(R.id.tag_first) == null) {
-//                        tag = 0;
-//                    } else {
-//                        tag = (int) wantedView.getTag(R.id.tag_first);
-//                    }
-//
-//                    if (tag == 0) {
-//                        wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
-//                    } else {
-//                        wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
-//                    }
-//
-//                    wantedView.setTag(R.id.tag_first, tag == 0 ? 1 : 0);
-//                }
-//
-//                mHandler.postDelayed(this, 500);
-//            }
-//        }, 1000);
     }
 
     private void playAlertRingtone(BtDevice d) {
