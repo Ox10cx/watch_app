@@ -180,7 +180,7 @@ public class LocationActivity  extends BaseActivity {
     protected void onPause() {
         mMapView.onPause();
         Log.d(TAG, "location activity onpause");
-
+        mMapView.setVisibility(View.INVISIBLE);
         super.onPause();
     }
 
@@ -188,6 +188,7 @@ public class LocationActivity  extends BaseActivity {
     protected void onResume() {
         Log.d(TAG, "location activity onResume");
         mMapView.onResume();
+        mMapView.setVisibility(View.VISIBLE);
         super.onResume();
     }
 

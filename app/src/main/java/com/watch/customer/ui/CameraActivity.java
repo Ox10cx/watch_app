@@ -118,6 +118,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
             }
         };
 
+        surfaceView.setVisibility(View.VISIBLE);
         cameraThread.start();
     }
 
@@ -133,11 +134,14 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     protected void onPause() {
         Log.d(TAG, "cameraactivity onPause");
         CameraInterface.getInstance().doStopCamera();
+        surfaceView.setVisibility(View.INVISIBLE);
         cameraThread = null;
 
         if (wakeLock != null) {
             wakeLock.release();
         }
+
+
 
         super.onPause();
     }
