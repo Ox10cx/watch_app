@@ -4,5 +4,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="view_normal_margin">.5dp</dimen>
+    <dimen name="password_size">70dp</dimen>
 
 </resources>

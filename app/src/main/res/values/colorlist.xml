@@ -17,4 +17,6 @@
     <color name="downLoadBackPressed">#FF3366CC</color>
     <color name="dialog_tiltle_blue">#2277BB</color>
 
+    <color name="TextColorDisable">#FFDDDDDD</color>
+
 </resources>
