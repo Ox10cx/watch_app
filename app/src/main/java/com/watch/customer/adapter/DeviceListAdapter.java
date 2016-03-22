@@ -2,6 +2,7 @@ package com.watch.customer.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -41,12 +42,14 @@ public class DeviceListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<BtDevice> data;
     private int mId;
+    OnItemClickCallback mCallback;
 
-    public DeviceListAdapter(Context context, ArrayList<BtDevice> list)
+    public DeviceListAdapter(Context context, ArrayList<BtDevice> list, OnItemClickCallback listener)
     {
         this.context = context;
         data = list;
         mId = 0;
+        mCallback = listener;
     }
 
     @Override
@@ -117,55 +120,20 @@ public class DeviceListAdapter extends BaseAdapter {
         holderView.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("hjq", "fffif");
-                Button v = (Button) view;
 
                 final String address = data.get(position).getAddress();
                 if (address == null) {
                     return;
                 }
-
-                DeviceListActivity activity = (DeviceListActivity) context;
                 mId = position;
-                int status = data.get(position).getStatus();
 
-                Log.d("hjq", "status = " + status);
-                switch (status) {
-                    case BluetoothLeClass.BLE_STATE_CONNECTED: {
-                        activity.turnOnImmediateAlert();
-                        v.setText(R.string.stop_alert);
-                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_ALERTING);
-                        break;
-                    }
-
-                    case BluetoothLeClass.BLE_STATE_ALERTING: {
-                        activity.turnOffImmediateAlert();
-                        data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
-                        v.setText(R.string.alert);
-                        break;
-                    }
-
-                    case BluetoothLeClass.BLE_STATE_CONNECTING: {
-                        break;
-                    }
-
-                    default:
-                    case BluetoothLeClass.BLE_STATE_INIT:{
-                        if (activity.connectBLE(address)) {
-                            v.setText(R.string.disconnect);
-                            data.get(position).setStatus(BluetoothLeClass.BLE_STATE_CONNECTING);
-                        }
-                        break;
-                    }
-                }
-
-                notifyDataSetChanged();
+                mCallback.onButtonClick(view, position);
             }
         });
 
+
         int status2 = data.get(position).getStatus();
 
-      //  Log.d("hjq", "status2 = " + status2);
         switch (status2) {
             case BluetoothLeClass.BLE_STATE_CONNECTED: {
                 holderView.button.setText(R.string.alert);
@@ -191,19 +159,11 @@ public class DeviceListAdapter extends BaseAdapter {
         holderView.right_arrow.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View view) {
-                  Log.d("hjq", "gggg");
-
+               //   Log.d("hjq", "gggg");
                   mId = position;
-                  Intent i = new Intent(context, BtDeviceSettingActivity.class);
-                  BtDevice d = data.get(position);
-                  Bundle b = new Bundle();
-                  b.putSerializable("device", d);
-                  i.putExtras(b);
-                  context.startActivity(i);
- //                 showCell(view, 0);
+                  mCallback.onRightArrowClick(position);
               }
-          }
-        );
+          });
 
         return convertView;
     }
@@ -270,4 +230,8 @@ public class DeviceListAdapter extends BaseAdapter {
         public ImageView right_arrow;
     }
 
+    public interface OnItemClickCallback {
+        void onButtonClick(View v, int position);
+        void onRightArrowClick(int postion);
+    };
 }

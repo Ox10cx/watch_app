@@ -5,6 +5,8 @@ import android.media.Image;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.uacent.watchapp.R;
+
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,68 @@ import java.io.Serializable;
 public class BtDevice implements Serializable {
    // private String name;
     private String thumbnail;
+
+    public BtDevice copy() {
+
+        BtDevice d = new BtDevice();
+
+        d.setAntiLostSwitch(this.isAntiLostSwitch());
+        d.setLostAlertSwitch(this.isLostAlertSwitch());
+        d.setAlertDistance(this.getAlertDistance());
+        d.setAlertVolume(this.getAlertVolume());
+        d.setAlertRingtone(this.getAlertRingtone());
+        d.setFindAlertSwitch(this.isFindAlertSwitch());
+        d.setFindAlertRingtone(this.getFindAlertRingtone());
+        d.setFindAlertVolume(this.getFindAlertVolume());
+        d.setLostAlert(this.isLostAlert());
+        d.setStatus(this.getStatus());
+        d.setThumbnail(this.getThumbnail());
+        d.setAddress(this.getAddress());
+        d.setName(this.getName());
+
+        return d;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BtDevice device = (BtDevice) o;
+
+        if (isAntiLostSwitch() != device.isAntiLostSwitch()) return false;
+        if (isLostAlertSwitch() != device.isLostAlertSwitch()) return false;
+        if (getAlertDistance() != device.getAlertDistance()) return false;
+        if (getAlertVolume() != device.getAlertVolume()) return false;
+        if (getAlertRingtone() != device.getAlertRingtone()) return false;
+        if (isFindAlertSwitch() != device.isFindAlertSwitch()) return false;
+        if (getFindAlertVolume() != device.getFindAlertVolume()) return false;
+        if (getFindAlertRingtone() != device.getFindAlertRingtone()) return false;
+        if (isLostAlert() != device.isLostAlert()) return false;
+        if (getThumbnail() != null ? !getThumbnail().equals(device.getThumbnail()) : device.getThumbnail() != null)
+            return false;
+        if (getName() != null ? !getName().equals(device.getName()) : device.getName() != null)
+            return false;
+        return !(getAddress() != null ? !getAddress().equals(device.getAddress()) : device.getAddress() != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getThumbnail() != null ? getThumbnail().hashCode() : 0;
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
+        result = 31 * result + (isAntiLostSwitch() ? 1 : 0);
+        result = 31 * result + (isLostAlertSwitch() ? 1 : 0);
+        result = 31 * result + getAlertDistance();
+        result = 31 * result + getAlertVolume();
+        result = 31 * result + getAlertRingtone();
+        result = 31 * result + (isFindAlertSwitch() ? 1 : 0);
+        result = 31 * result + getFindAlertVolume();
+        result = 31 * result + getFindAlertRingtone();
+        result = 31 * result + (isLostAlert() ? 1 : 0);
+        result = 31 * result + getStatus();
+        return result;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -199,6 +263,13 @@ public class BtDevice implements Serializable {
         if (name == null) {
             this.name = "unkown";
         }
+
+        if (this.findAlertRingtone == 0){
+            this.findAlertRingtone = R.raw.alarm;
+        }
+        if (this.alertRingtone == 0) {
+            this.alertRingtone = R.raw.alarm;
+        }
     }
 
     public BtDevice()
@@ -210,10 +281,10 @@ public class BtDevice implements Serializable {
         lostAlertSwitch = false;
         alertDistance = ALERT_DISTANCE_FAR;
         alertVolume = 0;
-        alertRingtone = 0;
+        alertRingtone = R.raw.alarm;
         findAlertSwitch = false;
         findAlertVolume = 0;
-        findAlertRingtone = 0;
+        findAlertRingtone = R.raw.alarm;
 
         position = -1;
         lostAlert = false;

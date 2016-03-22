@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * 第二，提供了onCreate()、onUpgrade()两个回调函数，允许我们再创建和升级数据库时，进行自己的操作
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
-	private static final int VERSION = 3;
+	private static final int VERSION = 4;
 	private String DROP_SEARCH = "drop table if exists search ";
 
 	/**
@@ -68,15 +68,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ "id varchar(25) PRIMARY KEY," + "name varchar(20),"
 				+ "anitiLostSwitch integer," + "alertDistance integer,"
 				+ "lostAlertSwitch integer," + "alertVolume integer,"
-				+ "thumbnail varchar(30)," + "alertRingtone int,"
+				+ "thumbnail varchar(30)," + "alertRingtone integer,"
                 + "alertFindSwitch integer," + "findAlertVolume integer,"
-                + "findAlertRingtone int)");
+                + "findAlertRingtone integer)");
+
+		db.execSQL("create table if not exists loc_history("
+				+ "id integer PRIMARY KEY AUTOINCREMENT," + "long_lat varchar(20),"
+				+ "location varchar(100)," + "loc_date long,"
+                + "btaddress varchar(25)," + "status integer)");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		db.execSQL(DROP_SEARCH);
+        db.execSQL("drop table if exists user");
+        db.execSQL("drop table if exists btdevices");
+        db.execSQL("drop table if exists loc_history");
 		onCreate(db);
 	}
 }

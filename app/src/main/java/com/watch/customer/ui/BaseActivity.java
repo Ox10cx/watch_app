@@ -50,9 +50,13 @@ public class BaseActivity extends Activity implements OnClickListener {
 		dialog.show();
 	}
 
-	public void closeLoadingDialog() {
+	public boolean closeLoadingDialog() {
 		if (dialog != null && dialog.isShowing()) {
 			dialog.dismiss();
+
+			return true;
+		} else {
+			return false;
 		}
 	}
 

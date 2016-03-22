@@ -67,7 +67,8 @@ import java.util.UUID;
  * Created by Administrator on 16-3-7.
  */
 public class DeviceListActivity  extends BaseActivity  implements View.OnClickListener,
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener, DeviceListAdapter.OnItemClickCallback {
+    private static final int CHANGE_BLE_DEVICE_SETTING = 1;
     private SlideDeleteListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
@@ -119,10 +120,35 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         Intent i = new Intent(this, BleComService.class);
         getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+
+        showLoadingDialog(getResources().getString(R.string.waiting));
+    }
+
+    @Override
+    public boolean closeLoadingDialog() {
+        boolean ret;
+
+        if (mService == null) {
+            return false;
+        }
+
+        ret = super.closeLoadingDialog();
+
+        if (mService != null) {
+            try {
+                mService.scanBtDevices(false);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
+            checkAntiLost();
+        }
+
+        return ret;
     }
 
     protected LayoutAnimationController getAnimationController() {
-        int duration=300;
+        int duration = 300;
         AnimationSet set = new AnimationSet(true);
 
         Animation animation = new AlphaAnimation(0.0f, 1.0f);
@@ -173,35 +199,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         v.startAnimation(myAnimation);
     }
 
-    private void collapse(final View v, Animation.AnimationListener al) {
-        final int initialHeight = v.getMeasuredHeight();
-
-        Animation anim = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if (interpolatedTime == 1) {
-                    v.setVisibility(View.GONE);
-                }
-                else {
-                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
-                    v.requestLayout();
-                }
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        if (al != null) {
-            anim.setAnimationListener(al);
-        }
-
-        anim.setDuration(500);
-        v.startAnimation(anim);
-    }
-
     int getActualPosition(int pos) {
         int firstPosition = mDeviceList.getFirstVisiblePosition() - mDeviceList.getHeaderViewsCount(); // This is the same as child #0
         int wantedChild = pos - firstPosition;
@@ -240,7 +237,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     private void playAlertRingtone(BtDevice d) {
         if (mPlayer != null) {
-            //mPlayer.release();
+            mPlayer.release();
             Log.d(TAG, "the player is busy now");
             return;
         }
@@ -265,7 +262,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         mListData = mDeviceDao.queryAll();
 
         mDeviceListAdapter = new DeviceListAdapter(
-                DeviceListActivity.this, mListData);
+                DeviceListActivity.this, mListData, this);
         mDeviceList.setAdapter(mDeviceListAdapter);
     }
 
@@ -324,7 +321,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
-        Log.d(TAG, "v = " + v);
         switch (v.getId()) {
             case R.id.search:
                 showLoadingDialog(getResources().getString(R.string.waiting));
@@ -336,7 +332,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 break;
 
             case R.id.testkey: {
-                Log.d(TAG, "test key");
                 Toast.makeText(this,  R.string.prompt, Toast.LENGTH_SHORT).show();
                 break;
             }
@@ -349,7 +344,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
         public void addDevice(final String address, final String name, final int rssi) throws RemoteException {
-            //Log.d("hjq", "addDevice called");
+            Log.d("hjq", "addDevice called");
 
             mHandler.post(new Runnable() {
                 @Override
@@ -387,16 +382,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             int position = mDeviceListAdapter.getmId();
             mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
 
-
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     mDeviceListAdapter.notifyDataSetChanged();
-                    try {
-                        mService.setAntiLost(false);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
                 }
             });
         }
@@ -445,6 +434,19 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
             checkAntiLost();
         }
+
+        @Override
+        public void onStopScanning() throws RemoteException {
+            Log.d("hjq", "onStopScanning called");
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    closeLoadingDialog();
+                }
+            });
+        }
+
+
     };
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -460,7 +462,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             mService = IService.Stub.asInterface(service);
             try {
                 mService.registerCallback(mCallback);
-                checkAntiLost();
                 mService.scanBtDevices(true);
             } catch (RemoteException e) {
                 Log.e(TAG, "", e);
@@ -473,24 +474,25 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         for (BtDevice d : mListData) {
             if (d.isAntiLostSwitch()) {
-              switch (d.getPosition()) {
-                  case BtDevice.LOST:
-                  case BtDevice.FAR: {
-                      d.setLostAlert(true);
-                      break;
-                  }
+                switch (d.getPosition()) {
+                    case BtDevice.LOST:
+                    case BtDevice.FAR: {
+                        d.setLostAlert(true);
+                        break;
+                    }
 
-                  case BtDevice.OK: {
-                      d.setLostAlert(false);
-                      break;
-                  }
+                    case BtDevice.OK: {
+                        d.setLostAlert(false);
+                        break;
+                    }
 
-                  default:
-                      break;
-              }
+                    default:
+                        break;
+                }
 
                 ret = true;
             }
+
         }
 
         if (ret) {
@@ -534,4 +536,71 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         Log.d("hjq", "xxx id = " + id);
     }
 
+    @Override
+    public void onButtonClick(View view, int position) {
+        Button v = (Button)view;
+        BtDevice device = mListData.get(position);
+        int status = device.getStatus();
+
+        Log.d("hjq", "status = " + status);
+        switch (status) {
+            case BluetoothLeClass.BLE_STATE_CONNECTED: {
+                turnOnImmediateAlert();
+                v.setText(R.string.stop_alert);
+                device.setStatus(BluetoothLeClass.BLE_STATE_ALERTING);
+                break;
+            }
+
+            case BluetoothLeClass.BLE_STATE_ALERTING: {
+                turnOffImmediateAlert();
+                device.setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
+                v.setText(R.string.alert);
+                break;
+            }
+
+            case BluetoothLeClass.BLE_STATE_CONNECTING: {
+                break;
+            }
+
+            default:
+            case BluetoothLeClass.BLE_STATE_INIT: {
+                if (connectBLE(device.getAddress())) {
+                    v.setText(R.string.disconnect);
+                    device.setStatus(BluetoothLeClass.BLE_STATE_CONNECTING);
+                }
+
+                break;
+            }
+        }
+
+       mDeviceListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRightArrowClick(int position) {
+        BtDevice d = mListData.get(position);
+
+        if (d.getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
+            Intent i = new Intent(this, BtDeviceSettingActivity.class);
+            Bundle b = new Bundle();
+            b.putSerializable("device", d);
+            i.putExtras(b);
+            startActivityForResult(i, CHANGE_BLE_DEVICE_SETTING);
+        } else {
+            Toast.makeText(this, "connect device first", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CHANGE_BLE_DEVICE_SETTING) {
+                int changed = data.getIntExtra("ret", 0);
+                if (changed == 1) {
+                    checkAntiLost();
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

@@ -17,6 +17,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -32,10 +33,12 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.uacent.watchapp.R;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.util.CommonUtil;
+import com.watch.customer.util.DialogUtil;
 import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.ImageLoaderUtil;
 import com.watch.customer.util.JsonUtil;
@@ -63,6 +66,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
     private final int editimage_what = 2;
     private Bitmap bmp;
     private BtDevice mDevice;
+    private BtDevice mOld;
     private ImageView ivIcon;
     private BtDeviceDao mDeviceDao;
 
@@ -164,6 +168,16 @@ public class BtDeviceSettingActivity extends BaseActivity {
         public void onPositionChanged(String address, int rssi) throws RemoteException {
 
         }
+
+        @Override
+        public void onStopScanning() throws RemoteException {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
     };
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -192,6 +206,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
         setContentView(R.layout.activity_btdevice_setting);
         Intent i = getIntent();
         mDevice = (BtDevice) i.getSerializableExtra("device");
+        mOld = mDevice.copy();
 
         ImageView ivBack = (ImageView) findViewById(R.id.iv_back);
         ivBack.setOnClickListener(this);
@@ -278,25 +293,48 @@ public class BtDeviceSettingActivity extends BaseActivity {
         super.onResume();
     }
 
+    void goBack() {
+        BtDevice d;
+        int val;
+
+        Log.d("hjq", "mOld = " + mOld);
+        d = mDeviceDao.queryById(mDevice.getId());
+        if (d != null) {
+            d.setName(mEdit.getText().toString());
+            mDeviceDao.deleteById(d.getId());
+            Log.d("hjq", "d = " + d);
+            mDeviceDao.insert(d);
+            if (d.equals(mOld)) {
+                val = 0;
+            } else {
+                val = 1;
+            }
+        } else {
+            mDevice.setName(mEdit.getText().toString());
+            Log.d("hjq", "mDevice = " + mDevice);
+            mDeviceDao.insert(mDevice);
+
+            if (mDevice.equals(mOld)) {
+                val = 0;
+            } else {
+                val = 1;
+            }
+        }
+
+        Log.d("hjq", "val = " + val);
+
+        Intent intent = new Intent();
+        intent.putExtra("ret", val);
+
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back: {
-                BtDevice d;
-
-                d = mDeviceDao.queryById(mDevice.getId());
-                if (d != null) {
-                    d.setName(mEdit.getText().toString());
-                    mDeviceDao.deleteById(d.getId());
-                    Log.d("hjq", "d = " + d);
-                    mDeviceDao.insert(d);
-                } else {
-                    d.setName(mEdit.getText().toString());
-                    Log.d("hjq", "mDevice = " + mDevice);
-                    mDeviceDao.insert(mDevice);
-                }
-
-                finish();
+                goBack();
                 break;
             }
 
@@ -311,6 +349,19 @@ public class BtDeviceSettingActivity extends BaseActivity {
         super.onClick(v);
     }
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            Log.e("hjq", "onBackPressed");
+
+            goBack();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
 
     @Override
     public void onStart() {

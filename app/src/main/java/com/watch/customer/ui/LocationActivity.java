@@ -63,63 +63,6 @@ public class LocationActivity  extends BaseActivity {
         Log.d(TAG, "location activity onCreate");
 
         setContentView(R.layout.activity_location);
-        requestLocButton = (Button) findViewById(R.id.button1);
-        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-        requestLocButton.setText("普通");
-        View.OnClickListener btnClickListener = new View.OnClickListener() {
-            public void onClick(View v) {
-                switch (mCurrentMode) {
-                    case NORMAL:
-                        requestLocButton.setText("跟随");
-                        mCurrentMode = MyLocationConfiguration.LocationMode.FOLLOWING;
-                        mBaiduMap
-                                .setMyLocationConfigeration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
-                        break;
-                    case COMPASS:
-                        requestLocButton.setText("普通");
-                        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-                        mBaiduMap
-                                .setMyLocationConfigeration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
-                        break;
-                    case FOLLOWING:
-                        requestLocButton.setText("罗盘");
-                        mCurrentMode = MyLocationConfiguration.LocationMode.COMPASS;
-                        mBaiduMap
-                                .setMyLocationConfigeration(new MyLocationConfiguration(
-                                        mCurrentMode, true, mCurrentMarker));
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-        requestLocButton.setOnClickListener(btnClickListener);
-
-        RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup);
-        radioButtonListener = new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.defaulticon) {
-                    // 传入null则，恢复默认图标
-                    mCurrentMarker = null;
-                    mBaiduMap
-                            .setMyLocationConfigeration(new MyLocationConfiguration(
-                                    mCurrentMode, true, null));
-                }
-                if (checkedId == R.id.customicon) {
-                    // 修改为自定义marker
-                    mCurrentMarker = BitmapDescriptorFactory
-                            .fromResource(R.drawable.icon_geo);
-                    mBaiduMap
-                            .setMyLocationConfigeration(new MyLocationConfiguration(
-                                    mCurrentMode, true, mCurrentMarker,
-                                    accuracyCircleFillColor, accuracyCircleStrokeColor));
-                }
-            }
-        };
-        group.setOnCheckedChangeListener(radioButtonListener);
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -127,6 +70,12 @@ public class LocationActivity  extends BaseActivity {
         // 开启定位图层
         mBaiduMap.setMyLocationEnabled(true);
         // 定位初始化
+
+        Button bt_lost_history = (Button) findViewById(R.id.bt_lost_history);
+        bt_lost_history.setOnClickListener(this);
+
+        Button bt_loc_history = (Button) findViewById(R.id.bt_location_history);
+        bt_loc_history.setOnClickListener(this);
 
         mLocClient = new LocationClient(this);
         mLocClient.registerLocationListener(myListener);
@@ -190,6 +139,22 @@ public class LocationActivity  extends BaseActivity {
         mMapView.onResume();
         mMapView.setVisibility(View.VISIBLE);
         super.onResume();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt_location_history:
+                break;
+
+            case R.id.bt_lost_history:
+                break;
+
+            default:
+                break;
+        }
+
+        super.onClick(v);
     }
 
     @Override

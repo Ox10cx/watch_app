@@ -9,4 +9,5 @@ interface ICallback {
        void onRead(String address, in byte[] val);
        void onSignalChanged(String address, int rssi);
        void onPositionChanged(String address, int position);
+       void onStopScanning();
 }

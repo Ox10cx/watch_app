@@ -189,6 +189,7 @@
         <activity android:name="com.watch.customer.ui.RingtoneSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.PasswordSettingActivity"> </activity>
         <activity android:name="com.watch.customer.ui.InputPasswordActivity"> </activity>
+        <activity android:name="com.watch.customer.ui.MapSelectActivity"> </activity>
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"

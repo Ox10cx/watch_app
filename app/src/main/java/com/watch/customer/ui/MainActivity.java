@@ -30,7 +30,6 @@ import com.watch.customer.util.PreferenceUtil;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity {
-
 	public static final String TAG = MainActivity.class.getSimpleName();
 	private TabHost mTabHost;
 	private RadioGroup mTabButtonGroup;
@@ -342,8 +341,10 @@ protected void onPause() {
 		public void onReceiveLocation(BDLocation location) {
 			// map view 销毁后不在处理新接收的位置
 			Log.e("hjq", "onReceiveLocation");
-			if (location == null)
+			if (location == null) {
 				return;
+			}
+
 			String addr = location.getAddrStr();
 			Log.e("hjq","addr="+addr);
 			Log.e("hjq","lon="+location.getLongitude());
@@ -364,6 +365,7 @@ protected void onPause() {
 		public void onReceivePoi(BDLocation poiLocation) {
 		}
 	}
+
 	public String[] getLocalMsg(String address) {
 		int first, second;
 		String[] str = new String[2];
@@ -372,14 +374,15 @@ protected void onPause() {
 			first = address.indexOf("市") + 1;
 			str[0] = address.substring(0, first-1);
 			str[1] = str[0];
-
 		} else {
 			second = address.indexOf("市") + 1;
 			str[0] = address.substring(0, first);
 			str[1] = address.substring(first, second-1);
 		}
+
 		return str;
 	}
+
 	BroadcastReceiver TabReceiver = new BroadcastReceiver() {
       
 		@Override
@@ -389,4 +392,4 @@ protected void onPause() {
 
 		}
 	};
-	}
+}

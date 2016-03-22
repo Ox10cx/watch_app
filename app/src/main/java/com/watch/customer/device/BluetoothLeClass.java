@@ -87,10 +87,15 @@ public class BluetoothLeClass {
                                           BluetoothGattCharacteristic characteristic);
     }
 
+    public interface  OnReadRemoteRssiListener {
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status);
+    }
+
     private OnConnectListener mOnConnectListener;
     private OnDisconnectListener mOnDisconnectListener;
     private OnServiceDiscoverListener mOnServiceDiscoverListener;
     private OnDataAvailableListener mOnDataAvailableListener;
+    private OnReadRemoteRssiListener mOnReadRemoteRssiListener;
     private Context mContext;
     public void setOnConnectListener(OnConnectListener l){
         mOnConnectListener = l;
@@ -103,6 +108,9 @@ public class BluetoothLeClass {
     }
     public void setOnDataAvailableListener(OnDataAvailableListener l){
         mOnDataAvailableListener = l;
+    }
+    public void setOnReadRemoteRssiListener(OnReadRemoteRssiListener l) {
+        mOnReadRemoteRssiListener = l;
     }
 
     public BluetoothLeClass(Context c){
@@ -155,6 +163,13 @@ public class BluetoothLeClass {
                                             BluetoothGattCharacteristic characteristic) {
             if (mOnDataAvailableListener!=null)
                 mOnDataAvailableListener.onCharacteristicWrite(gatt, characteristic);
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            if (mOnReadRemoteRssiListener != null) {
+                mOnReadRemoteRssiListener.onReadRemoteRssi(gatt, rssi, status);
+            }
         }
     };
 
@@ -246,6 +261,10 @@ public class BluetoothLeClass {
         }
         mBluetoothGatt.close();
         mBluetoothGatt = null;
+    }
+
+    public void readRemoteRssi() {
+        mBluetoothGatt.readRemoteRssi();
     }
 
     /**

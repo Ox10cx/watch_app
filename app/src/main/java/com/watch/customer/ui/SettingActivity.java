@@ -83,8 +83,11 @@ public class SettingActivity  extends BaseActivity {
                 break;
             }
 
-            case R.id.ll_map:
+            case R.id.ll_map: {
+                Intent intent = new Intent(SettingActivity.this, MapSelectActivity.class);
+                startActivity(intent);
                 break;
+            }
 
             case R.id.ll_dblclick:
                 break;
