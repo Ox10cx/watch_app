@@ -36,8 +36,8 @@ public class LocationRecord implements Serializable {
         return status;
     }
 
-    public void setId(String btaddress) {
-        this.btaddress = btaddress;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setLongLat(String long_lat) {
@@ -61,6 +61,11 @@ public class LocationRecord implements Serializable {
     }
 
     int id;
+
+    public void setBtaddress(String btaddress) {
+        this.btaddress = btaddress;
+    }
+
     String btaddress;
     String long_lat;
     String address;
@@ -68,6 +73,6 @@ public class LocationRecord implements Serializable {
 
     // 定位或者丢失
     static final public int LOST = 1;
-    static final public int RECORD = 0;
+    static final public int FOUND = 0;
     int status;
 }

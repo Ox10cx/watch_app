@@ -22,7 +22,6 @@ public class MyApplication extends Application {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		SDKInitializer.initialize(this);
-	
 	}
 
 	public static MyApplication getInstance() {

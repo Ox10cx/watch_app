@@ -136,6 +136,10 @@ public class BluetoothLeClass {
                     mOnDisconnectListener.onDisconnect(gatt);
                 Log.i(TAG, "Disconnected from GATT server.");
                 mBleStatus = BLE_STATE_INIT;
+                if (mBluetoothGatt != null) {
+                    mBluetoothGatt.close();
+                }
+                mBluetoothGatt = null;
             }
         }
 
@@ -259,7 +263,7 @@ public class BluetoothLeClass {
         if (mBluetoothGatt == null) {
             return;
         }
-        mBluetoothGatt.close();
+   //     mBluetoothGatt.close();
         mBluetoothGatt = null;
     }
 

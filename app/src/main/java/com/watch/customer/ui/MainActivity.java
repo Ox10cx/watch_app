@@ -336,7 +336,6 @@ protected void onPause() {
 		unregisterReceiver(TabReceiver);
 	}
 	public class MyLocationListenner implements BDLocationListener {
-
 		@Override
 		public void onReceiveLocation(BDLocation location) {
 			// map view 销毁后不在处理新接收的位置
@@ -350,16 +349,17 @@ protected void onPause() {
 			Log.e("hjq","lon="+location.getLongitude());
 			Log.e("hjq","lat="+location.getLatitude());
 
-//			if (addr != null) {
-//				String[] adds = getLocalMsg(addr);
-//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.CITY, adds[1]);
-//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, ""+location.getLatitude());
-//				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, ""+location.getLongitude());
-//				 MyApplication.getInstance().islocation=1;
-//				sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));
-//			} else {
-//				Log.e("hjq","location no found!!!");
-//			}
+			if (addr != null) {
+				String[] adds = getLocalMsg(addr);
+				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.CITY, adds[1]);
+				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LOCATION, addr);
+				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, "" + location.getLatitude());
+				PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, "" + location.getLongitude());
+				MyApplication.getInstance().islocation = 1;
+				//sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));
+			} else {
+				Log.e("hjq","location no found!!!");
+			}
 		}
 
 		public void onReceivePoi(BDLocation poiLocation) {

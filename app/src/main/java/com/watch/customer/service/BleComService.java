@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.watch.customer.device.BluetoothAntiLostDevice;
@@ -27,6 +28,7 @@ import com.watch.customer.util.PreventAntiLostCore;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,16 +43,14 @@ public class BleComService extends Service {
     private static final String  TAG = "hjq";
     private static final int SCAN_PERIOD = 10000;
     private static final long LIVE_PERIOD = 1000 * 7;       //点击开始扫描后的10秒停止扫描
-    private BluetoothAntiLostDevice mBLE;
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler = new Handler();
 
+    private Map<String, BluetoothAntiLostDevice> mActiveDevices = new HashMap<String, BluetoothAntiLostDevice>() ;
     private Map<String, Integer> mScaningRssi = new HashMap<String, Integer>();
     private Map<String,List<Integer>> mlivingRssiData = new HashMap<String,List<Integer>>();
 
     private RemoteCallbackList<ICallback> mCallbacks = new RemoteCallbackList<ICallback>();
     private boolean antiLostEnabled;
-    private Object mSync = new Object();
+    private final Object mSync = new Object();
 
     public class LocalBinder extends Binder {
         public BleComService getService() {
@@ -61,23 +61,17 @@ public class BleComService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
-        initialize();
         return mBinder;
     }
 
     @Override
     public void onDestroy() {
         mCallbacks.kill();
-
         super.onDestroy();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
-        close();
 
         return super.onUnbind(intent);
     }
@@ -94,8 +88,8 @@ public class BleComService extends Service {
         }
 
         @Override
-        public void disconnect() throws RemoteException {
-            disconnectBtDevice();
+        public void disconnect(String addr) throws RemoteException {
+            disconnectBtDevice(addr);
         }
 
         public void unregisterCallback(ICallback cb){
@@ -110,16 +104,12 @@ public class BleComService extends Service {
             }
         }
 
-        public void turnOffImmediateAlert() {
-            mBLE.turnOffImmediateAlert();
+        public void turnOffImmediateAlert(String addr) {
+            bleTurnOffImmediateAlert(addr);
         }
 
-        public void turnOnImmediateAlert() {
-            mBLE.turnOnImmediateAlert();
-        }
-
-        public void scanBtDevices(boolean enable) {
-            scanLeDevice(enable);
+        public void turnOnImmediateAlert(String addr) {
+            bleTurnOnImmediateAlert(addr);
         }
 
         public void setAntiLost(boolean enable) {
@@ -127,7 +117,25 @@ public class BleComService extends Service {
         }
     };
 
+    private void bleTurnOnImmediateAlert(String addr) {
+        BluetoothAntiLostDevice device = mActiveDevices.get(addr);
+        if (device != null) {
+            device.turnOnImmediateAlert();
+        } else {
+            Log.e("hjq", "the device is null?");
+        }
+    }
 
+    private void bleTurnOffImmediateAlert(String addr) {
+        BluetoothAntiLostDevice device = mActiveDevices.get(addr);
+        if (device != null) {
+            device.turnOffImmediateAlert();
+        } else {
+            Log.e("hjq", "the device is null?");
+        }
+    }
+
+    // 15秒获取一次连接的rssi值并进行判断，是否掉线了。
     void setBleAntiLost(boolean enable) {
 
         Log.d("hjq", "set antilost enable = " + enable);
@@ -144,12 +152,33 @@ public class BleComService extends Service {
                 public void run() {
                     while (antiLostEnabled) {
                         mScaningRssi.clear();
-                        mBLE.readRemoteRssi();
+                        boolean bleok = false;
+                        for (String k : mActiveDevices.keySet()) {
+                            BluetoothAntiLostDevice d = mActiveDevices.get(k);
+
+                            bleok = (d != null && d.getBleStatus() == BluetoothLeClass.BLE_STATE_CONNECTED);
+                            if (bleok) {
+                                d.readRemoteRssi();
+                                // 必须在此处同步回调函数，否则蓝牙协议栈会出错
+                                synchronized (mScaningRssi) {
+                                    try {
+                                        mScaningRssi.wait();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
 
                         try {
                             Thread.sleep(5000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                        }
+
+                        Log.d("hjq", "ble status = " + bleok);
+                        if (!bleok) {
+                            continue;
                         }
 
                         // 判断蓝牙设备是否丢失
@@ -181,15 +210,7 @@ public class BleComService extends Service {
                             Log.d("hjq", "rssi = " + rssi);
                             if (rssi < -100) {
                                 pos = BtDevice.LOST;
-                            }
-//                            else if (rssi < -90) {
-//                                pos = BtDevice.FAR;
-//                            } else if (rssi < -80) {
-//                                pos = BtDevice.MIDDLE;
-//                            } else if (rssi < -70) {
-//                                pos = BtDevice.NEAR;
-//                            }
-                            else {
+                            } else {
                                 pos = BtDevice.OK;
                             }
 
@@ -218,36 +239,8 @@ public class BleComService extends Service {
             });
 
             th.start();
-        } else {
-
         }
     }
-
-    boolean initialize() {
-        mBLE = new BluetoothAntiLostDevice(BleComService.this);
-
-        mBLE.initialize();
-
-        //发现BLE终端的Service时回调
-        mBLE.setOnServiceDiscoverListener(mOnServiceDiscover);
-        //收到BLE终端数据交互的事件
-        mBLE.setOnDataAvailableListener(mOnDataAvailable);
-        mBLE.setOnConnectListener(mOnConnectListener);
-        mBLE.setOnDisconnectListener(mOnDisconnectListener);
-        mBLE.setOnReadRemoteRssiListener(mOnReadRemoteRssiListener);
-
-        BluetoothManager mBluetoothManager;
-        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        if (mBluetoothManager == null) {
-            Log.e(TAG, "Unable to initialize BluetoothManager.");
-            return false;
-        }
-
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-
-        return true;
-    }
-
 
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
@@ -262,7 +255,26 @@ public class BleComService extends Service {
     boolean connectBtDevice(String address) {
         boolean ret;
 
-        ret = mBLE.connect(address);
+        BluetoothAntiLostDevice d = mActiveDevices.get(address);
+        if (d != null) {
+            Log.e("hjq", "warning the address: " + address + " is not disconnected");
+            d.disconnect();
+            d.close();
+            mActiveDevices.remove(address);
+        }
+
+        BluetoothAntiLostDevice device = new BluetoothAntiLostDevice(this);
+        device.initialize();
+        device.setOnServiceDiscoverListener(mOnServiceDiscover);
+        //收到BLE终端数据交互的事件
+        device.setOnDataAvailableListener(mOnDataAvailable);
+        device.setOnConnectListener(mOnConnectListener);
+        device.setOnDisconnectListener(mOnDisconnectListener);
+        device.setOnReadRemoteRssiListener(mOnReadRemoteRssiListener);
+
+        mActiveDevices.put(address, device);
+
+        ret = device.connect(address);
         if (ret)  {
             Log.d(TAG, "connect to " + address + " success");
         } else {
@@ -278,21 +290,25 @@ public class BleComService extends Service {
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    void disconnectBtDevice() {
-        mBLE.disconnect();
-    }
-
-    /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
-     */
-    void close() {
-        mBLE.close();
+    void disconnectBtDevice(String address) {
+        BluetoothAntiLostDevice device = mActiveDevices.get(address);
+        if (device != null) {
+            mActiveDevices.remove(address);
+            device.disconnect();
+        }
     }
 
     private BluetoothLeClass.OnDisconnectListener mOnDisconnectListener = new BluetoothLeClass.OnDisconnectListener() {
         @Override
         public void onDisconnect(BluetoothGatt gatt) {
+            BluetoothDevice device = gatt.getDevice();
+            BluetoothAntiLostDevice leDevice = mActiveDevices.get(device.getAddress());
+            if (leDevice != null) {
+                mActiveDevices.remove(device.getAddress());
+            } else {
+                Log.e("hjq", "remove address = " + device.getAddress() + " is null");
+            }
+
             synchronized (mSync) {
                 int n = mCallbacks.beginBroadcast();
                 try {
@@ -313,7 +329,10 @@ public class BleComService extends Service {
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             BluetoothDevice device = gatt.getDevice();
             Log.d("hjq", "read remote " + device.getAddress() + " rssi = " + rssi + " status = " + status);
-            mScaningRssi.put(gatt.getDevice().getAddress(), rssi);
+            synchronized (mScaningRssi) {
+                mScaningRssi.put(gatt.getDevice().getAddress(), rssi);
+                mScaningRssi.notify();
+            }
         }
     };
 
@@ -342,7 +361,13 @@ public class BleComService extends Service {
     private BluetoothLeClass.OnServiceDiscoverListener mOnServiceDiscover = new BluetoothLeClass.OnServiceDiscoverListener(){
         @Override
         public void onServiceDiscover(BluetoothGatt gatt) {
-            displayGattServices(mBLE.getSupportedGattServices());
+            BluetoothDevice device = gatt.getDevice();
+            BluetoothAntiLostDevice leDevice = mActiveDevices.get(device.getAddress());
+            if (leDevice != null) {
+                displayGattServices(leDevice.getSupportedGattServices());
+            } else {
+                Log.e("hjq", "address = " + device.getAddress() + " is null");
+            }
         }
     };
 
@@ -382,62 +407,6 @@ public class BleComService extends Service {
                     + Utils.bytesToHexString(value));
         }
     };
-
-    private void scanLeDevice(final boolean enable) {
-        if (enable) {
-            // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mBluetoothAdapter.stopLeScan(mStopScanCallback);
-                    Log.d("hjq", "stop scanning");
-                    synchronized (mSync) {
-                        int n = mCallbacks.beginBroadcast();
-                        try {
-                            int i;
-                            for (i = 0; i < n; i++) {
-                                mCallbacks.getBroadcastItem(i).onStopScanning();
-                            }
-                        } catch (RemoteException e) {
-                            Log.e(TAG, "remote call exception", e);
-                        }
-                        mCallbacks.finishBroadcast();
-                    }
-                }
-            }, SCAN_PERIOD);
-
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
-        } else {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        }
-    }
-
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-                    synchronized (mSync) {
-                        int n = mCallbacks.beginBroadcast();
-                        try {
-                            int i;
-                            for (i = 0; i < n; i++) {
-                                mCallbacks.getBroadcastItem(i).addDevice(device.getAddress(), device.getName(), rssi);
-                            }
-                        } catch (RemoteException e) {
-                            Log.e(TAG, "remote call exception", e);
-                        }
-                        mCallbacks.finishBroadcast();
-                    }
-                }
-            };
-
-    private BluetoothAdapter.LeScanCallback mStopScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-
-                }
-            };
 
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) {

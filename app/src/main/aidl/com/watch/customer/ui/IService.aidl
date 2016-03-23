@@ -10,12 +10,10 @@ interface IService {
 
     boolean initialize();
     boolean connect(String addr);
-    void disconnect();
+    void disconnect(String addr);
 
-    void turnOnImmediateAlert();
-    void turnOffImmediateAlert();
-
-    void scanBtDevices(boolean enable);
+    void turnOnImmediateAlert(String addr);
+    void turnOffImmediateAlert(String addr);
 
     void setAntiLost(boolean enable);
 }

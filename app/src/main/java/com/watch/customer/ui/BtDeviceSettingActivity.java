@@ -141,11 +141,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
     private ICallback.Stub mCallback = new ICallback.Stub() {
 
         @Override
-        public void addDevice(String address, String name, int rssi) throws RemoteException {
-
-        }
-
-        @Override
         public void onConnect(String address) throws RemoteException {
 
         }
@@ -169,15 +164,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
         }
 
-        @Override
-        public void onStopScanning() throws RemoteException {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-        }
     };
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -252,7 +238,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
                     startActivityForResult(i, CHANGE_FIND_ME_SETTING);
                 } else if (pos == 2) {
                     try {
-                        mService.disconnect();
+                        mService.disconnect(mDevice.getAddress());
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -302,6 +288,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
         if (d != null) {
             d.setName(mEdit.getText().toString());
             mDeviceDao.deleteById(d.getId());
+            d.setStatus(mDevice.getStatus());
             Log.d("hjq", "d = " + d);
             mDeviceDao.insert(d);
             if (d.equals(mOld)) {
@@ -319,12 +306,17 @@ public class BtDeviceSettingActivity extends BaseActivity {
             } else {
                 val = 1;
             }
+
+            d = mDevice;
         }
 
         Log.d("hjq", "val = " + val);
 
         Intent intent = new Intent();
-        intent.putExtra("ret", val);
+        Bundle b = new Bundle();
+        b.putSerializable("device", d);
+        b.putInt("ret", val);
+        intent.putExtras(b);
 
         setResult(RESULT_OK, intent);
         finish();

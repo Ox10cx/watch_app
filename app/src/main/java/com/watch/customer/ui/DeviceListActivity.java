@@ -46,18 +46,23 @@ import android.widget.Toast;
 import com.uacent.watchapp.R;
 import com.watch.customer.SlideDeleteListView;
 import com.watch.customer.adapter.DeviceListAdapter;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
+import com.watch.customer.dao.LocationDao;
 import com.watch.customer.device.BluetoothAntiLostDevice;
 import com.watch.customer.device.BluetoothLeClass;
 import com.watch.customer.model.BtDevice;
+import com.watch.customer.model.LocationRecord;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.ImageLoaderUtil;
+import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.PreventAntiLostCore;
 import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +81,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private BtDeviceDao mDeviceDao;
     private IService mService;
     private MediaPlayer mPlayer;
+    boolean mScanningStopped;
+    LocationDao mLocationDao;
 
     private final String TAG = "hjq";
 
@@ -95,6 +102,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         mHandler = new Handler();
         mDeviceDao = new BtDeviceDao(this);
+        mLocationDao = new LocationDao(this);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -128,22 +136,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     public boolean closeLoadingDialog() {
         boolean ret;
 
-        if (mService == null) {
-            return false;
-        }
-
         ret = super.closeLoadingDialog();
 
-        if (mService != null) {
-            try {
-                mService.scanBtDevices(false);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-
-            checkAntiLost();
+        if (!mScanningStopped) {
+            scanLeDevice(false);
         }
 
+        checkAntiLost();
         return ret;
     }
 
@@ -239,7 +238,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         if (mPlayer != null) {
             mPlayer.release();
             Log.d(TAG, "the player is busy now");
-            return;
+            mPlayer = null;
         }
 
         AudioManager mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
@@ -259,7 +258,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     }
 
     private void fillListData() {
-        mListData = mDeviceDao.queryAll();
+      //  mListData = mDeviceDao.queryAll();
+        mListData = new ArrayList<BtDevice>(10);
 
         mDeviceListAdapter = new DeviceListAdapter(
                 DeviceListActivity.this, mListData, this);
@@ -270,20 +270,20 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     protected void onResume() {
         super.onResume();
 
-        // update the setting.
-        if (mListData.size() != 0) {
-            int position = mDeviceListAdapter.getmId();
-            BtDevice old = mListData.get(position);
-            BtDevice d = mDeviceDao.queryById(old.getId());
-
-            d.setStatus(old.getStatus());
-            d.setRssi(old.getRssi());
-
-            Log.d("hjq", "d = " + d);
-            mListData.set(position, d);
-
-            mDeviceListAdapter.notifyDataSetChanged();
-        }
+//        // update the setting.
+//        if (mListData.size() != 0) {
+//            int position = mDeviceListAdapter.getmId();
+//            BtDevice old = mListData.get(position);
+//            BtDevice d = mDeviceDao.queryById(old.getId());
+//
+//            d.setStatus(old.getStatus());
+//            d.setRssi(old.getRssi());
+//
+//            Log.d("hjq", "d = " + d);
+//            mListData.set(position, d);
+//
+//            mDeviceListAdapter.notifyDataSetChanged();
+//        }
     }
 
     @Override
@@ -291,6 +291,43 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         unbindService(mConnection);
         super.onDestroy();
     }
+
+    private void scanLeDevice(final boolean enable) {
+        BluetoothManager mBluetoothManager;
+        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (mBluetoothManager == null) {
+            Log.e(TAG, "Unable to initialize BluetoothManager.");
+            return;
+        }
+        final BluetoothAdapter mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+        if (enable) {
+            // Stops scanning after a pre-defined scan period.
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    Log.d("hjq", "stop scanning");
+                    mScanningStopped = true;
+                    closeLoadingDialog();
+                }
+            }, 10 * 1000);
+
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            mScanningStopped = false;
+        } else {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            mScanningStopped = true;
+        }
+    }
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+                    addDevice(device.getAddress(), device.getName(), rssi);
+                }
+            };
 
     @Override
     protected void onPause() {
@@ -302,17 +339,17 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         super.onStop();
     }
 
-    public void turnOnImmediateAlert() {
+    public void turnOnImmediateAlert(String addr) {
         try {
-            mService.turnOnImmediateAlert();
+            mService.turnOnImmediateAlert(addr);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
-    public void turnOffImmediateAlert() {
+    public void turnOffImmediateAlert(String addr) {
         try {
-            mService.turnOffImmediateAlert();
+            mService.turnOffImmediateAlert(addr);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -324,11 +361,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         switch (v.getId()) {
             case R.id.search:
                 showLoadingDialog(getResources().getString(R.string.waiting));
-                try {
-                    mService.scanBtDevices(true);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                scanLeDevice(true);
                 break;
 
             case R.id.testkey: {
@@ -341,46 +374,51 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
     }
 
-    private ICallback.Stub mCallback = new ICallback.Stub() {
-        @Override
-        public void addDevice(final String address, final String name, final int rssi) throws RemoteException {
-            Log.d("hjq", "addDevice called");
+    public void addDevice(final String address, final String name, final int rssi) {
+        Log.d("hjq", "addDevice called");
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                boolean deviceFound = false;
+                int i;
+                BtDevice d;
 
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    boolean deviceFound = false;
-                    int i;
-                    BtDevice d;
-
-                    for (i = 0; i < mListData.size(); i++) {
-                        if (mListData.get(i).getAddress().equals(address)) {
-                            deviceFound = true;
-                            break;
-                        }
+                for (i = 0; i < mListData.size(); i++) {
+                    if (mListData.get(i).getAddress().equals(address)) {
+                        deviceFound = true;
+                        break;
                     }
-                    if (deviceFound) {
-                        d = mListData.get(i);
-                        d.setRssi(rssi);
-                    } else {
+                }
+                if (deviceFound) {
+                    d = mListData.get(i);
+                    d.setRssi(rssi);
+                } else {
+                    d = mDeviceDao.queryById(address);
+                    if (d == null) {
                         d = new BtDevice();
                         d.setAddress(address);
                         d.setName(name);
                         d.setRssi(rssi);
-
                         mDeviceDao.insert(d);
-                        mListData.add(d);
+                    } else {
+                        d.setRssi(rssi);
                     }
-                    mDeviceListAdapter.notifyDataSetChanged();
-                }
-            });
-        }
 
+                    mListData.add(d);
+                }
+                mDeviceListAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
         public void onConnect(String address) throws RemoteException {
-            Log.d("hjq", "onConnect called");
-            int position = mDeviceListAdapter.getmId();
-            mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+            synchronized (mListData) {
+                int position = mDeviceListAdapter.getmId();
+                Log.d("hjq", "onConnect called position = " + position);
+                mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+            }
 
             mHandler.post(new Runnable() {
                 @Override
@@ -392,9 +430,11 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         @Override
         public void onDisconnect(String address) throws RemoteException {
-            Log.d("hjq", "onDisconnect called");
-            int position = mDeviceListAdapter.getmId();
-            mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
+            synchronized (mListData) {
+                Log.d("hjq", "onDisconnect called");
+                int position = mDeviceListAdapter.getmId();
+                mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
+            }
 
             mHandler.post(new Runnable() {
                 @Override
@@ -412,41 +452,31 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         @Override
         public void onSignalChanged(String address, int rssi) throws RemoteException {
-            Log.d("hjq", "onSignalChanged called address = " + address + " rssi = " + rssi);
+            synchronized (mListData) {
+                Log.d("hjq", "onSignalChanged called address = " + address + " rssi = " + rssi);
 
-            for (int i = 0; i < mListData.size(); i++) {
-                BtDevice d = mListData.get(i);
-                if (d.getAddress().equals(address)) {
-                    d.setRssi(rssi);
+                for (int i = 0; i < mListData.size(); i++) {
+                    BtDevice d = mListData.get(i);
+                    if (d.getAddress().equals(address)) {
+                        d.setRssi(rssi);
+                    }
                 }
             }
         }
 
         public void onPositionChanged(String address, int position) throws RemoteException {
-            Log.d("hjq", "onPositionChanged called address = " + address + " newpos = " + position);
+            synchronized (mListData) {
+                Log.d("hjq", "onPositionChanged called address = " + address + " newpos = " + position);
 
-            for (int i = 0; i < mListData.size(); i++) {
-                BtDevice d = mListData.get(i);
-                if (d.getAddress().equals(address)) {
-                    d.setPosition(position);
+                for (int i = 0; i < mListData.size(); i++) {
+                    BtDevice d = mListData.get(i);
+                    if (d.getAddress().equals(address)) {
+                        d.setPosition(position);
+                    }
                 }
             }
-
             checkAntiLost();
         }
-
-        @Override
-        public void onStopScanning() throws RemoteException {
-            Log.d("hjq", "onStopScanning called");
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    closeLoadingDialog();
-                }
-            });
-        }
-
-
     };
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -462,18 +492,27 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             mService = IService.Stub.asInterface(service);
             try {
                 mService.registerCallback(mCallback);
-                mService.scanBtDevices(true);
             } catch (RemoteException e) {
                 Log.e(TAG, "", e);
             }
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    scanLeDevice(true);
+                }
+            });
         }
     };
 
     boolean checkAntiLost() {
         boolean ret = false;
+        boolean oldstatus;
 
         for (BtDevice d : mListData) {
             if (d.isAntiLostSwitch()) {
+                oldstatus = d.isLostAlert();
+
                 switch (d.getPosition()) {
                     case BtDevice.LOST:
                     case BtDevice.FAR: {
@@ -490,6 +529,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         break;
                 }
 
+                // 丢失状态变化了，记录这个变化
+                if (oldstatus ^ d.isLostAlert()) {
+                    recordLostHistory(d);
+                }
                 ret = true;
             }
 
@@ -511,6 +554,33 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         return ret;
+    }
+
+    private void recordLostHistory(BtDevice d) {
+        if (MyApplication.getInstance().islocation == 0) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    showShortToast("waiting for positioning!");
+                }
+            });
+            return;
+        }
+
+        String address = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LOCATION, "");
+        String longitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LON, "22");
+        String latitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LAT, "105");
+        long datetime = new Date().getTime();
+        int status;
+        if (d.isLostAlert()) {
+            status = LocationRecord.LOST;
+        } else {
+            status = LocationRecord.FOUND;
+        }
+
+        LocationRecord r = new LocationRecord(-1, d.getAddress(), longitude + "," + latitude, address, datetime, status);
+        int id = mLocationDao.insert(r);
+        r.setId(id);
     }
 
     public boolean connectBLE(String address)
@@ -545,14 +615,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         Log.d("hjq", "status = " + status);
         switch (status) {
             case BluetoothLeClass.BLE_STATE_CONNECTED: {
-                turnOnImmediateAlert();
+                turnOnImmediateAlert(device.getAddress());
                 v.setText(R.string.stop_alert);
                 device.setStatus(BluetoothLeClass.BLE_STATE_ALERTING);
                 break;
             }
 
             case BluetoothLeClass.BLE_STATE_ALERTING: {
-                turnOffImmediateAlert();
+                turnOffImmediateAlert(device.getAddress());
                 device.setStatus(BluetoothLeClass.BLE_STATE_CONNECTED);
                 v.setText(R.string.alert);
                 break;
@@ -564,9 +634,11 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
             default:
             case BluetoothLeClass.BLE_STATE_INIT: {
-                if (connectBLE(device.getAddress())) {
-                    v.setText(R.string.disconnect);
-                    device.setStatus(BluetoothLeClass.BLE_STATE_CONNECTING);
+                synchronized (mListData) {
+                    if (connectBLE(device.getAddress())) {
+                        v.setText(R.string.disconnect);
+                        device.setStatus(BluetoothLeClass.BLE_STATE_CONNECTING);
+                    }
                 }
 
                 break;
@@ -580,7 +652,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     public void onRightArrowClick(int position) {
         BtDevice d = mListData.get(position);
 
-        if (d.getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED) {
+        if (d.getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED || d.getStatus() == BluetoothLeClass.BLE_STATE_ALERTING) {
             Intent i = new Intent(this, BtDeviceSettingActivity.class);
             Bundle b = new Bundle();
             b.putSerializable("device", d);
@@ -595,8 +667,26 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == CHANGE_BLE_DEVICE_SETTING) {
-                int changed = data.getIntExtra("ret", 0);
+                Bundle b = data.getExtras();
+                int changed = b.getInt("ret", 0);
+
+                Log.d("hjq", "changed = " + changed);
+
                 if (changed == 1) {
+                    int i;
+                    BtDevice d = (BtDevice)b.getSerializable("device");
+                    for (i = 0; i < mListData.size(); i++) {
+                        if (mListData.get(i).getAddress().equals(d.getAddress())) {
+                            break;
+                        }
+                    }
+                    Log.d("hjq", "i = " + i + " ,d = " + d);
+                    if (i != mListData.size()) {
+                        mListData.remove(i);
+                        mListData.add(i, d);
+                        mDeviceListAdapter.notifyDataSetChanged();
+                    }
+
                     checkAntiLost();
                 }
             }

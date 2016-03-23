@@ -18,6 +18,7 @@ public class PreferenceUtil {
 	public static final String REMINDWORD = "remindword"; // 是否保留密码
 	public static final String AUTOLOGIN = "autologin";
 	public static final String TIMES = "times";
+	public static final String LOCATION = "location";
 	public static final String UID = "uid";
 	public static final String CITY = "city";
 	public static final String CITYID = "cityid";

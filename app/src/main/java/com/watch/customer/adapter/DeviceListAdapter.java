@@ -107,11 +107,13 @@ public class DeviceListAdapter extends BaseAdapter {
 
         holderView.name.setText(data.get(position).getName());
 
+        int status = data.get(position).getStatus();
+        Log.d("hjq", "postion " + position + " status = "  +  status);
 
-        if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTED ||
-                data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_ALERTING) {
+        if (status == BluetoothLeClass.BLE_STATE_CONNECTED ||
+                status == BluetoothLeClass.BLE_STATE_ALERTING) {
             holderView.status.setText(R.string.connected);
-        } else if (data.get(position).getStatus() == BluetoothLeClass.BLE_STATE_CONNECTING) {
+        } else if (status == BluetoothLeClass.BLE_STATE_CONNECTING) {
             holderView.status.setText(R.string.connecting);
         } else {
             holderView.status.setText(R.string.disconnected);
@@ -131,10 +133,7 @@ public class DeviceListAdapter extends BaseAdapter {
             }
         });
 
-
-        int status2 = data.get(position).getStatus();
-
-        switch (status2) {
+        switch (status) {
             case BluetoothLeClass.BLE_STATE_CONNECTED: {
                 holderView.button.setText(R.string.alert);
                 break;
