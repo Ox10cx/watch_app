@@ -170,14 +170,13 @@ public class BleComService extends Service {
                             }
                         }
 
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
                         Log.d("hjq", "ble status = " + bleok);
                         if (!bleok) {
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             continue;
                         }
 
@@ -214,7 +213,13 @@ public class BleComService extends Service {
                                 pos = BtDevice.OK;
                             }
 
-                            synchronized (mSync) {
+                            synchronized (mActiveDevices) {
+                                if (mActiveDevices.get(key) == null) {
+                                    continue;
+                                }
+                            }
+
+                            synchronized (mCallbacks) {
                                 int n = mCallbacks.beginBroadcast();
                                 try {
                                     int i;
@@ -235,6 +240,8 @@ public class BleComService extends Service {
                             e.printStackTrace();
                         }
                     }
+
+
                 }
             });
 
@@ -309,7 +316,7 @@ public class BleComService extends Service {
                 Log.e("hjq", "remove address = " + device.getAddress() + " is null");
             }
 
-            synchronized (mSync) {
+            synchronized (mCallbacks) {
                 int n = mCallbacks.beginBroadcast();
                 try {
                     int i;
@@ -339,7 +346,7 @@ public class BleComService extends Service {
     private BluetoothLeClass.OnConnectListener mOnConnectListener = new BluetoothLeClass.OnConnectListener() {
         @Override
         public void onConnect(BluetoothGatt gatt) {
-            synchronized (mSync) {
+            synchronized (mCallbacks) {
                 int n = mCallbacks.beginBroadcast();
                 try {
                     int i;
@@ -365,6 +372,7 @@ public class BleComService extends Service {
             BluetoothAntiLostDevice leDevice = mActiveDevices.get(device.getAddress());
             if (leDevice != null) {
                 displayGattServices(leDevice.getSupportedGattServices());
+                leDevice.enableKeyReport(true);     // 打开上报按键信息
             } else {
                 Log.e("hjq", "address = " + device.getAddress() + " is null");
             }
@@ -382,13 +390,26 @@ public class BleComService extends Service {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS)
-                Log.e(TAG,"onCharRead "+gatt.getDevice().getName()
-                        +" read "
-                        +characteristic.getUuid().toString()
-                        +" -> "
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.e(TAG, "onCharRead " + gatt.getDevice().getName()
+                        + " read "
+                        + characteristic.getUuid().toString()
+                        + " -> "
                         + Utils.bytesToHexString(characteristic.getValue()));
-            //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+
+                synchronized (mCallbacks) {
+                    int n = mCallbacks.beginBroadcast();
+                    try {
+                        int i;
+                        for (i = 0; i < n; i++) {
+                            mCallbacks.getBroadcastItem(i).onRead(gatt.getDevice().getAddress(), characteristic.getValue());
+                        }
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "remote call exception", e);
+                    }
+                    mCallbacks.finishBroadcast();
+                }
+            }
         }
 
         /**
@@ -397,7 +418,6 @@ public class BleComService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic) {
-
             byte[] value = characteristic.getValue();
 
             Log.e(TAG, "onCharWrite " + gatt.getDevice().getName()
@@ -405,6 +425,19 @@ public class BleComService extends Service {
                     + characteristic.getUuid().toString()
                     + " -> "
                     + Utils.bytesToHexString(value));
+
+            synchronized (mCallbacks) {
+                int n = mCallbacks.beginBroadcast();
+                try {
+                    int i;
+                    for (i = 0; i < n; i++) {
+                        mCallbacks.getBroadcastItem(i).onWrite(gatt.getDevice().getAddress(), characteristic.getValue());
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "remote call exception", e);
+                }
+                mCallbacks.finishBroadcast();
+            }
         }
     };
 

@@ -302,5 +302,6 @@
     <item type="id" name="tag_second"></item>
 
     <string name="app_versionName">1.1</string>
+    <string name="location">Position:</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.watch.customer.model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

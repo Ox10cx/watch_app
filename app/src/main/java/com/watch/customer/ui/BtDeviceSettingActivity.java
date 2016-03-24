@@ -156,6 +156,11 @@ public class BtDeviceSettingActivity extends BaseActivity {
         }
 
         @Override
+        public void onWrite(String address, byte[] val) throws RemoteException {
+
+        }
+
+        @Override
         public void onSignalChanged(String address, int rssi) throws RemoteException {
 
         }

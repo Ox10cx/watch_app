@@ -48,12 +48,11 @@ public class LocationDao {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("id", r.getId());
         values.put("long_lat", r.getLong_lat());
-        values.put("address", r.getAddress());
+        values.put("location", r.getAddress());
         values.put("btaddress", r.getBtaddress());
         values.put("status", r.getStatus());
-        values.put("datetime", r.getDt_time().toString());
+        values.put("loc_datetime", r.getDt_time().getTime());
 
         int id = (int) db.insert(TABLE_NAME, null, values);
         db.close();
@@ -61,10 +60,33 @@ public class LocationDao {
         return id;
     }
 
+    public ArrayList<LocationRecord> queryAll(int lostOrFound) {
+        ArrayList<LocationRecord> list = new ArrayList<LocationRecord>(10);
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db
+                .query(TABLE_NAME, null, "status = ?", new String[]{ Integer.toString(lostOrFound) }, null, null, null);
+        while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndex("id"));
+            String long_lat = cursor.getString(cursor.getColumnIndex("long_lat"));
+            String address = cursor.getString(cursor.getColumnIndex("location"));
+            String btaddress = cursor.getString(cursor.getColumnIndex("btaddress"));
+            int status = cursor.getInt(cursor.getColumnIndex("status"));
+            long datetime = cursor.getLong(cursor.getColumnIndex("loc_datetime"));
+            list.add(new LocationRecord(id, btaddress, long_lat, address, datetime, status));
+        }
+        cursor.close();
+        db.close();
+
+        Log.d("hjq", "list size from dao is " + list.size());
+
+        return list;
+    }
+
     public ArrayList<LocationRecord> queryAll() {
         ArrayList<LocationRecord> list = new ArrayList<LocationRecord>(10);
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db
                 .query(TABLE_NAME, null, null, null, null, null, null);
         while (cursor.moveToNext()) {
@@ -73,7 +95,7 @@ public class LocationDao {
             String address = cursor.getString(cursor.getColumnIndex("location"));
             String btaddress = cursor.getString(cursor.getColumnIndex("btaddress"));
             int status = cursor.getInt(cursor.getColumnIndex("status"));
-            long datetime = cursor.getLong(cursor.getColumnIndex("loc_date"));
+            long datetime = cursor.getLong(cursor.getColumnIndex("loc_datetime"));
             list.add(new LocationRecord(id, btaddress, long_lat, address, datetime, status));
         }
         cursor.close();
@@ -92,7 +114,7 @@ public class LocationDao {
 
     public LocationRecord queryById(int id) {
         LocationRecord r = null;
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, null, "id=?",
                 new String[]{Integer.toString(id)}, null, null, null);
         while (cursor.moveToNext()) {
@@ -100,7 +122,7 @@ public class LocationDao {
             String address = cursor.getString(cursor.getColumnIndex("location"));
             String btaddress = cursor.getString(cursor.getColumnIndex("btaddress"));
             int status = cursor.getInt(cursor.getColumnIndex("status"));
-            long datetime = cursor.getLong(cursor.getColumnIndex("loc_date"));
+            long datetime = cursor.getLong(cursor.getColumnIndex("loc_datetime"));
 
             r = new LocationRecord(id, btaddress, long_lat, address, datetime, status);
         }

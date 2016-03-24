@@ -86,4 +86,9 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="Dialog_FullScreen">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
 </resources>

@@ -1,6 +1,7 @@
 package com.watch.customer.ui;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.baidu.mapapi.model.LatLngBounds;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MyLocationOverlay;
 import com.uacent.watchapp.R;
+import com.watch.customer.model.LocationRecord;
 
 import java.util.ArrayList;
 
@@ -39,6 +41,7 @@ import java.util.ArrayList;
  * Created by Administrator on 16-3-7.
  */
 public class LocationActivity  extends BaseActivity {
+    private static final int LOCATION_GET_POSITION = 1;
     // 定位相关
     LocationClient mLocClient;
     public MyLocationListenner myListener = new MyLocationListenner();
@@ -82,9 +85,23 @@ public class LocationActivity  extends BaseActivity {
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true); // 打开gps
         option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(500);
+        option.setScanSpan(50);
         mLocClient.setLocOption(option);
         mLocClient.start();
+    }
+
+    void addMarker(float longitude, float latitude) {
+        //定义Maker坐标点
+        LatLng point = new LatLng(latitude, longitude);
+        //构建Marker图标
+        BitmapDescriptor bitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.icon_gcoding);
+        //构建MarkerOption，用于在地图上添加Marker
+        OverlayOptions option = new MarkerOptions()
+                .position(point)
+                .icon(bitmap);
+        //在地图上添加Marker，并显示
+        mBaiduMap.addOverlay(option);
     }
 
     /**
@@ -135,20 +152,29 @@ public class LocationActivity  extends BaseActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
+
         Log.d(TAG, "location activity onResume");
         mMapView.onResume();
         mMapView.setVisibility(View.VISIBLE);
-        super.onResume();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bt_location_history:
+            case R.id.bt_location_history: {
+                Intent intent = new Intent(LocationActivity.this, LocationRecordList.class);
+                intent.putExtra("status", LocationRecord.FOUND);
+                startActivityForResult(intent, LOCATION_GET_POSITION);
                 break;
+            }
 
-            case R.id.bt_lost_history:
+            case R.id.bt_lost_history: {
+                Intent intent = new Intent(LocationActivity.this, LocationRecordList.class);
+                intent.putExtra("status", LocationRecord.LOST);
+                startActivityForResult(intent, LOCATION_GET_POSITION);
                 break;
+            }
 
             default:
                 break;
@@ -169,4 +195,17 @@ public class LocationActivity  extends BaseActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == LOCATION_GET_POSITION) {
+                float longitude = data.getFloatExtra("longitude", 0f);
+                float latitude = data.getFloatExtra("latitude", 0f);
+                Log.e("hjq", "long = " + longitude + " latitude =" + latitude);
+                addMarker(longitude, latitude);
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

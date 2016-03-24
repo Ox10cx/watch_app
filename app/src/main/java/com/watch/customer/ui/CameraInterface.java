@@ -31,6 +31,7 @@ public class CameraInterface {
     private static CameraInterface mCameraInterface;
     private int cameraPosition = 0;
     private Context mContext;
+    OnFinishCallback mFinishCb;
 
     public interface CamOpenOverCallback{
         public void cameraHasOpened();
@@ -147,9 +148,10 @@ public class CameraInterface {
     /**
      * 拍照
      */
-    public void doTakePicture(Context context) {
+    public void doTakePicture(Context context, OnFinishCallback cb) {
         if (isPreviewing && (mCamera != null)) {
             mContext = context;
+            mFinishCb = cb;
             mCamera.takePicture(mShutterCallback, null, mJpegPictureCallback);
         }
     }
@@ -192,10 +194,28 @@ public class CameraInterface {
                 Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 90.0f);
                 FileUtil.saveBitmap(mContext, rotaBitmap);
             }
+
             //再次进入预览
             mCamera.startPreview();
             isPreviewing = true;
+
+            if (mFinishCb != null) {
+                mFinishCb.onFinish();
+            }
         }
     };
+
+    private void resetCamera()
+    {
+        if (mCamera != null)
+        {
+            mCamera.stopPreview();
+            mCamera.release();
+        }
+    }
+
+    public interface OnFinishCallback {
+        void onFinish();
+    }
 
 }

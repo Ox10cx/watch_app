@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -83,6 +85,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private MediaPlayer mPlayer;
     boolean mScanningStopped;
     LocationDao mLocationDao;
+    SharedPreferences mSharedPreferences;
 
     private final String TAG = "hjq";
 
@@ -103,6 +106,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         mHandler = new Handler();
         mDeviceDao = new BtDeviceDao(this);
         mLocationDao = new LocationDao(this);
+        mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -176,7 +180,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 for (int i = 0; i < mListData.size(); i++) {
                     BtDevice d = mListData.get(i);
                     if (d.isLostAlert() && d.isAntiLostSwitch()) {
-                        playAlertRingtone(d);
+                        int disturb = mSharedPreferences.getInt("disturb_status", 0);
+                        if (disturb == 0) {     // 免打扰模式没有打开，播放声音
+                            playAlertRingtone(d);
+                        }
                         startAnimation(i);
                         restart = true;
                     } else {
@@ -232,13 +239,18 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
             showItemViewAnimation(wantedView, position);
         }
+
+        Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        long [] pattern = {100, 400, 100, 400}; // 停止 开启 停止 开启
+        vibrator.vibrate(pattern, -1); //重复两次上面的pattern 如果只想震动一次，index设为-1
     }
 
     private void playAlertRingtone(BtDevice d) {
         if (mPlayer != null) {
             mPlayer.release();
-            Log.d(TAG, "the player is busy now");
             mPlayer = null;
+            Log.d(TAG, "the player is busy now");
+            return;
         }
 
         AudioManager mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
@@ -269,21 +281,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-
-//        // update the setting.
-//        if (mListData.size() != 0) {
-//            int position = mDeviceListAdapter.getmId();
-//            BtDevice old = mListData.get(position);
-//            BtDevice d = mDeviceDao.queryById(old.getId());
-//
-//            d.setStatus(old.getStatus());
-//            d.setRssi(old.getRssi());
-//
-//            Log.d("hjq", "d = " + d);
-//            mListData.set(position, d);
-//
-//            mDeviceListAdapter.notifyDataSetChanged();
-//        }
     }
 
     @Override
@@ -434,6 +431,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 Log.d("hjq", "onDisconnect called");
                 int position = mDeviceListAdapter.getmId();
                 mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
+                mListData.get(position).setPosition(BtDevice.LOST);
             }
 
             mHandler.post(new Runnable() {
@@ -448,6 +446,11 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         @Override
         public void onRead(String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onRead called");
+        }
+
+        @Override
+        public void onWrite(String address, byte[] val) throws RemoteException {
+            Log.d("hjq", "onWrite called");
         }
 
         @Override
@@ -529,6 +532,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         break;
                 }
 
+                Log.d("hjq", "oldstatus = " + oldstatus + " lostalsert =" + d.isLostAlert());
                 // 丢失状态变化了，记录这个变化
                 if (oldstatus ^ d.isLostAlert()) {
                     recordLostHistory(d);
@@ -567,7 +571,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             return;
         }
 
-        String address = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LOCATION, "");
+        String address = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LOCATION, "广东省深圳市");
         String longitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LON, "22");
         String latitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LAT, "105");
         long datetime = new Date().getTime();
