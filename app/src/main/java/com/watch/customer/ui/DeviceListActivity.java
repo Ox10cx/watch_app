@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -30,7 +32,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.uacent.watchapp.R;
-import com.watch.customer.xlistview.SlideDeleteListView;
+import com.watch.customer.xlistview.Menu;
+import com.watch.customer.xlistview.MenuItem;
+import com.watch.customer.xlistview.SlideAndDragListView;
 import com.watch.customer.adapter.DeviceListAdapter;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
@@ -49,9 +53,12 @@ import java.util.Date;
  * Created by Administrator on 16-3-7.
  */
 public class DeviceListActivity  extends BaseActivity  implements View.OnClickListener,
-        AdapterView.OnItemClickListener, DeviceListAdapter.OnItemClickCallback {
+        AdapterView.OnItemClickListener, DeviceListAdapter.OnItemClickCallback, SlideAndDragListView.OnListItemLongClickListener,
+        SlideAndDragListView.OnDragListener, SlideAndDragListView.OnSlideListener,
+        SlideAndDragListView.OnListItemClickListener, SlideAndDragListView.OnMenuItemClickListener,
+        SlideAndDragListView.OnItemDeleteListener{
     private static final int CHANGE_BLE_DEVICE_SETTING = 1;
-    private SlideDeleteListView mDeviceList;
+    private SlideAndDragListView<BtDevice> mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
     private Handler mHandler;
@@ -63,6 +70,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     SharedPreferences mSharedPreferences;
 
     private final String TAG = "hjq";
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,26 +98,52 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             return;
         }
 
-        mDeviceList = (SlideDeleteListView)findViewById(R.id.devicelist);
-        mDeviceList.setRemoveListener(new SlideDeleteListView.RemoveListener() {
-            @Override
-            public void removeItem(SlideDeleteListView.RemoveDirection direction, int position) {
-                BtDevice d = mListData.get(position);
-                mDeviceDao.deleteById(d.getAddress());
-                stopAnimation(position);
-                mDeviceListAdapter.updateDataSet(position - mDeviceList.getHeaderViewsCount());
-            }
-        });
+        mDeviceList = (SlideAndDragListView)findViewById(R.id.devicelist);
+//        mDeviceList.setRemoveListener(new SlideDeleteListView.RemoveListener() {
+//            @Override
+//            public void removeItem(SlideDeleteListView.RemoveDirection direction, int position) {
+//                BtDevice d = mListData.get(position);
+//                mDeviceDao.deleteById(d.getAddress());
+//                stopAnimation(position);
+//                mDeviceListAdapter.updateDataSet(position - mDeviceList.getHeaderViewsCount());
+//            }
+//        });
 
         mDeviceList.setOnItemClickListener(DeviceListActivity.this);
         mDeviceList.setLayoutAnimation(getAnimationController());
+
+        initMenu();
+        initUiAndListener();
         fillListData();
+
 
         Intent i = new Intent(this, BleComService.class);
         getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
         showLoadingDialog(getResources().getString(R.string.waiting));
     }
+
+    public void initMenu() {
+        mMenu = new Menu(new ColorDrawable(Color.WHITE), true);
+        mMenu.addItem(new MenuItem.Builder().setWidth((int) getResources().getDimension(R.dimen.slv_item_bg_btn_width) * 2)
+                .setBackground(new ColorDrawable(Color.RED))
+                .setText("Delete")
+                .setDirection(MenuItem.DIRECTION_RIGHT)
+                .setTextColor(Color.BLACK)
+                .setTextSize((int) getResources().getDimension(R.dimen.txt_size))
+                .build());
+    }
+
+    public void initUiAndListener() {
+        mDeviceList.setMenu(mMenu);
+        mDeviceList.setOnListItemLongClickListener(this);
+        mDeviceList.setOnDragListener(this, mListData);
+        mDeviceList.setOnListItemClickListener(this);
+        mDeviceList.setOnSlideListener(this);
+        mDeviceList.setOnMenuItemClickListener(this);
+        mDeviceList.setOnItemDeleteListener(this);
+    }
+
 
     @Override
     public boolean closeLoadingDialog() {
@@ -671,5 +705,85 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onListItemLongClick(View view, int position) {
+       // Toast.makeText(DeviceListActivity.this, "onItemLongClick   position--->" + position, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onListItemLongClick   " + position);
+    }
+
+    @Override
+    public void onDragViewStart(int position) {
+       // Toast.makeText(DeviceListActivity.this, "onDragViewStart   position--->" + position, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onDragViewStart   " + position);
+    }
+
+    @Override
+    public void onDragViewMoving(int position) {
+//        Toast.makeText(DemoActivity.this, "onDragViewMoving   position--->" + position, Toast.LENGTH_SHORT).show();
+        Log.i("yuyidong", "onDragViewMoving   " + position);
+    }
+
+    @Override
+    public void onDragViewDown(int position) {
+        //Toast.makeText(DeviceListActivity.this, "onDragViewDown   position--->" + position, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onDragViewDown   " + position);
+    }
+
+    @Override
+    public void onListItemClick(View v, int position) {
+       // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onListItemClick   " + position);
+    }
+
+    @Override
+    public void onSlideOpen(View view, View parentView, int position, int direction) {
+     //   Toast.makeText(DeviceListActivity.this, "onSlideOpen   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onSlideOpen   " + position);
+    }
+
+    @Override
+    public void onSlideClose(View view, View parentView, int position, int direction) {
+   //     Toast.makeText(DeviceListActivity.this, "onSlideClose   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onSlideClose   " + position);
+    }
+
+    @Override
+    public int onMenuItemClick(View v, int itemPosition, int buttonPosition, int direction) {
+        Log.i(TAG, "onMenuItemClick   " + itemPosition + "   " + buttonPosition + "   " + direction);
+        switch (direction) {
+            case MenuItem.DIRECTION_LEFT:
+                switch (buttonPosition) {
+                    case 0:
+                        return Menu.ITEM_NOTHING;
+                    case 1:
+                        return Menu.ITEM_SCROLL_BACK;
+                }
+                break;
+
+            case MenuItem.DIRECTION_RIGHT:
+                switch (buttonPosition) {
+                    case 0: {
+                        BtDevice d = mListData.get(itemPosition);
+                        mDeviceDao.deleteById(d.getAddress());
+                        stopAnimation(itemPosition);
+                        mDeviceListAdapter.updateDataSet(itemPosition - mDeviceList.getHeaderViewsCount());
+
+                        return Menu.ITEM_SCROLL_BACK;
+                    }
+
+                    case 1: {
+                        return Menu.ITEM_DELETE_FROM_BOTTOM_TO_TOP;
+                    }
+                }
+        }
+
+        return Menu.ITEM_NOTHING;
+    }
+
+    @Override
+    public void onItemDelete(View view, int position) {
+
     }
 }
