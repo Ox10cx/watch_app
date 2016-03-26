@@ -25,6 +25,7 @@ import java.util.List;
 public class CameraInterface {
     private static final String TAG = "hjq";
     private Camera mCamera;
+    Object mSync = new Object();
     private Camera.Parameters mParams;
     private boolean isPreviewing = false;
     private float mPreviwRate = -1f;
@@ -48,20 +49,20 @@ public class CameraInterface {
         return mCameraInterface;
     }
 
-    public void setCameraId(int id) {
-        cameraPosition = id;
+    public int getCameraId() {
+        return cameraPosition;
     }
 
     /**打开Camera
      * @param callback
      */
     public void doOpenCamera(CamOpenOverCallback callback){
-        Log.i(TAG, "Camera open index  ");
+        Log.e(TAG, "Camera open index  ");
         try {
             mCamera = Camera.open(cameraPosition);
         } catch (Exception e) {
         }
-        Log.i(TAG, "Camera open over....");
+        Log.e(TAG, "Camera open over....");
         callback.cameraHasOpened();
     }
 
@@ -79,13 +80,24 @@ public class CameraInterface {
         }
     }
 
+    public List<String> getSupportedFlashModes() {
+        List<String> modes = mParams.getSupportedFlashModes();
+        return modes;
+    }
+
+    public void setFlashMode(String mode) {
+        mParams.setFlashMode(mode);
+
+        mCamera.setParameters(mParams);
+    }
+
 
     /**开启预览
      * @param holder
      * @param previewRate
      */
-    public void doStartPreview(SurfaceHolder holder, float previewRate){
-        Log.i(TAG, "doStartPreview...");
+    public void doStartPreview(SurfaceHolder holder, float previewRate, int degree){
+        Log.i(TAG, "doStartPreview..., isPreviewing = " + isPreviewing);
         if (isPreviewing) {
             mCamera.stopPreview();
             return;
@@ -102,19 +114,21 @@ public class CameraInterface {
             Size previewSize = CamParaUtil.getInstance().getPropPreviewSize(
                     mParams.getSupportedPreviewSizes(), previewRate, 640);
             mParams.setPreviewSize(previewSize.width, previewSize.height);
-
-            mCamera.setDisplayOrientation(90);
+            Log.e("hjq", "degree = " + degree);
+            mCamera.setDisplayOrientation(degree);
 
             CamParaUtil.getInstance().printSupportFocusMode(mParams);
             List<String> focusModes = mParams.getSupportedFocusModes();
-            if (focusModes.contains("continuous-video")) {
-                mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            if (focusModes.contains("continuous-picture")) {
+                Log.d("hjq", "set up continous picture");
+                mParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             }
             mCamera.setParameters(mParams);
 
             try {
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();//开启预览
+                mCamera.cancelAutoFocus();      // TODO: HOW TO SETUP AUTOFOCUS MODE
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -135,13 +149,15 @@ public class CameraInterface {
      * 停止预览，释放Camera
      */
     public void doStopCamera() {
-        if (null != mCamera) {
-            mCamera.setPreviewCallback(null);
-            mCamera.stopPreview();
-            isPreviewing = false;
-            mPreviwRate = -1f;
-            mCamera.release();
-            mCamera = null;
+        synchronized (mSync) {
+            if (null != mCamera) {
+                mCamera.setPreviewCallback(null);
+                mCamera.stopPreview();
+                isPreviewing = false;
+                mPreviwRate = -1f;
+                mCamera.release();
+                mCamera = null;
+            }
         }
     }
 
@@ -187,11 +203,20 @@ public class CameraInterface {
                 mCamera.stopPreview();
                 isPreviewing = false;
             }
+
+            android.hardware.Camera.CameraInfo info =
+                    new android.hardware.Camera.CameraInfo();
+            android.hardware.Camera.getCameraInfo(cameraPosition, info);
+            float degree = 90.0f;
+            if (info.facing == android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                degree = 270.0f;
+            }
+
             //保存图片到sdcard
             if (null != b) {
                 //设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
                 //图片竟然不能旋转了，故这里要旋转下
-                Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 90.0f);
+                Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, degree);
                 FileUtil.saveBitmap(mContext, rotaBitmap);
             }
 
@@ -212,6 +237,10 @@ public class CameraInterface {
             mCamera.stopPreview();
             mCamera.release();
         }
+    }
+
+    public void autoFocus(Camera.AutoFocusCallback cb){
+        mCamera.autoFocus(cb);
     }
 
     public interface OnFinishCallback {

@@ -10,6 +10,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.passlock.AbstractAppLock;
+import com.watch.customer.passlock.AppLockManager;
 
 /**
  * Created by Administrator on 16-3-7.
@@ -43,13 +45,14 @@ public class SettingActivity  extends BaseActivity {
         ll_recordlist.setOnClickListener(this);
 
         TextView txtStatus = (TextView) findViewById(R.id.textstatus);
-        mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
-        int status = mSharedPreferences.getInt("password_status", 0);
-        if (status == 0) {
+
+        AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
+        if (!appLock.isPasswordLocked()) {
             txtStatus.setText("Closed");
         } else {
             txtStatus.setText("Open");
         }
+        mSharedPreferences = getSharedPreferences("watch_app", 0);
 
         int disturb = mSharedPreferences.getInt("disturb_status", 0);
         if (disturb == 0) {
@@ -79,7 +82,8 @@ public class SettingActivity  extends BaseActivity {
 
             case R.id.ll_password: {
                 Intent intent = new Intent(SettingActivity.this, PasswordSettingActivity.class);
-                startActivityForResult(intent, CHANGE_PASSWORD_SETTING);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 break;
             }
 
@@ -112,8 +116,8 @@ public class SettingActivity  extends BaseActivity {
         super.onResume();
 
         TextView txtStatus = (TextView) findViewById(R.id.textstatus);
-        int status = mSharedPreferences.getInt("password_status", 0);
-        if (status == 0) {
+        AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
+        if (!appLock.isPasswordLocked()) {
             txtStatus.setText("Closed");
         } else {
             txtStatus.setText("Open");

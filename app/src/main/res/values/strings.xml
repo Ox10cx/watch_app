@@ -14,11 +14,11 @@
     <string name="system_backmomey">退款</string>
     <string name="system_deal">团购</string>
     <string name="system_submit">提交</string>
-    <string name="system_cancel">取消</string>
-    <string name="system_sure">确定</string>
-    <string name="system_sureifexit">是否确定要退出掌上餐厅</string>
-    <string name="system_exit">退出</string>
-    <string name="system_delete">删除</string>
+    <string name="system_cancel">Cancel</string>
+    <string name="system_sure">Confirm</string>
+    <string name="system_sureifexit">Are you sure to exit?</string>
+    <string name="system_exit">Exit</string>
+    <string name="system_delete">Delete</string>
     <!-- auth.login -->
     <string name="login_edittext_phone">手机号</string>
     <string name="login_edittext_password">密码</string>

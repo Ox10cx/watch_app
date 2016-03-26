@@ -64,16 +64,17 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT"/>
 
 
     <application
         android:name="com.watch.customer.app.MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@android:drawable/sym_def_app_icon"
         android:label="@string/system_name"
         android:theme="@style/AppTheme" >
         <activity android:name="com.watch.customer.ui.FirstActivity"
-            android:icon="@drawable/ic_launcher">
+            android:icon="@android:drawable/sym_def_app_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -188,7 +189,9 @@
         <activity android:name="com.watch.customer.ui.FindmeSettingActivity"> </activity>
         <activity android:name="com.watch.customer.ui.RingtoneSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.PasswordSettingActivity"> </activity>
-        <activity android:name="com.watch.customer.ui.InputPasswordActivity"> </activity>
+        <activity android:name="com.watch.customer.passlock.InputPasswordActivity"
+                    android:launchMode="singleInstance" >
+        </activity>
         <activity android:name="com.watch.customer.ui.MapSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.LocationRecordList"> </activity>
 

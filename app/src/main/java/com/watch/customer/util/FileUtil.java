@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +20,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -717,60 +720,18 @@ public class FileUtil
         return true;
     }
 
-    private static String getStoragePath(Context mContext, boolean is_removale) {
-
-        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
-        Class<?> storageVolumeClazz = null;
-        try {
-            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
-            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
-            Method getPath = storageVolumeClazz.getMethod("getPath");
-            Method isRemovable = storageVolumeClazz.getMethod("isRemovable");
-            Object result = getVolumeList.invoke(mStorageManager);
-            final int length = Array.getLength(result);
-            for (int i = 0; i < length; i++) {
-                Object storageVolumeElement = Array.get(result, i);
-                String path = (String) getPath.invoke(storageVolumeElement);
-                boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
-                if (is_removale == removable) {
-                    return path;
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     /**初始化保存路径
      * @return
      */
     private static String initPath(Context context){
-        if(storagePath.equals("")){
-
-            String path = getStoragePath(context, true);
-            if (path == null) {
-                path = getStoragePath(context, false);
-            }
-
-            if (path == null) {
-                storagePath = parentPath.getAbsolutePath() + "/" + DST_FOLDER_NAME;
-            } else {
-                storagePath = path + "/" + DST_FOLDER_NAME;
-            }
-
-            File f = new File(storagePath);
-            if (!f.exists()){
-                f.mkdir();
-            }
+        if (storagePath.equals("")){
+            File file = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES);
+            // Make sure the Pictures directory exists.
+            file.mkdirs();
+            storagePath = file.getPath();
         }
+
         return storagePath;
     }
 
@@ -789,6 +750,17 @@ public class FileUtil
             bos.flush();
             bos.close();
             Log.i(TAG, "saveBitmap成功");
+
+            // Tell the media scanner about the new file so that it is
+            // immediately available to the user.
+            MediaScannerConnection.scanFile(context,
+                    new String[]{path}, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
         } catch (IOException e) {
             // TODO Auto-generated catch block
             Log.i(TAG, "saveBitmap:失败");

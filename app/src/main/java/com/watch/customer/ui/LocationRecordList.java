@@ -7,7 +7,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import com.uacent.watchapp.R;
-import com.watch.customer.SlideDeleteListView;
+import com.watch.customer.xlistview.SlideDeleteListView;
 import com.watch.customer.adapter.LocationRecordAdapter;
 import com.watch.customer.dao.LocationDao;
 import com.watch.customer.model.LocationRecord;

@@ -42,13 +42,13 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical" >
 
-        <com.watch.customer.SlideDeleteListView
+        <com.watch.customer.xlistview.SlideDeleteListView
             android:id="@+id/loclist"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:divider="#dddddd"
             android:dividerHeight="1dp">
-        </com.watch.customer.SlideDeleteListView>
+        </com.watch.customer.xlistview.SlideDeleteListView>
 
     </RelativeLayout>
 

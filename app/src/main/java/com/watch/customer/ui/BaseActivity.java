@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,13 +16,22 @@ import com.watch.customer.util.DialogUtil;
 
 public class BaseActivity extends Activity implements OnClickListener {
 	private Dialog dialog;
+	SharedPreferences mSharedPreferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		MyApplication.getInstance().addActivity(this);
+
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+	}
+
 
 	@Override
 	protected void onDestroy() {

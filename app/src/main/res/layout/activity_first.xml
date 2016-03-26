@@ -5,10 +5,8 @@
     <ImageView android:id="@+id/open_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/welcome"
+        android:src="@drawable/welcome_bg"
         android:scaleType="fitXY"
         />
-
-        
 </LinearLayout>
     

@@ -19,6 +19,12 @@ android {
     }
 }
 
+android.buildTypes.all {
+    buildConfigField "String", "PASSWORD_SALT", "\"ggggukggg\""
+    buildConfigField "String", "PASSWORD_ENC_SECRET", "\"sggggxxyyyzzzzgggeee213,2355\""
+    buildConfigField "String", "PASSWORD_PREFERENCE_KEY", "\"passwordkey\""
+}
+
 android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -29,6 +35,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.3'
+
     compile files('libs/alipay.jar')
     compile files('libs/httpcore-4.3.3.jar')
     compile files('libs/httpmime-4.3.6.jar')

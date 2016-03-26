@@ -1,12 +1,7 @@
 package com.watch.customer.ui;
 
-import android.app.ActionBar;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,8 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -24,29 +17,20 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
-import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.uacent.watchapp.R;
-import com.watch.customer.SlideDeleteListView;
+import com.watch.customer.xlistview.SlideDeleteListView;
 import com.watch.customer.adapter.DeviceListAdapter;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
@@ -56,19 +40,10 @@ import com.watch.customer.device.BluetoothLeClass;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.model.LocationRecord;
 import com.watch.customer.service.BleComService;
-import com.watch.customer.util.CommonUtil;
-import com.watch.customer.util.ImageLoaderUtil;
 import com.watch.customer.util.PreferenceUtil;
-import com.watch.customer.util.PreventAntiLostCore;
-import com.watch.customer.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by Administrator on 16-3-7.

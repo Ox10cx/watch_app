@@ -16,6 +16,24 @@
             android:layout_height="0dip" />
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/fl_flash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp">
+
+        <include layout="@layout/camera_flash_mode"/>
+
+        </FrameLayout>
+
     <ImageButton
         android:id="@+id/btn_camera_switch"
         android:layout_width="wrap_content"
@@ -32,8 +50,8 @@
 
         <ImageButton
             android:id="@+id/btn_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:background="@drawable/album"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
@@ -43,8 +61,8 @@
 
         <ImageButton
             android:id="@+id/btn_shutter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:background="@drawable/start_take_photo"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
@@ -54,8 +72,8 @@
 
     <ImageButton
         android:id="@+id/btn_setting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="@drawable/setting"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

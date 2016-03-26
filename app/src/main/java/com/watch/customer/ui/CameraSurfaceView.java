@@ -12,7 +12,6 @@ import android.view.SurfaceView;
  * Created by Administrator on 16-3-18.
  */
 public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
-    CameraInterface mCameraInterface;
     Context mContext;
     SurfaceHolder mSurfaceHolder;
     private static final String TAG = "hjq";

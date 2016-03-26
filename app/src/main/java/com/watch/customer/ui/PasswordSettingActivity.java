@@ -10,6 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.passlock.AbstractAppLock;
+import com.watch.customer.passlock.AppLockManager;
+import com.watch.customer.passlock.InputPasswordActivity;
 
 
 /**
@@ -20,9 +23,9 @@ public class PasswordSettingActivity extends BaseActivity {
     private static final int VERIFY_PASSWORD = 2;
     private static final int TURN_OFF_PASSWORD = 3;
 
-    private SharedPreferences mSharedPreferences;
     private TextView txtChangePassword;
     private TextView txtTurnOnPassword;
+    AbstractAppLock appLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +33,14 @@ public class PasswordSettingActivity extends BaseActivity {
 
         setContentView(R.layout.password_list_activity);
 
-        mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
+        appLock = AppLockManager.getInstance().getCurrentAppLock();
 
         RelativeLayout rl_password_status = (RelativeLayout) findViewById(R.id.ll_turn_password);
         rl_password_status.setOnClickListener(this);
 
         txtTurnOnPassword = (TextView) findViewById(R.id.text_turn_on_password);
         txtChangePassword = (TextView) findViewById(R.id.text_change_password);
-        int val = mSharedPreferences.getInt("password_status", 0);
-        if (val == 0) {
+        if (!appLock.isPasswordLocked()) {
             txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorDisable));
             txtTurnOnPassword.setText("Turn On Password");
         } else {
@@ -56,9 +58,7 @@ public class PasswordSettingActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_turn_password: {
-                int val = mSharedPreferences.getInt("password_status", 0);
-
-                if (val == 0) {
+                if (!appLock.isPasswordLocked()) {
                     Intent intent = new Intent(this, InputPasswordActivity.class);
                     intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
                     intent.putExtra("title", txtTurnOnPassword.getText());

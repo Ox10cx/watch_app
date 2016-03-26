@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.app.Application;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.watch.customer.passlock.AbstractAppLock;
+import com.watch.customer.passlock.AppLockManager;
 import com.watch.customer.util.ImageLoaderUtil;
 import com.watch.customer.util.PreferenceUtil;
 
@@ -22,6 +24,9 @@ public class MyApplication extends Application {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		SDKInitializer.initialize(this);
+		AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
+        AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
+        appLock.setDisabledActivities(new String[] {"com.watch.customer.ui.FirstActivity", "com.watch.customer.ui.MainActivity"});
 	}
 
 	public static MyApplication getInstance() {

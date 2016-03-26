@@ -16,7 +16,7 @@
     <string name="system_submit">提交</string>
     <string name="system_cancel">取消</string>
     <string name="system_sure">确定</string>
-    <string name="system_sureifexit">是否确定要退出掌上餐厅</string>
+    <string name="system_sureifexit">是否确定要退出蓝牙防丢器</string>
     <string name="system_exit">退出</string>
     <string name="system_delete">删除</string>
     <!-- auth.login -->
