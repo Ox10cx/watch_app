@@ -2,6 +2,7 @@ package com.watch.customer.xlistview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -153,6 +154,8 @@ class ItemMainLayout extends FrameLayout {
                 mLeftDistance = mItemCustomLayout.getLeft();
                 //是否有要scroll的动向，目前没有
                 mIsMoving = false;
+
+                Log.e("hjq", "x2 = " + mXDown + ", y2 = " + mYDown);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (fingerNotMove(ev) && !mIsMoving) {//手指的范围在50以内

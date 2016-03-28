@@ -296,11 +296,16 @@ public class BluetoothLeClass {
             return;
         }
 
-        BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(serviceUuid).getCharacteristic(characteristicUuid);
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
-        descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
-        mBluetoothGatt.writeDescriptor(descriptor);
+        BluetoothGattService gattService = mBluetoothGatt.getService(serviceUuid);
+        if (gattService != null) {
+            BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(characteristicUuid);
+            mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
+            descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : new byte[]{0x00, 0x00});
+            mBluetoothGatt.writeDescriptor(descriptor);
+        } else {
+            Log.e("hjq", "service id = " + serviceUuid + " is not support!");
+        }
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic){

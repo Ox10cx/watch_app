@@ -250,20 +250,30 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="50dp"
             android:layout_weight="1"
             >
 
-        <TextView
-            android:id="@+id/textVersion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_versionName"
-            android:layout_gravity="center_vertical|right"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="10dp"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/textVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_versionName"
+                android:layout_gravity="center_vertical|right"
+                android:layout_alignParentLeft="false"
+                android:layout_centerVertical="true"
+                android:layout_margin="10dp"
+                android:textSize="18sp"
+                android:layout_toLeftOf="@+id/bt_checkupdate" />
+
+            <Button
+                android:id="@+id/bt_checkupdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="check update"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" />
+
         </RelativeLayout>
     </LinearLayout>
 

@@ -147,6 +147,7 @@ public class LocationActivity  extends BaseActivity {
         mMapView.onPause();
         Log.d(TAG, "location activity onpause");
         mMapView.setVisibility(View.INVISIBLE);
+
         super.onPause();
     }
 

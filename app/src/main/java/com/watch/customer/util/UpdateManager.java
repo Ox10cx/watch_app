@@ -43,7 +43,7 @@ public class UpdateManager {
 	private Dialog downloadDialog;
 	/* 下载包安装路径 */
 	private static final String savePath = Environment
-			.getExternalStorageDirectory().getPath() + "/peal_meal/";
+			.getExternalStorageDirectory().getPath() + "/btantilost/";
 	private static final String apkname = "customer.apk";
 	private static final String saveFileName = savePath + apkname;
 	/* 进度条与通知ui刷新的handler和msg常量 */
@@ -258,6 +258,5 @@ public class UpdateManager {
 		i.setDataAndType(Uri.parse("file://" + apkfile.toString()),
 				"application/vnd.android.package-archive");
 		mContext.startActivity(i);
-
 	}
 }

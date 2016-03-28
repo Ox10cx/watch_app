@@ -2,6 +2,7 @@ package com.watch.customer.ui;
 
 import android.app.AlertDialog;
 import android.app.TabActivity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,6 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TabHost;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -79,11 +81,27 @@ public class MainActivity extends TabActivity {
         mLocClient.setLocOption(option);
         mLocClient.start();
 
+        confirmBluetooth();
+
 //		if (!PreferenceUtil.getInstance(this).getUid().equals("")) {
 //			JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
 //		    JPushInterface.init(this);
 //		}
     }
+
+    void confirmBluetooth(){
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
+                .getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "本机没有找到蓝牙硬件或驱动！", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        // 如果本地蓝牙没有开启，则开启
+        if (!mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+        }
+    }
+
 
     private void selectTab(int index) {
         // TODO Auto-generated method stub
@@ -155,25 +173,13 @@ public class MainActivity extends TabActivity {
     }
 
     private void initView() {
-
         mTabHost = getTabHost();
-
-//		Intent i_main = new Intent(this, ShopListActivity.class);
-//		Intent i_search = new Intent(this, OrderMainActivity.class);
-//		Intent i_category = new Intent(this, PersonMainActivity.class);
 
         Intent i_device = new Intent(this, DeviceListActivity.class);
         Intent i_camera = new Intent(this, CameraActivity.class);
         Intent i_location = new Intent(this, LocationActivity.class);
         Intent i_setting = new Intent(this, SettingActivity.class);
         Intent i_info = new Intent(this, InfoActivity.class);
-
-//		mTabHost.addTab(mTabHost.newTabSpec(TAB_MAIN).setIndicator(TAB_MAIN)
-//				.setContent(i_main));
-//		mTabHost.addTab(mTabHost.newTabSpec(TAB_BOOK).setIndicator(TAB_BOOK)
-//				.setContent(i_search));
-//		mTabHost.addTab(mTabHost.newTabSpec(TAB_CATEGORY)
-//				.setIndicator(TAB_CATEGORY).setContent(i_category));
 
         mTabHost.addTab(mTabHost.newTabSpec(TAB_DEVICE).setIndicator(TAB_DEVICE)
                 .setContent(i_device));

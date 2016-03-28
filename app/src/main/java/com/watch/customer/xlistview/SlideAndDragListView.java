@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -108,10 +109,14 @@ public class SlideAndDragListView<T> extends DragListView<T> implements WrapperA
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //获取出坐标来
+
                 mXDown = (int) ev.getX();
                 mYDown = (int) ev.getY();
                 //当前state状态为按下
                 mState = STATE_DOWN;
+
+                Log.e("hjq", "x = " + mXDown + ", y = " + mYDown);
+
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_POINTER_2_DOWN:
@@ -127,6 +132,8 @@ public class SlideAndDragListView<T> extends DragListView<T> implements WrapperA
                 } else if (fingerLeftAndRightMove(ev)) {//上下范围在50，主要检测左右滑动
                     removeLongClickMessage();
                     //将当前想要滑动哪一个传递给wrapperAdapter
+
+                    Log.e("hjq", "evx = " + ev.getX() + ", evy = " + ev.getY());
                     int position = pointToPosition(mXDown, mYDown);
                     if (position != AdapterView.INVALID_POSITION) {
                         View view = getChildAt(position - getFirstVisiblePosition());
@@ -140,6 +147,7 @@ public class SlideAndDragListView<T> extends DragListView<T> implements WrapperA
                                     return true;
                                 }
                             } else if (isFingerMoving2Left(ev)) {//如果想向左滑动
+                                Log.e("hjq", "isFingerMoving2Left");
                                 if (itemMainLayout.getItemRightBackGroundLayout().getBtnViews().size() == 0 &&
                                         itemMainLayout.getScrollState() == ItemMainLayout.SCROLL_STATE_CLOSE) {//但是又没有Right的Menu
                                     mState = STATE_NOTHING;

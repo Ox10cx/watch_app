@@ -13,6 +13,7 @@ import com.uacent.watchapp.R;
 import com.watch.customer.passlock.AbstractAppLock;
 import com.watch.customer.passlock.AppLockManager;
 import com.watch.customer.passlock.InputPasswordActivity;
+import com.watch.customer.passlock.VerifyPasswordActivity;
 
 
 /**
@@ -59,13 +60,13 @@ public class PasswordSettingActivity extends BaseActivity {
         switch (v.getId()) {
             case R.id.ll_turn_password: {
                 if (!appLock.isPasswordLocked()) {
-                    Intent intent = new Intent(this, InputPasswordActivity.class);
-                    intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
+                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
+                    intent.putExtra("mode", VerifyPasswordActivity.MODE_INPUT);
                     intent.putExtra("title", txtTurnOnPassword.getText());
                     startActivityForResult(intent, SETUP_PASSWORD);
                 } else {
-                    Intent intent = new Intent(this, InputPasswordActivity.class);
-                    intent.putExtra("mode", InputPasswordActivity.MODE_VERIFY);
+                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
+                    intent.putExtra("mode", VerifyPasswordActivity.MODE_VERIFY);
                     intent.putExtra("title", txtTurnOnPassword.getText());
                     startActivityForResult(intent, TURN_OFF_PASSWORD);
                 }
@@ -75,7 +76,7 @@ public class PasswordSettingActivity extends BaseActivity {
 
             case R.id.ll_change_password: {
                 Intent intent = new Intent(this, InputPasswordActivity.class);
-                intent.putExtra("mode", InputPasswordActivity.MODE_VERIFY);
+                intent.putExtra("mode", VerifyPasswordActivity.MODE_VERIFY);
                 intent.putExtra("title", txtChangePassword.getText());
                 startActivityForResult(intent, VERIFY_PASSWORD);
                 break;
@@ -107,34 +108,38 @@ public class PasswordSettingActivity extends BaseActivity {
                     rl_change_password.setOnClickListener(this);
                     txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorBlack));
                 }
-            } else if (requestCode == VERIFY_PASSWORD) {
-                boolean val = data.getBooleanExtra("verify_status", false);
 
-                if (val) {
-                    Intent intent = new Intent(this, InputPasswordActivity.class);
+                txtChangePassword.invalidate();
+                txtTurnOnPassword.invalidate();
+            } else if (requestCode == VERIFY_PASSWORD) {
+                int val = data.getIntExtra("password_status", 0);
+
+                if (val == 1) {
+                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
                     intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
                     startActivityForResult(intent, SETUP_PASSWORD);
                 } else {
                     Toast.makeText(this, "Your password is incorrect!", Toast.LENGTH_SHORT).show();
                 }
             } else if (requestCode == TURN_OFF_PASSWORD) {
-                boolean val = data.getBooleanExtra("verify_status", false);
+                int val = data.getIntExtra("password_status", 0);
 
-                if (val) {
-                    SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-                    mEditor.putInt("password_status", 0);
-                    mEditor.apply();
+                if (val == 1) {
+                    appLock.setPassword(null);
 
                     txtTurnOnPassword = (TextView) findViewById(R.id.text_turn_on_password);
                     txtChangePassword = (TextView) findViewById(R.id.text_change_password);
 
                     txtTurnOnPassword.setText("Turn on Password");
                     RelativeLayout rl_change_password = (RelativeLayout) findViewById(R.id.ll_change_password);
-                    rl_change_password.setOnClickListener(this);
-                    txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorBlack));
+                    rl_change_password.setOnClickListener(null);
+                    txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorDisable));
                 } else {
                     Toast.makeText(this, "Your password is incorrect!", Toast.LENGTH_SHORT).show();
                 }
+
+                txtChangePassword.invalidate();
+                txtTurnOnPassword.invalidate();
             }
         }
 

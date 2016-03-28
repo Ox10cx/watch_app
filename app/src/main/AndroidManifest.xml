@@ -192,6 +192,7 @@
         <activity android:name="com.watch.customer.passlock.InputPasswordActivity"
                     android:launchMode="singleInstance" >
         </activity>
+        <activity android:name="com.watch.customer.passlock.VerifyPasswordActivity"></activity>
         <activity android:name="com.watch.customer.ui.MapSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.LocationRecordList"> </activity>
 

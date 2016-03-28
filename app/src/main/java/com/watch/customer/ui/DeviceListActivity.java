@@ -10,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -294,7 +295,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     protected void onDestroy() {
-        unbindService(mConnection);
+        if (mConnection != null) {
+            unbindService(mConnection);
+        }
         super.onDestroy();
     }
 
