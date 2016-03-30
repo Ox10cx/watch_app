@@ -19,8 +19,6 @@ import com.watch.customer.util.PreferenceUtil;
 
 public class PersonMainActivity extends BaseActivity implements OnClickListener {
 	private LinearLayout personInfo;
-	private LinearLayout personShop;
-	private LinearLayout personCoin;
 	private LinearLayout personSetting;
 	private LinearLayout personLogout;
 	private ImageView headIv;
@@ -33,16 +31,12 @@ public class PersonMainActivity extends BaseActivity implements OnClickListener 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_person_main);
 		personInfo = (LinearLayout) findViewById(R.id.personmainInformation);
-		personShop = (LinearLayout) findViewById(R.id.personmainShop);
-		personCoin = (LinearLayout) findViewById(R.id.personmainMycoin);
 		personSetting = (LinearLayout) findViewById(R.id.personmainSetting);
 		personLogout = (LinearLayout) findViewById(R.id.personmainLogout);
 		headIv=(ImageView)findViewById(R.id.personmainPhoto);
 		phonetv=(TextView)findViewById(R.id.personmainTextTelephone);
 		nametv=(TextView)findViewById(R.id.personmainTextName);
 		personInfo.setOnClickListener(this);
-		personShop.setOnClickListener(this);
-		personCoin.setOnClickListener(this);
 		personSetting.setOnClickListener(this);
 		personLogout.setOnClickListener(this);
 		
@@ -51,7 +45,7 @@ public class PersonMainActivity extends BaseActivity implements OnClickListener 
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		mUser=new UserDao(this).queryById(PreferenceUtil.getInstance(this).getUid());
+		mUser = new UserDao(this).queryById(PreferenceUtil.getInstance(this).getUid());
 		if (mUser!=null) {
 			phonetv.setText(mUser.getPhone());
 			nametv.setText(mUser.getName());
@@ -61,11 +55,10 @@ public class PersonMainActivity extends BaseActivity implements OnClickListener 
 				ImageLoaderUtil.displayImage(HttpUtil.SERVER+mUser.getImage(), headIv, this);
 			}
 		}else {
-			nametv.setText("");
-			phonetv.setText("");
-			headIv.setImageResource(R.drawable.null_user);
-		}
-		
+            nametv.setText("");
+            phonetv.setText("");
+            headIv.setImageResource(R.drawable.null_user);
+        }
 	}
 
 	@Override
@@ -80,15 +73,11 @@ public class PersonMainActivity extends BaseActivity implements OnClickListener 
 		case R.id.personmainInformation:
 			startActivity(new Intent(this, PersonInfoActivity.class));
 			break;
-		case R.id.personmainShop:
-			startActivity(new Intent(this, PersonShopActivity.class));
-			break;
-		case R.id.personmainMycoin:
-			startActivity(new Intent(this, PersonCoinActivity.class));
-			break;
+
 		case R.id.personmainSetting:
 			startActivity(new Intent(this, PersonSettingActivity.class));
 			break;
+
 		case R.id.personmainLogout:
 			AlertDialog.Builder builder=new AlertDialog.Builder(this);
 			builder.setMessage("是否要注销当前账户")

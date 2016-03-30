@@ -37,7 +37,7 @@
     <string name="register_edittext_password">密码(6到16位)</string>
     <string name="register_edittext_confirm_password">确认密码</string>
     <string name="register_button_register">注册</string>
-    <string name="register_textview_warning">注册视为同意掌上餐厅的</string>
+    <string name="register_textview_warning">注册视为同意蓝牙防丢器的</string>
     <string name="register_textview_protocol">  <a href="">用户协议</a></string>
     <string name="register_protocol">用户协议</string>
    
@@ -301,7 +301,7 @@
     <item type="id" name="tag_first"></item>
     <item type="id" name="tag_second"></item>
 
-    <string name="app_versionName">1.1</string>
+    <string name="app_versionName">1.4</string>
     <string name="location">Position:</string>
 
 </resources>

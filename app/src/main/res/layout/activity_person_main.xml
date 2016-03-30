@@ -78,74 +78,12 @@
         android:layout_marginRight="10dp"
         android:background="#aaaaaa" />
 
-    <LinearLayout
-        android:id="@+id/personmainShop"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:paddingEnd="20dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingStart="20dp" >
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/system_image_logo"
-            android:src="@drawable/collect" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="@string/person_main_text_shop" />
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/person_main_image_shop"
-            android:src="@drawable/arrow_right" />
-    </LinearLayout>
-
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="#aaaaaa" />
-
-    <LinearLayout
-        android:id="@+id/personmainMycoin"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:paddingEnd="20dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingStart="20dp" >
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/system_image_logo"
-            android:src="@drawable/shibi" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="@string/person_main_text_mycoin" />
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/person_main_image_mycoin"
-            android:src="@drawable/arrow_right" />
-    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

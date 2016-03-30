@@ -39,8 +39,7 @@
             style="@style/text_head" />
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/shape"
@@ -50,23 +49,26 @@
         android:layout_margin="10dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Do Not Distrub"
             android:id="@+id/textView"
             android:textSize="18sp"
-            android:layout_weight="1"
             android:layout_marginLeft="5dp"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:layout_centerVertical="true" />
 
         <Switch
             android:id="@+id/switchNotDisturb"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1.7"
             android:layout_marginRight="5dp"
-            android:layout_gravity="center_vertical" />
-    </LinearLayout>
+            android:layout_gravity="center_vertical"
+            android:showText="true"
+            android:textSize="18sp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/ll_password"
@@ -220,6 +222,43 @@
             android:layout_gravity="right">
             <ImageView
                 android:id="@+id/record_right_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:layout_gravity="right"
+                android:src="@drawable/right_arrow" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_userinfo"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/shape"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:visibility="visible"
+        android:layout_marginLeft="10dp"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Setting"
+            android:textSize="18sp"
+            android:layout_marginLeft="5dp"
+            android:layout_gravity="center_vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_gravity="right">
+            <ImageView
+                android:id="@+id/userinfo_right_arrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"

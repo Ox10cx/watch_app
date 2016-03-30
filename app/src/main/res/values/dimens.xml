@@ -16,5 +16,6 @@
 
     <dimen name="txt_size">7sp</dimen>
     <dimen name="txt_qq">5sp</dimen>
+    <dimen name="text_size">18sp</dimen>
 
 </resources>

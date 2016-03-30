@@ -19,6 +19,8 @@ public class MyApplication extends Application {
 	public int islocation = 0;
 	private LinkedList<Activity> activityList = new LinkedList<Activity>();
 	private static MyApplication instance;
+	public static String mToken = "";
+
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub

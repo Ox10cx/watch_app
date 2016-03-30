@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.uacent.watchapp.R;
 import com.watch.customer.passlock.AbstractAppLock;
@@ -40,6 +41,7 @@ public class SettingActivity  extends BaseActivity {
             try {
                 final JSONObject json = new JSONObject(result);
                 if (json.getInt(JsonUtil.CODE) == 1) {
+                    Log.e("hjq", "msg is = " + json.getString(JsonUtil.MSG));
                     showLongToast(json.getString(JsonUtil.MSG));
                 } else {
                     final String path = json.getString(JsonUtil.PATH);
@@ -91,6 +93,9 @@ public class SettingActivity  extends BaseActivity {
 
         LinearLayout ll_recordlist = (LinearLayout)findViewById(R.id.ll_recordlist);
         ll_recordlist.setOnClickListener(this);
+
+        LinearLayout ll_userinfo = (LinearLayout)findViewById(R.id.ll_userinfo);
+        ll_userinfo.setOnClickListener(this);
 
         TextView txtStatus = (TextView) findViewById(R.id.textstatus);
 
@@ -158,6 +163,12 @@ public class SettingActivity  extends BaseActivity {
 
             case R.id.ll_map: {
                 Intent intent = new Intent(SettingActivity.this, MapSelectActivity.class);
+                startActivity(intent);
+                break;
+            }
+
+            case R.id.ll_userinfo: {
+                Intent intent = new Intent(SettingActivity.this, PersonInfoActivity.class);
                 startActivity(intent);
                 break;
             }

@@ -76,53 +76,55 @@ public class PersonInfoActivity extends BaseActivity implements
 			String result = msg.obj.toString();
 			Log.e("hjq", result);
 			switch (msg.what) {
-			case editmsg_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (json.getInt(JsonUtil.CODE) == 1) {
-						mUserDao.update(mUser);
-						showLongToast("修改完成");
-						text_name.setText(mUser.getName());
-						String sexstr = mUser.getSex().equals("1") ? "男" : "女";
-						text_sex.setText(sexstr);
-					} else {
-						showLongToast(json.getString(JsonUtil.MSG));
-						mUser = mUserDao.queryById(userid);
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			case editmsg_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (json.getInt(JsonUtil.CODE) == 1) {
+                        mUserDao.update(mUser);
+                        showLongToast("修改完成");
+                        text_name.setText(mUser.getName());
+                        String sexstr = mUser.getSex().equals("1") ? "男" : "女";
+                        text_sex.setText(sexstr);
+                    } else {
+                        showLongToast(json.getString(JsonUtil.MSG));
+                        mUser = mUserDao.queryById(userid);
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
 
-				break;
-			case editimage_what:
-				try {
-					JSONObject json = new JSONObject(result);
-					if (json.getInt(JsonUtil.CODE) == 1) {
-						 mUser=mUserDao.queryById(PreferenceUtil.getInstance(PersonInfoActivity.this).getUid());
-                          if (mUser!=null) {
-							mUser.setImage(json.getString(JsonUtil.IMAGE));
-							mUser.setImage_thumb(json.getString(JsonUtil.IMAGE_THUMB));
-							mUserDao.deleteById(mUser.getId());
-							mUserDao.insert(mUser);
-							ImageLoaderUtil.displayImage(HttpUtil.SERVER+mUser.getImage_thumb(), image_head, PersonInfoActivity.this);
-						}else {
-							
-						}
-					} else {
-						showShortToast(json.getString(JsonUtil.MSG));
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
+			case editimage_what: {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    if (json.getInt(JsonUtil.CODE) == 1) {
+                        mUser = mUserDao.queryById(PreferenceUtil.getInstance(PersonInfoActivity.this).getUid());
+                        Log.e("hjq", "muser2 = " + mUser);
+                        if (mUser != null) {
+                            mUser.setImage(json.getString(JsonUtil.IMAGE));
+                            mUser.setImage_thumb(json.getString(JsonUtil.IMAGE_THUMB));
+                            mUserDao.deleteById(mUser.getId());
+                            mUserDao.insert(mUser);
+                            Log.e("hjq", "new muser = " + mUser);
+                            ImageLoaderUtil.displayImage(HttpUtil.SERVER + mUser.getImage_thumb(), image_head, PersonInfoActivity.this);
+                        } else {
+
+                        }
+                    } else {
+                        showShortToast(json.getString(JsonUtil.MSG));
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                break;
+            }
 
 			default:
 				break;
 			}
-			
-			
 		};
 	};
 
@@ -131,6 +133,7 @@ public class PersonInfoActivity extends BaseActivity implements
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_person_information);
+
 		findViewById(R.id.back).setOnClickListener(this);
 		updatePassword = (LinearLayout) findViewById(R.id.personinformationPassword);
 		updateHead = (LinearLayout) findViewById(R.id.personinformationPhoto);
@@ -147,17 +150,15 @@ public class PersonInfoActivity extends BaseActivity implements
 		mUserDao = new UserDao(this);
 		userid = PreferenceUtil.getInstance(this).getUid();
 		mUser = mUserDao.queryById(userid);
-		mUser=new UserDao(this).queryById(PreferenceUtil.getInstance(this).getUid());
 		text_phone.setText(mUser.getPhone());
 		text_name.setText(mUser.getName());
 		String sexstr = mUser.getSex().equals("1") ? "男" : "女";
 		text_sex.setText(sexstr);
-		if (mUser.getImage().equals("")) {
+		if (mUser.getImage() == null || "".equals(mUser.getImage())) {
 			image_head.setImageResource(R.drawable.null_user);
 		}else {
-			ImageLoaderUtil.displayImage(HttpUtil.SERVER+mUser.getImage_thumb(), image_head, this);
+			ImageLoaderUtil.displayImage(HttpUtil.SERVER + mUser.getImage_thumb(), image_head, this);
 		}
-		
 	}
 
 	@Override
@@ -225,7 +226,6 @@ public class PersonInfoActivity extends BaseActivity implements
 										mUser.setSex(id);
 										UpdateUserInfo(mUser);
 									}
-
 								}
 							}).create().show();
 			break;
@@ -247,7 +247,7 @@ public class PersonInfoActivity extends BaseActivity implements
 						new BasicNameValuePair(JsonUtil.USER_ID, user.getId()));
 				Message msg = new Message();
 				msg.obj = result;
-				msg.what=editmsg_what;
+				msg.what = editmsg_what;
 				mHandler.sendMessage(msg);
 			}
 		});
@@ -286,7 +286,6 @@ public class PersonInfoActivity extends BaseActivity implements
 						android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 				i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoUri);
 				startActivityForResult(i, SELECT_PIC_BY_TACK_PHOTO);
-
 			} else {
 				showShortToast("发生意外，无法写入相册");
 			}
@@ -363,10 +362,10 @@ public class PersonInfoActivity extends BaseActivity implements
 					public void run() {
 						// TODO Auto-generated method stub
 						Log.e("hjq", "run");
-						Map<String, String> params=new HashMap<String, String>();
+						Map<String, String> params = new HashMap<String, String>();
 						params.put(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonInfoActivity.this).getUid());
-						params.put(JsonUtil.IMAGE,Environment.getExternalStorageDirectory()
-								+ "/peal_meal/photo.png");
+						params.put(JsonUtil.IMAGE, Environment.getExternalStorageDirectory()
+								+ "/ble_anti_lost/photo.png");
 						String str = "";
 						try {
 							str = CommonUtil.postForm(HttpUtil.URL_UPLOADUSERIMAGE, params);
@@ -376,12 +375,11 @@ public class PersonInfoActivity extends BaseActivity implements
 							e.printStackTrace();
 							Log.e("hjq", e.getMessage());
 						}
-						Message msg=new Message();
-						msg.obj=str;
-						msg.what=editimage_what;
+
+						Message msg = new Message();
+						msg.obj = str;
+						msg.what = editimage_what;
 						mHandler.sendMessage(msg);
-						
-						
 					}
 				}).start();
 				

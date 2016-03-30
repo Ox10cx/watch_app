@@ -60,7 +60,6 @@ public class PersonSettingActivity extends BaseActivity implements OnClickListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 		}
 	};
 	@Override
@@ -89,11 +88,13 @@ public class PersonSettingActivity extends BaseActivity implements OnClickListen
 		case R.id.back:
 			onBackPressed();
 			break;
+
 		case R.id.personaboutus:
 			Intent mIntent=new Intent(this, AboutUsActivity.class);
 			mIntent.putExtra(JsonUtil.CODE, JsonUtil.ABOUTUS);
 			startActivity(mIntent);
 			break;
+
 		case R.id.personClean:
 			final AlertDialog.Builder builder=new AlertDialog.Builder(this);
 			builder.setMessage("是否清除缓存").setNegativeButton("确定", new DialogInterface.OnClickListener() {
@@ -107,14 +108,17 @@ public class PersonSettingActivity extends BaseActivity implements OnClickListen
 			}).setPositiveButton("取消",null ).create().show();
 //			showShortToast("已经清空了");
 			break;
+
 		case R.id.setting_feedback:
 			startActivity(new Intent(this, PersonFeedbackActivity.class));
 			break;
+
 		case R.id.personmainLogout:
 			Intent mIntent2=new Intent(this, StaticPageActivity.class);
 			mIntent2.putExtra(JsonUtil.TITLE, getString(R.string.person_setting_text_explain));
 			startActivity(mIntent2);
 			break;
+
 		case R.id.personupdate:
 			showLoadingDialog("正在检查版本..");
 			ThreadPoolManager.getInstance().addTask(new Runnable() {

@@ -32,8 +32,6 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 	private Button loginbtn;
 	private String phone;
 	private String password;
-	private Shop mShop;
-	private int type = 0;
 	private final int getmycoin_what = 1;
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -74,6 +72,8 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 						PreferenceUtil.getInstance(AuthLoginActivity.this).setUid(user.getId());
 						PreferenceUtil.getInstance(AuthLoginActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
                         PreferenceUtil.getInstance(AuthLoginActivity.this).setToken(user.getToken());
+
+						startActivity(new Intent(AuthLoginActivity.this, MainActivity.class));
 				
 //						JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
 //					    JPushInterface.init(AuthLoginActivity.this);     		// 初始化 JPush
@@ -125,7 +125,6 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_auth_login);
 
-		type = getIntent().getIntExtra("type", 0);
 		upatepassbtn = (TextView) findViewById(R.id.updatepassbtn);
 		registbtn = (TextView) findViewById(R.id.registbtn);
 		phoneedit = (EditText) findViewById(R.id.login_phone);
@@ -135,7 +134,6 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 		upatepassbtn.setOnClickListener(this);
 		registbtn.setOnClickListener(this);
 		loginbtn.setOnClickListener(this);
-		mShop = (Shop)getIntent().getSerializableExtra("object");
 		if (new UserDao(this).queryAll().size() > 0) {
 			User mUser = new UserDao(this).queryAll().get(0);
 			phoneedit.setText(mUser.getPhone());

@@ -38,6 +38,7 @@
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:text="@string/person_information_text_photo"
+            android:textSize="@dimen/text_size"
             android:gravity="center_vertical"/>
         
         <LinearLayout 
@@ -51,7 +52,7 @@
                 android:id="@+id/headimage"
 	            android:layout_width="65dp"
 	            android:layout_height="650dp"
-	            android:src="@drawable/ic_launcher"
+	            android:src="@drawable/null_user"
 	            android:contentDescription="@string/person_main_image_information"/>
         
 	        <ImageView 
@@ -66,7 +67,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
-        android:background="#aaaaaa"
+        android:background="#dddddd"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
     
@@ -85,21 +86,21 @@
             android:layout_height="match_parent"
             android:text="@string/person_information_text_telephone"
             android:gravity="center_vertical"
+            android:textSize="@dimen/text_size"
             android:layout_weight="1"/>
         
         <TextView
              android:id="@+id/text_phone" 
 	         android:layout_width="wrap_content"
 	         android:layout_height="match_parent"
+             android:textSize="@dimen/text_size"
 	         android:gravity="center_vertical"/>
-        
-	    
     </LinearLayout>
 	
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
-        android:background="#aaaaaa"
+        android:background="#dddddd"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
     
@@ -118,6 +119,7 @@
             android:layout_height="match_parent"
             android:text="@string/person_information_text_name"
             android:gravity="center_vertical"
+            android:textSize="@dimen/text_size"
             android:layout_weight="1"/>
         
         <TextView
@@ -125,13 +127,14 @@
 	         android:layout_width="wrap_content"
 	         android:layout_height="match_parent"
 	         android:gravity="center_vertical"
+            android:textSize="@dimen/text_size"
 	         android:drawableRight="@drawable/arrow_right"/>
     </LinearLayout>
 	
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
-        android:background="#aaaaaa"
+        android:background="#dddddd"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
     
@@ -150,6 +153,7 @@
             android:layout_height="match_parent"
             android:text="@string/person_information_text_sex"
             android:gravity="center_vertical"
+            android:textSize="@dimen/text_size"
             android:layout_weight="1"/>
         
         <TextView
@@ -157,13 +161,14 @@
 	         android:layout_width="wrap_content"
 	         android:layout_height="match_parent"
 	         android:gravity="center_vertical"
+             android:textSize="@dimen/text_size"
 	         android:drawableRight="@drawable/arrow_right"/>
     </LinearLayout>
 	
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
-        android:background="#aaaaaa"
+        android:background="#dddddd"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
     
@@ -178,9 +183,10 @@
         android:paddingEnd="20dp">
         
         <TextView 
-            android:layout_width="80dp"
+            android:layout_width="100dp"
             android:layout_height="match_parent"
             android:text="@string/person_information_text_password"
+            android:textSize="@dimen/text_size"
             android:gravity="center_vertical"/>
         
         <LinearLayout 
@@ -199,7 +205,7 @@
        <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
-        android:background="#aaaaaa"
+        android:background="#dddddd"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
     

@@ -29,22 +29,22 @@ public class PersonUpdatePasswordActivity extends BaseActivity {
 	private String repasswordstr ;
     private Handler mHandler=new Handler(){
     	public void handleMessage(android.os.Message msg) {
-    		String result=msg.obj.toString();
+    		String result = msg.obj.toString();
     		Log.e("hjq", result);
-				try {
-					JSONObject json = new JSONObject(result);
+			try {
+				JSONObject json = new JSONObject(result);
 				if (JsonUtil.getInt(json, JsonUtil.CODE) == 1) {
 					showLongToast("修改密码成功");
-					new UserDao(PersonUpdatePasswordActivity.this).updatePassWordById(passwordstr,uid);
+					new UserDao(PersonUpdatePasswordActivity.this).updatePassWordById(passwordstr, uid);
 					finish();
 				} else {
 					showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
 				}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    	};
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		};
     };
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +84,11 @@ public class PersonUpdatePasswordActivity extends BaseActivity {
 					// TODO Auto-generated method stub
 					String result=HttpUtil.post(HttpUtil.URL_RESETPASSWORD,
 							new BasicNameValuePair(JsonUtil.USER_ID, uid),
-							new BasicNameValuePair("oldpassword", oldpassword),
-							new BasicNameValuePair("newpassword", passwordstr),
+							new BasicNameValuePair("oldpass", oldpassword),
+							new BasicNameValuePair("newpass", passwordstr),
 							new BasicNameValuePair("repassword", repasswordstr));
-					Message msg=new Message();
-					msg.obj=result;
+					Message msg = new Message();
+					msg.obj = result;
 					mHandler.sendMessage(msg);
 				}
 			});

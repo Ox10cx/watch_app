@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.UserDao;
 import com.watch.customer.model.User;
 import com.watch.customer.util.HttpUtil;
@@ -40,6 +42,7 @@ public class FirstActivity extends BaseActivity {
                         JSONObject json = new JSONObject(result);
                         if (JsonUtil.getInt(json, JsonUtil.CODE) != 1) {
                             showLongToast(JsonUtil.getStr(json, JsonUtil.MSG));
+                            startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
                         } else {
                             JSONObject msgobj = json.getJSONObject("msg");
                             String token = msgobj.getString("token");
@@ -68,7 +71,7 @@ public class FirstActivity extends BaseActivity {
                             PreferenceUtil.getInstance(FirstActivity.this).setUid(user.getId());
                             PreferenceUtil.getInstance(FirstActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
                             PreferenceUtil.getInstance(FirstActivity.this).setToken(user.getToken());
-
+                            MyApplication.getInstance().mToken = user.getToken();
                             startActivity(new Intent(FirstActivity.this, MainActivity.class));
                         }
                     } catch (JSONException e) {
@@ -94,53 +97,53 @@ public class FirstActivity extends BaseActivity {
         ArrayList<User> list = new UserDao(this).queryAll();
 		User user = null;
 
-        if (list != null && !list.isEmpty())
-        {
+        if (list != null && !list.isEmpty()) {
             user = list.get(0);
         }
 
 		Log.e("hjq", "user " + user);
-//		if (user != null) {
-//			phone = user.getPhone();
-//			password = user.getPassword();
-//
-//			ThreadPoolManager.getInstance().addTask(new Runnable() {
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-//							new BasicNameValuePair(JsonUtil.PHONE, phone),
-//							new BasicNameValuePair(JsonUtil.PASSWORD,
-//									password));
-//					Log.e(TAG, result);
-//
-//					Message msg = new Message();
-//					msg.obj = result;
-//					msg.what = MSG_LOGIN;
-//					mHandler.sendMessage(msg);
-//				}
-//			});
-//
-//			showLoadingDialog();
-//		} else
-        {
+		if (user != null) {
+			phone = user.getPhone();
+			password = user.getPassword();
+
+			ThreadPoolManager.getInstance().addTask(new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					Log.e(TAG, "begin post");
+					String result = HttpUtil.post(HttpUtil.URL_LOGIN,
+							new BasicNameValuePair(JsonUtil.PHONE, phone),
+							new BasicNameValuePair(JsonUtil.PASSWORD,
+									password));
+					Log.e(TAG, "my result " +  result);
+
+					Message msg = new Message();
+					msg.obj = result;
+					msg.what = MSG_LOGIN;
+					mHandler.sendMessage(msg);
+				}
+			});
+
+			showLoadingDialog();
+		} else
+            {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					Log.i(TAG, "postDelayed");
 					finish();
-					startActivity(new Intent(FirstActivity.this, MainActivity.class /*ShopListActivity.class*/));
+					startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
 				}
 			}, 1000);
 		}
 
-		ThreadPoolManager.getInstance().addTask(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				HttpUtil.get(HttpUtil.URL_INITAPP);
-			}
-		});
+//		ThreadPoolManager.getInstance().addTask(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				HttpUtil.get(HttpUtil.URL_INITAPP);
+//			}
+//		});
 	}
 }

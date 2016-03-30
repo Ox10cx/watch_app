@@ -18,6 +18,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
@@ -34,9 +36,9 @@ import com.watch.customer.ui.AuthLoginActivity;
  */
 public class HttpUtil {
 	public static String IP="112.74.23.39:3000";
-	public static String SERVER="http://"+IP+"/server/";
-	public static String URL_LOGIN = "http://"+IP+"/server/User/login";
-	public static String URL_REGISTER = "http://"+IP+"/server/User/register";
+	public static String SERVER="http://" + IP + "/";
+	public static String URL_LOGIN = "http://" + IP + "/server/User/login";
+	public static String URL_REGISTER = "http://" + IP + "/server/User/register";
 	public static String URL_CHECKMOBILE = "http://"+IP+"/server/User/getcheckmobile";
 	public static String URL_FORGETPSDCHECKMOBILE = "http://"+IP+"/server/User/forgetPsdCheckMobile";
 	public static String URL_EDITPROFILE = "http://"+IP+"/server/User/eidtprofile";
@@ -74,7 +76,7 @@ public class HttpUtil {
 	public static String URL_SUBMITLOCALORDERPAY= "http://"+IP+"/server/Order/submitLocalOrderPay";
 	public static String URL_UPDATEORDERSTATUS= "http://"+IP+"/server/Order/updateOrderStatus";
 	public static String URL_ADDFOODBYORDERID= "http://"+IP+"/server/Order/addFoodByOrderId";
-	public static String URL_ANDROIDUPDATE= "http://"+IP+"/server/Other/androidUpdate";
+	public static String URL_ANDROIDUPDATE= "http://"+IP+"/ble/updateSoftware";
 	public static String URL_GETALLCITY= "http://"+IP+"/server/Other/getAllcity";
 	public static String URL_INITAPP= "http://"+IP+"/server/Other/initApp";
 	public static String URL_GETREGIDANDUSERID= "http://"+IP+"/server/Push/getRegIdAndUserId";
@@ -98,13 +100,20 @@ public class HttpUtil {
 			params.add(nameValuePairs[i]);
 		}
 
-		String token = PreferenceUtil.getInstance(MyApplication.getInstance()).getString(PreferenceUtil.TOKEN, "");
+		String token = MyApplication.getInstance().mToken;
+		Log.e("hjq", "token = " + token);
 		try {
 			post.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
             post.addHeader("Authorization", "Bearer " + token);
 			HttpResponse response = httpClient.execute(post);
-			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			int status = response.getStatusLine().getStatusCode();
+			if (status == HttpStatus.SC_OK) {
 				msg = EntityUtils.toString(response.getEntity());
+			} else if (status == HttpStatus.SC_UNAUTHORIZED) {
+				JSONObject json = new JSONObject();
+				json.put("code", 0);
+				json.put("msg", "password error");
+				msg = json.toString();
 			} else {
 				Log.e("hjq", "网络请求失败");
 			}
@@ -116,7 +125,10 @@ public class HttpUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			msg = e.getMessage();
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
+
 		return msg;
 	}
 

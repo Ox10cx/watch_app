@@ -24,7 +24,7 @@ public class ImageLoaderUtil {
 	private static void initLoader(Context context) {
 		options_image = new DisplayImageOptions.Builder()
 				.showStubImage(R.drawable.defaultpic)
-				.showImageForEmptyUri(R.drawable.defaultpic).cacheInMemory()
+				.showImageForEmptyUri(R.drawable.null_user).cacheInMemory()
 				.cacheOnDisc().imageScaleType(ImageScaleType.POWER_OF_2)
 				.displayer(new RoundedBitmapDisplayer(0xff424242, 10)).build();
 		options_progress = new DisplayImageOptions.Builder()
@@ -33,7 +33,7 @@ public class ImageLoaderUtil {
 		imageLoader = ImageLoader.getInstance();
 		imageLoader.init(ImageLoaderConfiguration.createDefault(context));
 		options_grid = new DisplayImageOptions.Builder()
-				.showStubImage(R.drawable.defaultpic)
+				.showStubImage(R.drawable.null_user)
 				.showImageForEmptyUri(R.drawable.defaultpic).cacheInMemory()
 				.cacheOnDisc().build();
 	}

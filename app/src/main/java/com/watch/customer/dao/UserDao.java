@@ -86,6 +86,8 @@ public class UserDao {
 		values.put("sex", user.getSex());
         values.put("token", user.getToken());
 		int index = (int) db.update(TABLE_NAME, values, "id = ?",new String[]{user.getId()});
+
+        Log.e("hjq", "index = " + index);
 		db.close();
 		return index;
 	}
@@ -104,7 +106,7 @@ public class UserDao {
 
 	public ArrayList<User> queryAll() {
 		ArrayList<User> ss = new ArrayList<User>();
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Cursor cursor = db
 				.query(TABLE_NAME, null, null, null, null, null, null);
 		while (cursor.moveToNext()) {
@@ -126,7 +128,9 @@ public class UserDao {
 
 	public User queryById(String id) {
 		User user = null;
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+		Log.e("hjq", "id = " + id);
 		Cursor cursor = db.query(TABLE_NAME, null, "id=?",
 				new String[] { id }, null, null, null);
 		while (cursor.moveToNext()) {
@@ -142,6 +146,7 @@ public class UserDao {
 		}
 		cursor.close();
 		db.close();
+        Log.e("hjq", "db user = " + user);
 		return user;
 	}
 
