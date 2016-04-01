@@ -101,9 +101,9 @@ public class SettingActivity  extends BaseActivity {
 
         AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
         if (!appLock.isPasswordLocked()) {
-            txtStatus.setText("Closed");
+            txtStatus.setText(R.string.str_closed);
         } else {
-            txtStatus.setText("Open");
+            txtStatus.setText(R.string.str_open);
         }
         mSharedPreferences = getSharedPreferences("watch_app", 0);
 
@@ -198,9 +198,9 @@ public class SettingActivity  extends BaseActivity {
         TextView txtStatus = (TextView) findViewById(R.id.textstatus);
         AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
         if (!appLock.isPasswordLocked()) {
-            txtStatus.setText("Closed");
+            txtStatus.setText(R.string.str_closed);
         } else {
-            txtStatus.setText("Open");
+            txtStatus.setText(R.string.str_open);
         }
     }
 

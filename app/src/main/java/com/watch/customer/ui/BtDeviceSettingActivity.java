@@ -90,7 +90,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
     /** 通过centerIndex来决定采用那种存储方式 **/
     private int centerIndex;
 
-    private static final String[] text_array = {"Anti lost", "Find me", "Disconnect"};
+    private static final int[] text_array = {R.string.str_anti_lost, R.string.str_find_me, R.string.str_disconnect};
     private static final int[] icon_array = {R.drawable.antilost_service_icon, R.drawable.found_service_icon, R.drawable.service};
 
     private Handler mHandler = new Handler() {
@@ -266,7 +266,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
         for (int i = 0; i < text_array.length; i++) {
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("text", text_array[i]);
+            map.put("text", getString(text_array[i]));
             map.put("icon", icon_array[i]);
             list.add(map);
         }
@@ -494,35 +494,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
                 msg.obj = filename;
                 msg.what = editimage_what;
                 mHandler.sendMessage(msg);
-
-
-//                new Thread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        // TODO Auto-generated method stub
-//                        Log.e("hjq", "run");
-//                        Map<String, String> params=new HashMap<String, String>();
-//                        params.put(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonInfoActivity.this).getUid());
-//                        params.put(JsonUtil.IMAGE,Environment.getExternalStorageDirectory()
-//                                + "/peal_meal/photo.png");
-//                        String str = "";
-//                        try {
-//                            str = CommonUtil.postForm(HttpUtil.URL_UPLOADUSERIMAGE, params);
-//                            Log.e("hjq", str);
-//                        } catch (Exception e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                            Log.e("hjq", e.getMessage());
-//                        }
-//                        Message msg=new Message();
-//                        msg.obj=str;
-//                        msg.what=editimage_what;
-//                        mHandler.sendMessage(msg);
-//
-//                    }
-//                }).start();
-
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

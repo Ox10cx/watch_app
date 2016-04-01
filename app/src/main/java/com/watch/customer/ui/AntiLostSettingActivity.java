@@ -20,7 +20,6 @@ import com.watch.customer.model.BtDevice;
  * Created by Administrator on 16-3-11.
  */
 public class AntiLostSettingActivity extends BaseActivity {
-    private int button_selected = 1;
     Button mBtnear;
     Button mBtmiddle;
     Button mBtfar;

@@ -59,7 +59,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         SlideAndDragListView.OnListItemClickListener, SlideAndDragListView.OnMenuItemClickListener,
         SlideAndDragListView.OnItemDeleteListener{
     private static final int CHANGE_BLE_DEVICE_SETTING = 1;
-    private SlideAndDragListView<BtDevice> mDeviceList;
+    private SlideAndDragListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
     private Handler mHandler;
@@ -100,15 +100,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         mDeviceList = (SlideAndDragListView)findViewById(R.id.devicelist);
-//        mDeviceList.setRemoveListener(new SlideDeleteListView.RemoveListener() {
-//            @Override
-//            public void removeItem(SlideDeleteListView.RemoveDirection direction, int position) {
-//                BtDevice d = mListData.get(position);
-//                mDeviceDao.deleteById(d.getAddress());
-//                stopAnimation(position);
-//                mDeviceListAdapter.updateDataSet(position - mDeviceList.getHeaderViewsCount());
-//            }
-//        });
 
         mDeviceList.setOnItemClickListener(DeviceListActivity.this);
         mDeviceList.setLayoutAnimation(getAnimationController());
@@ -128,7 +119,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         mMenu = new Menu(new ColorDrawable(Color.WHITE), true);
         mMenu.addItem(new MenuItem.Builder().setWidth((int) getResources().getDimension(R.dimen.slv_item_bg_btn_width) * 2)
                 .setBackground(new ColorDrawable(Color.RED))
-                .setText("Delete")
+                .setText(getString(R.string.system_delete))
                 .setDirection(MenuItem.DIRECTION_RIGHT)
                 .setTextColor(Color.BLACK)
                 .setTextSize((int) getResources().getDimension(R.dimen.txt_size))
@@ -147,17 +138,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
 
     @Override
-    public boolean closeLoadingDialog() {
-        boolean ret;
+    protected void onDialogCancel() {
+        super.onDialogCancel();
 
-        ret = super.closeLoadingDialog();
-
+        Log.d("hjq", "mScanningStopped = " + mScanningStopped);
         if (!mScanningStopped) {
             scanLeDevice(false);
         }
-
         checkAntiLost();
-        return ret;
     }
 
     protected LayoutAnimationController getAnimationController() {
@@ -296,7 +284,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onDestroy() {
         if (mConnection != null) {
-            unbindService(mConnection);
+            getApplicationContext().unbindService(mConnection);
         }
         super.onDestroy();
     }

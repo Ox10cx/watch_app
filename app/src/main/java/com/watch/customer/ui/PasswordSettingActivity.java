@@ -43,9 +43,9 @@ public class PasswordSettingActivity extends BaseActivity {
         txtChangePassword = (TextView) findViewById(R.id.text_change_password);
         if (!appLock.isPasswordLocked()) {
             txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorDisable));
-            txtTurnOnPassword.setText("Turn On Password");
+            txtTurnOnPassword.setText(R.string.str_turn_on_pass);
         } else {
-            txtTurnOnPassword.setText("Turn Off Password");
+            txtTurnOnPassword.setText(R.string.str_turn_off_pass);
             RelativeLayout rl_change_password = (RelativeLayout) findViewById(R.id.ll_change_password);
             rl_change_password.setOnClickListener(this);
             txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorBlack));
@@ -101,9 +101,9 @@ public class PasswordSettingActivity extends BaseActivity {
 
                 if (val == 0) {
                     txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorDisable));
-                    txtTurnOnPassword.setText("Turn On Password");
+                    txtTurnOnPassword.setText(R.string.str_turn_on_pass);
                 } else {
-                    txtTurnOnPassword.setText("Turn Off Password");
+                    txtTurnOnPassword.setText(R.string.str_turn_off_pass);
                     RelativeLayout rl_change_password = (RelativeLayout) findViewById(R.id.ll_change_password);
                     rl_change_password.setOnClickListener(this);
                     txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorBlack));
@@ -119,7 +119,7 @@ public class PasswordSettingActivity extends BaseActivity {
                     intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
                     startActivityForResult(intent, SETUP_PASSWORD);
                 } else {
-                    Toast.makeText(this, "Your password is incorrect!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.str_pass_error, Toast.LENGTH_SHORT).show();
                 }
             } else if (requestCode == TURN_OFF_PASSWORD) {
                 int val = data.getIntExtra("password_status", 0);
@@ -130,12 +130,12 @@ public class PasswordSettingActivity extends BaseActivity {
                     txtTurnOnPassword = (TextView) findViewById(R.id.text_turn_on_password);
                     txtChangePassword = (TextView) findViewById(R.id.text_change_password);
 
-                    txtTurnOnPassword.setText("Turn on Password");
+                    txtTurnOnPassword.setText(R.string.str_turn_on_pass);
                     RelativeLayout rl_change_password = (RelativeLayout) findViewById(R.id.ll_change_password);
                     rl_change_password.setOnClickListener(null);
                     txtChangePassword.setTextColor(getResources().getColor(R.color.TextColorDisable));
                 } else {
-                    Toast.makeText(this, "Your password is incorrect!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.str_pass_error, Toast.LENGTH_SHORT).show();
                 }
 
                 txtChangePassword.invalidate();

@@ -189,8 +189,8 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
 
         sb_continous.setProgress(mCount);
         sb_interval.setProgress(mInterval);
-        tv_interval.setText((float)mInterval / 10.0f + " " + "second");
-        tv_continous.setText(mCount + " " + "stretch");
+        tv_interval.setText((float)mInterval / 10.0f + " " + getString(R.string.str_second));
+        tv_continous.setText(mCount + " " + getString(R.string.str_stretch));
 
         final AlertDialog dialog = new AlertDialog.Builder(this).setView(layout).show();
         btn_ok.setOnClickListener(new OnClickListener() {
@@ -212,7 +212,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 float interval = progress / 10.0f;
-                tv_interval.setText(interval + " " + "second");
+                tv_interval.setText(interval + " " + getString(R.string.str_second));
 
             }
 
@@ -230,7 +230,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
         sb_continous.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tv_continous.setText(progress + " " + "stretch");
+                tv_continous.setText(progress + " " + getString(R.string.str_stretch));
             }
 
             @Override
@@ -307,7 +307,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
             // TODO Auto-generated method stub
             synchronized (mSync) {
                 if (mCapturing) {
-                    Toast.makeText(CameraActivity.this, "camera is busy", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CameraActivity.this, R.string.str_camera_busy, Toast.LENGTH_SHORT).show();
                     return;
                 }
             }
@@ -319,7 +319,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 }
 
                 case R.id.btn_album: {
-                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
                     startActivity(intent);
                     break;
@@ -333,7 +333,6 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                         public void run() {
                             Log.e("hjq", "here1");
                             CameraInterface.getInstance().doStopCamera();
-                            Log.e("hjq", "here2");
                             CameraInterface.getInstance().doOpenCamera(CameraActivity.this);
                         }
                     });
@@ -575,7 +574,6 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 e.printStackTrace();
                 Log.e(TAG, "", e);
             }
-
         }
     };
 }

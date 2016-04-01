@@ -161,7 +161,7 @@ public class MainActivity extends TabActivity {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
                 .getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "本机没有找到蓝牙硬件或驱动！", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.bt_error, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }

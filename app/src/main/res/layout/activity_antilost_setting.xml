@@ -31,7 +31,7 @@
             android:id="@+id/device_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Anti lost"
+            android:text="@string/str_anti_lost"
             android:textColor="@color/text_white"
             android:textSize="18sp"
             android:layout_weight="1"
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Anti lost"
+            android:text="@string/str_anti_lost"
             android:id="@+id/textView"
             android:textSize="18sp"
             android:layout_weight="3"
@@ -74,7 +74,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Device alert"
+            android:text="@string/str_device_alert"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:id="@+id/textView1"
@@ -93,7 +93,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Light"
+            android:text="@string/str_light"
             android:id="@+id/textView2"
             android:textSize="18sp"
             android:layout_weight="3"
@@ -113,6 +113,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#1e6115"
+        android:visibility="gone"
         android:layout_gravity="center_horizontal">
 
         <TextView
@@ -130,6 +131,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="60dp"
        >
 
@@ -179,7 +181,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Phone alert"
+        android:text="@string/str_phone_alert"
         android:textSize="18sp"
         android:layout_marginLeft="5dp"
         android:id="@+id/textView4"
@@ -249,7 +251,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ringtone"
+            android:text="@string/str_ringtone"
             android:layout_weight="3"
             android:layout_gravity="center_vertical"
             android:gravity="left"

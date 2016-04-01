@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+import android.widget.ZoomControls;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -69,6 +70,7 @@ public class LocationActivity  extends BaseActivity {
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
+        hideZoomControl();
         mBaiduMap = mMapView.getMap();
         // 开启定位图层
         mBaiduMap.setMyLocationEnabled(true);
@@ -88,6 +90,24 @@ public class LocationActivity  extends BaseActivity {
         option.setScanSpan(50);
         mLocClient.setLocOption(option);
         mLocClient.start();
+    }
+
+    void hideZoomControl() {
+        int childCount = mMapView.getChildCount();
+        View zoom = null;
+
+        for (int i = 0; i < childCount; i++) {
+            View child = mMapView.getChildAt(i);
+
+            if (child instanceof ZoomControls) {
+                zoom = child;
+                break;
+            }
+        }
+
+        if (zoom != null) {
+            zoom.setVisibility(View.GONE);
+        }
     }
 
     void addMarker(float longitude, float latitude) {

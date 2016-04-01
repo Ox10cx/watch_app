@@ -296,5 +296,37 @@
     <!-- device list -->
     <string name="devicelist">设备列表</string>
     <string name="name1">测试设备1</string>
-    <string name="waiting">请等待...</string>
+    <string name="waiting">请等待…</string>
+    <string name="network_error">网络错误</string>
+    <string name="bt_error">本机没有找到蓝牙硬件或驱动！</string>
+    <string name="lost_hist">遗失历史</string>
+    <string name="loc_hist">定位历史</string>
+    <string name="str_no_distrub">勿扰模式</string>
+    <string name="str_app_password">密码保护</string>
+    <string name="str_closed">已关闭</string>
+    <string name="str_user_setting">用户信息</string>
+    <string name="str_version">版本号</string>
+    <string name="str_check_update">检查更新</string>
+    <string name="str_open">已打开</string>
+    <string name="str_turn_on_pass">打开密码保护</string>
+    <string name="str_change_pass">更改密码</string>
+    <string name="str_turn_off_pass">关闭密码保护</string>
+    <string name="str_pass_error">密码不正确!</string>
+    <string name="str_setup_pass">设置密码</string>
+    <string name="str_enter_pass">输入密码</string>
+    <string name="str_welcome_back">欢迎回来</string>
+    <string name="str_input_again">密码不正确,请再输入</string>
+    <string name="str_reenter_pass">重新输入密码</string>
+    <string name="str_no_match">密码不匹配,重新输入</string>
+
+    <string name="str_second">秒</string>
+    <string name="str_stretch">张</string>
+    <string name="str_camera_busy">相机忙碌</string>
+    <string name="str_anti_lost">防丢设置</string>
+    <string name="str_find_me">查找设置</string>
+    <string name="str_disconnect">断开连接</string>
+    <string name="str_device_alert">防丢器报警</string>
+    <string name="str_light">防丢器灯设置</string>
+    <string name="str_phone_alert">手机报警设置</string>
+    <string name="str_ringtone">铃声选择</string>
 </resources>

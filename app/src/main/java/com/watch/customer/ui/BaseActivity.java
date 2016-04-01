@@ -3,9 +3,11 @@ package com.watch.customer.ui;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -16,14 +18,12 @@ import com.watch.customer.util.DialogUtil;
 
 public class BaseActivity extends Activity implements OnClickListener {
 	private Dialog dialog;
-	SharedPreferences mSharedPreferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		MyApplication.getInstance().addActivity(this);
-
 	}
 
 	@Override
@@ -58,6 +58,18 @@ public class BaseActivity extends Activity implements OnClickListener {
 		dialog = DialogUtil.createLoadingDialog(this, msg);
 		dialog.setCancelable(true);
 		dialog.show();
+
+		dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				onDialogCancel();
+			}
+		});
+	}
+
+	protected void onDialogCancel() {
+		Log.e("hjq", "onDialogCancel called");
 	}
 
 	public boolean closeLoadingDialog() {

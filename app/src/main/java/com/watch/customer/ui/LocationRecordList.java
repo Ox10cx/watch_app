@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.uacent.watchapp.R;
 import com.watch.customer.adapter.LocationRecordAdapter;
@@ -29,7 +30,7 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
         SlideAndDragListView.OnItemDeleteListener{
 
     private static final String TAG = "hjq";
-    private SlideAndDragListView<LocationRecord> mListView;
+    private SlideAndDragListView mListView;
     private ArrayList<LocationRecord> mListData;
     private LocationRecordAdapter mAdapter;
     private LocationDao mDao;
@@ -45,10 +46,18 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
         Intent intent = getIntent();
         mStatus = intent.getIntExtra("status", LocationRecord.LOST);
 
+
         ImageView ivBack = (ImageView) findViewById(R.id.iv_back);
         ivBack.setOnClickListener(this);
 
         mListView = (SlideAndDragListView)findViewById(R.id.loclist);
+
+        TextView tv_title = (TextView) findViewById(R.id.device_text);
+        if (mStatus == LocationRecord.LOST) {
+            tv_title.setText(R.string.lost_hist);
+        } else {
+            tv_title.setText(R.string.loc_hist);
+        }
 
         mDao = new LocationDao(LocationRecordList.this);
         mListView.setOnItemClickListener(LocationRecordList.this);

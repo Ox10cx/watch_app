@@ -32,7 +32,7 @@
             android:id="@+id/device_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Setting"
+            android:text="@string/main_tabtext_setting"
             android:textColor="@color/text_white"
             android:textSize="18sp"
             android:layout_weight="1"
@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Do Not Distrub"
+            android:text="@string/str_no_distrub"
             android:id="@+id/textView"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
@@ -84,7 +84,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="APP Password"
+            android:text="@string/str_app_password"
             android:id="@+id/textpassword"
             android:textSize="18sp"
             android:layout_weight="1"
@@ -100,7 +100,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Closed"
+            android:text="@string/str_closed"
             android:id="@+id/textstatus"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
@@ -247,7 +247,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User Setting"
+            android:text="@string/str_user_setting"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:layout_gravity="center_vertical" />
@@ -282,7 +282,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Version"
+            android:text="@string/str_version"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:layout_gravity="center_vertical" />
@@ -309,7 +309,7 @@
                 android:id="@+id/bt_checkupdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="check update"
+                android:text="@string/str_check_update"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true" />
 

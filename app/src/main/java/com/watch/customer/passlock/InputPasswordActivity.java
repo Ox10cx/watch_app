@@ -79,7 +79,7 @@ public class InputPasswordActivity extends BaseActivity {
 
         TextView tvTitle = (TextView) findViewById(R.id.tv_title_text);
         if (mMode == MODE_VERIFY_UNTIL_OK) {
-            tvTitle.setText("Welcome back");
+            tvTitle.setText(R.string.str_welcome_back);
         }
         Log.e("hjq", "mMode = " + mMode);
 
@@ -163,13 +163,13 @@ public class InputPasswordActivity extends BaseActivity {
                             finish();
                         } else {
                             resetEditTextControlls();
-                            mTextPrompt.setText("Your password is incorrect, input again");
+                            mTextPrompt.setText(R.string.str_input_again);
                         }
                     }
                 } else if (mMode == MODE_INPUT) {
                     mMode = MODE_REINPUT;
                     resetEditTextControlls();
-                    mTextPrompt.setText("Re-enter your password");
+                    mTextPrompt.setText(R.string.str_reenter_pass);
                 } else if (mMode == MODE_REINPUT) {
                     String pass1 = new String(mPassword);
                     String pass2 = new String(mPassword2);
@@ -190,7 +190,7 @@ public class InputPasswordActivity extends BaseActivity {
                         finish();
                     } else {
                         mTextFeedback.setVisibility(View.VISIBLE);
-                        mTextFeedback.setText("Not match, try again.");
+                        mTextFeedback.setText(R.string.str_no_match);
                         mMode = MODE_INPUT;
                         resetEditTextControlls();
                     }

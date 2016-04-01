@@ -296,12 +296,44 @@
     <!-- device list -->
     <string name="devicelist">设备列表</string>
     <string name="name1">测试设备1</string>
-    <string name="waiting">please waiting...</string>
+    <string name="waiting">Please waiting...</string>
 
     <item type="id" name="tag_first"></item>
     <item type="id" name="tag_second"></item>
 
-    <string name="app_versionName">1.5</string>
     <string name="location">Position:</string>
+    <string name="network_error">network error</string>
+    <string name="bt_error">Please check your bluetooth device.</string>
+    <string name="lost_hist">lost history</string>
+    <string name="loc_hist">loc history</string>
+    <string name="str_no_distrub">Do Not Distrub</string>
+    <string name="str_app_password">APP Password</string>
+    <string name="str_closed">Closed</string>
+    <string name="str_user_setting">User Setting</string>
+    <string name="str_version">Version</string>
+    <string name="str_check_update">check update</string>
+    <string name="str_open">Open</string>
+    <string name="str_turn_on_pass">Turn Password On</string>
+    <string name="str_change_pass">Change Password</string>
+    <string name="str_turn_off_pass">Turn Off Password</string>
+    <string name="str_pass_error">Your password is incorrect!</string>
+    <string name="str_setup_pass">Setup Password</string>
+    <string name="str_enter_pass">Enter password</string>
+    <string name="str_welcome_back">Welcome back</string>
+    <string name="str_input_again">Your password is incorrect, input again</string>
+    <string name="str_reenter_pass">Re-enter your password</string>
+    <string name="str_no_match">Not match, try again.</string>
 
+    <string name="app_versionName">1.6</string>
+
+    <string name="str_second">second</string>
+    <string name="str_stretch">stretch</string>
+    <string name="str_camera_busy">camera is busy</string>
+    <string name="str_anti_lost">Anti lost</string>
+    <string name="str_find_me">Find me</string>
+    <string name="str_disconnect">Disconnect</string>
+    <string name="str_device_alert">Device alert</string>
+    <string name="str_light">Light</string>
+    <string name="str_phone_alert">Phone alert</string>
+    <string name="str_ringtone">Ringtone</string>
 </resources>

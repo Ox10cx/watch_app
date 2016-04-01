@@ -1,17 +1,20 @@
 package com.watch.customer.ui;
 
 import android.app.Application;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.UserDao;
 import com.watch.customer.model.User;
+import com.watch.customer.util.DialogUtil;
 import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
@@ -38,7 +41,7 @@ public class FirstActivity extends BaseActivity {
 			Log.e(TAG, result);
 
 			if (result.matches("Connection to .* refused")) {
-				showLongToast("network error");
+				showLongToast(getString(R.string.network_error));
 				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -123,7 +126,7 @@ public class FirstActivity extends BaseActivity {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    showLoadingDialog();
+               //     showLoadingDialog();
                     ThreadPoolManager.getInstance().addTask(new Runnable() {
                         @Override
                         public void run() {
@@ -133,7 +136,7 @@ public class FirstActivity extends BaseActivity {
                                     new BasicNameValuePair(JsonUtil.PHONE, phone),
                                     new BasicNameValuePair(JsonUtil.PASSWORD,
                                             password));
-                            Log.e(TAG, "my result " + result);
+                     //       Log.e(TAG, "my result " + result);
 
                             Message msg = new Message();
                             msg.obj = result;
@@ -154,4 +157,18 @@ public class FirstActivity extends BaseActivity {
 			}, 3000);
 		}
 	}
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            // 具体的操作代码
+            Log.e("hjq", "onBackPressed");
+
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
 }
