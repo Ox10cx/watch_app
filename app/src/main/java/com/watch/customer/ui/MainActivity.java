@@ -11,8 +11,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -27,17 +30,27 @@ import com.baidu.location.LocationClientOption.LocationMode;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.passlock.InputPasswordActivity;
+import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.DialogUtil;
+import com.watch.customer.util.HttpUtil;
+import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
+import com.watch.customer.util.ThreadPoolManager;
+import com.watch.customer.util.UpdateManager;
+
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     private TabHost mTabHost;
     private RadioGroup mTabButtonGroup;
-    public static final String TAB_MAIN = "SHOPLIST_ACTIVITY";
-    public static final String TAB_BOOK = "ORDER_ACTIVITY";
-    public static final String TAB_CATEGORY = "PERSON_ACTIVITY";
+//    public static final String TAB_MAIN = "SHOPLIST_ACTIVITY";
+//    public static final String TAB_BOOK = "ORDER_ACTIVITY";
+//    public static final String TAB_CATEGORY = "PERSON_ACTIVITY";
 
     public static final String TAB_DEVICE = "DEVICELIST_ACTIVITY";
     public static final String TAB_CAMERA = "CAMERA_ACTIVITY";
@@ -57,6 +70,42 @@ public class MainActivity extends TabActivity {
     public LocationClient mLocClient;
     public MyLocationListenner myListener = new MyLocationListenner();
     public static boolean isForeground = false;
+
+    private int mCurrentIndex = -1;
+
+    Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            String result = msg.obj.toString();
+            try {
+                final JSONObject json = new JSONObject(result);
+                if (json.getInt(JsonUtil.CODE) == 1) {
+                    Log.e("hjq", "msg is = " + json.getString(JsonUtil.MSG));
+                } else {
+                    final String path = json.getString(JsonUtil.PATH);
+                    final String updatemsg = json.getString(JsonUtil.MSG);
+
+                    DialogUtil.showDialog(MainActivity.this, "发现新版本！",
+                            json.getString(JsonUtil.MSG) + ", 是否要更新？",
+                            getString(R.string.system_sure),
+                            getString(R.string.system_cancel),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    // TODO Auto-generated method stub
+                                    UpdateManager mUpdateManager = new UpdateManager(
+                                            MainActivity.this,
+                                            updatemsg,
+                                            HttpUtil.SERVER + path);
+                                    mUpdateManager.showDownloadDialog();
+                                }
+                            }, null, true);
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +132,25 @@ public class MainActivity extends TabActivity {
 
         confirmBluetooth();
 
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ThreadPoolManager.getInstance().addTask(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Log.e("hjq", "version=" + CommonUtil.getVersionName(MainActivity.this));
+                        String result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
+                                new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(MainActivity.this)));
+                        Message msg = new Message();
+                        msg.obj = result;
+                        mHandler.sendMessage(msg);
+                    }
+                });
+            }
+        }, 1000);
+
+
 //		if (!PreferenceUtil.getInstance(this).getUid().equals("")) {
 //			JPushInterface.setDebugMode(false); 	// 设置开启日志,发布时请关闭日志
 //		    JPushInterface.init(this);
@@ -95,6 +163,7 @@ public class MainActivity extends TabActivity {
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "本机没有找到蓝牙硬件或驱动！", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
         // 如果本地蓝牙没有开启，则开启
         if (!mBluetoothAdapter.isEnabled()) {
@@ -102,22 +171,21 @@ public class MainActivity extends TabActivity {
         }
     }
 
-
     private void selectTab(int index) {
         // TODO Auto-generated method stub
         switch (index) {
             case 1:
-                mTabHost.setCurrentTabByTag(TAB_MAIN);
+                mTabHost.setCurrentTabByTag(TAB_DEVICE);
                 mTabButtonGroup.check(R.id.home_tab_device);
                 break;
 
             case 2:
-                mTabHost.setCurrentTabByTag(TAB_BOOK);
+         //       mTabHost.setCurrentTabByTag(TAB_CAMERA);
                 mTabButtonGroup.check(R.id.home_tab_camera);
                 break;
 
             case 3:
-                mTabHost.setCurrentTabByTag(TAB_CATEGORY);
+                mTabHost.setCurrentTabByTag(TAB_LOCATION);
                 mTabButtonGroup.check(R.id.home_tab_location);
                 break;
 
@@ -134,8 +202,8 @@ public class MainActivity extends TabActivity {
             default:
                 break;
         }
-        changeTextColor(index);
 
+        changeTextColor(index);
     }
 
     @Override
@@ -143,23 +211,33 @@ public class MainActivity extends TabActivity {
         // TODO Auto-generated method stub
         super.onResume();
 
-        Log.e("hjq", "onResume," + "index=" + MyApplication.getInstance().type);
-        selectTab(MyApplication.getInstance().type);
+        Log.e("hjq", "onResume," + "index=" + mCurrentIndex);
+       // selectTab(mCurrentIndex);
+        // 恢复点击camera之前的状态
+        if (mCurrentIndex != -1) {
+            selectTab(mCurrentIndex + 1);
+        }
         MyApplication.getInstance().type = 0;
         isForeground = true;
-
     }
 
     @Override
     protected void onPause() {
         // TODO Auto-generated method stub
+
+        // 启动camera之前点击了其他按钮，交给TabActivity处理
+        if (mCurrentIndex != getTabHost().getCurrentTab()){
+            mCurrentIndex = -1;
+        }
+
+
+        Log.e("hjq", "onPause," + "index=" + mCurrentIndex);
         super.onPause();
         isForeground = false;
     }
 
     private void findViewById() {
         mTabButtonGroup = (RadioGroup) findViewById(R.id.home_radio_button_group);
-
 
         rButtonDevice = (RadioButton) findViewById(R.id.home_tab_device);
         rButtonCamera = (RadioButton) findViewById(R.id.home_tab_camera);
@@ -176,7 +254,7 @@ public class MainActivity extends TabActivity {
         mTabHost = getTabHost();
 
         Intent i_device = new Intent(this, DeviceListActivity.class);
-        Intent i_camera = new Intent(this, CameraActivity.class);
+        final Intent i_camera = new Intent(this, CameraActivity.class);
         Intent i_location = new Intent(this, LocationActivity.class);
         Intent i_setting = new Intent(this, SettingActivity.class);
         Intent i_info = new Intent(this, InfoActivity.class);
@@ -184,7 +262,7 @@ public class MainActivity extends TabActivity {
         mTabHost.addTab(mTabHost.newTabSpec(TAB_DEVICE).setIndicator(TAB_DEVICE)
                 .setContent(i_device));
         mTabHost.addTab(mTabHost.newTabSpec(TAB_CAMERA).setIndicator(TAB_CAMERA)
-                .setContent(i_camera));
+                .setContent(i_info));
         mTabHost.addTab(mTabHost.newTabSpec(TAB_LOCATION).setIndicator(TAB_LOCATION)
                 .setContent(i_location));
         mTabHost.addTab(mTabHost.newTabSpec(TAB_SETTING).setIndicator(TAB_SETTING)
@@ -195,17 +273,25 @@ public class MainActivity extends TabActivity {
         mTabButtonGroup
                 .setOnCheckedChangeListener(new OnCheckedChangeListener() {
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        Log.e("hjq", "checked id = " + checkedId);
                         switch (checkedId) {
-
                             case R.id.home_tab_device:
                                 mTabHost.setCurrentTabByTag(TAB_DEVICE);
                                 changeTextColor(1);
                                 break;
 
-                            case R.id.home_tab_camera:
-                                mTabHost.setCurrentTabByTag(TAB_CAMERA);
-                                changeTextColor(2);
+                            case R.id.home_tab_camera: {
+                                RadioButton bt = (RadioButton) group.findViewById(checkedId);
+
+                                if (bt.isChecked()) {
+                                    mCurrentIndex = mTabHost.getCurrentTab();
+                                    Log.e("hjq", " mCurrentIndex = " + mCurrentIndex);
+                                    //    mTabHost.setCurrentTabByTag(TAB_CAMERA);
+                                    changeTextColor(2);
+                                    startActivity(i_camera);
+                                }
                                 break;
+                            }
 
                             case R.id.home_tab_location:
                                 mTabHost.setCurrentTabByTag(TAB_LOCATION);
@@ -301,6 +387,7 @@ public class MainActivity extends TabActivity {
                 break;
         }
     }
+
 
     /**
      * 含有标题、内容、两个按钮的对话框
@@ -412,7 +499,6 @@ public class MainActivity extends TabActivity {
         public void onReceive(Context context, Intent intent) {
             // TODO Auto-generated method stub
             MyApplication.getInstance().type = 2;
-
         }
     };
 }

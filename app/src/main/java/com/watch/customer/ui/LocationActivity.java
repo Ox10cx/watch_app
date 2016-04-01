@@ -144,20 +144,19 @@ public class LocationActivity  extends BaseActivity {
 
     @Override
     protected void onPause() {
-        mMapView.onPause();
         Log.d(TAG, "location activity onpause");
         mMapView.setVisibility(View.INVISIBLE);
-
+        mMapView.onPause();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
-
         Log.d(TAG, "location activity onResume");
-        mMapView.onResume();
         mMapView.setVisibility(View.VISIBLE);
+        mMapView.onResume();
+
+        super.onResume();
     }
 
     @Override

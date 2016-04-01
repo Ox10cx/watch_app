@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Camera;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -41,7 +42,9 @@ import com.uacent.watchapp.R;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.ui.CameraInterface.CamOpenOverCallback;
 import com.watch.customer.util.DisplayUtil;
+import com.watch.customer.util.FileUtil;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,12 +99,12 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
         mHandler = new Handler();
         mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
 
-        mHandlerThread = new HandlerThread("takphone");
+        mHandlerThread = new HandlerThread("takephoto");
         mHandlerThread.start();
         myHandler = new Handler(mHandlerThread.getLooper());
 
         Intent i = new Intent(CameraActivity.this, BleComService.class);
-        getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+        bindService(i, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -137,7 +140,6 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
 
     @Override
     protected void onResume() {
-        super.onResume();
         Log.d(TAG, "cameraactivity onresume");
 
         // TODO Auto-generated method stub
@@ -157,6 +159,8 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 CameraInterface.getInstance().doOpenCamera(CameraActivity.this);
             }
         });
+
+        super.onResume();
     }
 
     @Override
@@ -315,7 +319,7 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 }
 
                 case R.id.btn_album: {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
                     startActivity(intent);
                     break;
@@ -509,6 +513,8 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 }
                 Log.e("hjq", "here 4");
                 flashBtn.invalidate();
+
+                surfaceView.invalidate();
             }
         });
     }

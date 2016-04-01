@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import cn.jpush.android.api.JPushInterface;
+//import cn.jpush.android.api.JPushInterface;
 
 public class FirstActivity extends BaseActivity {
 	private String phone;
@@ -36,6 +36,20 @@ public class FirstActivity extends BaseActivity {
 			String result = msg.obj.toString();
 			closeLoadingDialog();
 			Log.e(TAG, result);
+
+			if (result.matches("Connection to .* refused")) {
+				showLongToast("network error");
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Log.i(TAG, "postDelayed2");
+						finish();
+						startActivity(new Intent(FirstActivity.this, MainActivity.class));
+					}
+				}, 1000);
+				return;
+			}
+
 			switch (msg.what) {
 				case MSG_LOGIN: {
                     try {
@@ -106,27 +120,30 @@ public class FirstActivity extends BaseActivity {
 			phone = user.getPhone();
 			password = user.getPassword();
 
-			ThreadPoolManager.getInstance().addTask(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					Log.e(TAG, "begin post");
-					String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-							new BasicNameValuePair(JsonUtil.PHONE, phone),
-							new BasicNameValuePair(JsonUtil.PASSWORD,
-									password));
-					Log.e(TAG, "my result " +  result);
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showLoadingDialog();
+                    ThreadPoolManager.getInstance().addTask(new Runnable() {
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            Log.e(TAG, "begin post");
+                            String result = HttpUtil.post(HttpUtil.URL_LOGIN,
+                                    new BasicNameValuePair(JsonUtil.PHONE, phone),
+                                    new BasicNameValuePair(JsonUtil.PASSWORD,
+                                            password));
+                            Log.e(TAG, "my result " + result);
 
-					Message msg = new Message();
-					msg.obj = result;
-					msg.what = MSG_LOGIN;
-					mHandler.sendMessage(msg);
-				}
-			});
-
-			showLoadingDialog();
-		} else
-            {
+                            Message msg = new Message();
+                            msg.obj = result;
+                            msg.what = MSG_LOGIN;
+                            mHandler.sendMessage(msg);
+                        }
+                    });
+                }
+            }, 3000);
+		} else {
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -134,16 +151,7 @@ public class FirstActivity extends BaseActivity {
 					finish();
 					startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
 				}
-			}, 1000);
+			}, 3000);
 		}
-
-//		ThreadPoolManager.getInstance().addTask(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				// TODO Auto-generated method stub
-//				HttpUtil.get(HttpUtil.URL_INITAPP);
-//			}
-//		});
 	}
 }

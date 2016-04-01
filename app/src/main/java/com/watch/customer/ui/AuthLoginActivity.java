@@ -14,7 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import cn.jpush.android.api.JPushInterface;
+//import cn.jpush.android.api.JPushInterface;
 
 import com.uacent.watchapp.R;
 import com.watch.customer.dao.UserDao;
@@ -38,6 +38,12 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 			String result = msg.obj.toString();
 			closeLoadingDialog();
 			Log.e("hjq", result);
+
+			if (result.matches("Connection to .* refused")) {
+				showLongToast("network error");
+				return;
+			}
+
 			switch (msg.what) {
 			case 0:
 				try {

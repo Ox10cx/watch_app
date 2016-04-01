@@ -301,7 +301,7 @@
     <item type="id" name="tag_first"></item>
     <item type="id" name="tag_second"></item>
 
-    <string name="app_versionName">1.4</string>
+    <string name="app_versionName">1.5</string>
     <string name="location">Position:</string>
 
 </resources>

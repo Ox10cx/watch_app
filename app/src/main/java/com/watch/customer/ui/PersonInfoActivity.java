@@ -73,6 +73,11 @@ public class PersonInfoActivity extends BaseActivity implements
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			closeLoadingDialog();
+			if (msg.obj == null) {
+				showLongToast("Network error");
+				return;
+			}
+
 			String result = msg.obj.toString();
 			Log.e("hjq", result);
 			switch (msg.what) {

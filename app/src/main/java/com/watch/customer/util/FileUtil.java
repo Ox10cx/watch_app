@@ -735,6 +735,14 @@ public class FileUtil
         return storagePath;
     }
 
+    public static String getStoragePath() {
+        if ("".equals(storagePath)) {
+            return initPath(null);
+        }
+
+        return storagePath;
+    }
+
     /**保存Bitmap到sdcard
      * @param b
      */

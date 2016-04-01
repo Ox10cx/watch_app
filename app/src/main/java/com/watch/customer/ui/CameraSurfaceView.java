@@ -23,12 +23,12 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-
+        Log.i(TAG, "surfaceCreated...");
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
+        Log.i(TAG, "surfaceChanged...");
     }
 
     public CameraSurfaceView(Context context, AttributeSet attrs) {
