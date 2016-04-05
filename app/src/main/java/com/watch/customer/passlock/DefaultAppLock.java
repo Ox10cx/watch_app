@@ -190,7 +190,7 @@ public class DefaultAppLock extends AbstractAppLock {
 
     @Override
     public void onActivityPaused(Activity arg0) {
-        if (arg0.getClass() == InputPasswordActivity.class) {
+        if (arg0.getClass() == VerifyPasswordActivity.class) {
             return;
         }
 
@@ -202,7 +202,7 @@ public class DefaultAppLock extends AbstractAppLock {
 
     @Override
     public void onActivityResumed(Activity arg0) {
-        if (arg0.getClass() == InputPasswordActivity.class) {
+        if (arg0.getClass() == VerifyPasswordActivity.class) {
             return;
         }
 
@@ -214,8 +214,8 @@ public class DefaultAppLock extends AbstractAppLock {
         Log.e("hjq", "onActivityResumed = " + arg0 + " result =" + result);
         if (result) {
             //uhhh ohhh!
-            Intent i = new Intent(arg0.getApplicationContext(), InputPasswordActivity.class);
-            i.putExtra("mode", InputPasswordActivity.MODE_VERIFY_UNTIL_OK);
+            Intent i = new Intent(arg0.getApplicationContext(), VerifyPasswordActivity.class);
+            i.putExtra("mode", VerifyPasswordActivity.MODE_VERIFY_UNTIL_OK);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             arg0.getApplication().startActivity(i);

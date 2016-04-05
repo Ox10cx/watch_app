@@ -336,4 +336,7 @@
     <string name="str_light">Light</string>
     <string name="str_phone_alert">Phone alert</string>
     <string name="str_ringtone">Ringtone</string>
+    <string name="str_camera_setting">Camera Settings</string>
+    <string name="str_continuous">continue</string>
+    <string name="str_interval">Interval</string>
 </resources>

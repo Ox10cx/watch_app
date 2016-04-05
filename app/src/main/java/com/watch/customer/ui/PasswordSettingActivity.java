@@ -3,6 +3,7 @@ package com.watch.customer.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -55,18 +56,19 @@ public class PasswordSettingActivity extends BaseActivity {
         iv_back.setOnClickListener(this);
     }
 
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_turn_password: {
                 if (!appLock.isPasswordLocked()) {
-                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
-                    intent.putExtra("mode", VerifyPasswordActivity.MODE_INPUT);
+                    Intent intent = new Intent(this, InputPasswordActivity.class);
+                    intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
                     intent.putExtra("title", txtTurnOnPassword.getText());
                     startActivityForResult(intent, SETUP_PASSWORD);
                 } else {
-                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
-                    intent.putExtra("mode", VerifyPasswordActivity.MODE_VERIFY);
+                    Intent intent = new Intent(this, InputPasswordActivity.class);
+                    intent.putExtra("mode", InputPasswordActivity.MODE_VERIFY);
                     intent.putExtra("title", txtTurnOnPassword.getText());
                     startActivityForResult(intent, TURN_OFF_PASSWORD);
                 }
@@ -76,7 +78,7 @@ public class PasswordSettingActivity extends BaseActivity {
 
             case R.id.ll_change_password: {
                 Intent intent = new Intent(this, InputPasswordActivity.class);
-                intent.putExtra("mode", VerifyPasswordActivity.MODE_VERIFY);
+                intent.putExtra("mode", InputPasswordActivity.MODE_VERIFY);
                 intent.putExtra("title", txtChangePassword.getText());
                 startActivityForResult(intent, VERIFY_PASSWORD);
                 break;
@@ -94,7 +96,7 @@ public class PasswordSettingActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        Log.e("hjq", " request code =" + requestCode + " result = " + resultCode);
         if (resultCode == RESULT_OK) {
             if (requestCode == SETUP_PASSWORD) {
                 int val = data.getIntExtra("password_status", 0);
@@ -115,7 +117,7 @@ public class PasswordSettingActivity extends BaseActivity {
                 int val = data.getIntExtra("password_status", 0);
 
                 if (val == 1) {
-                    Intent intent = new Intent(this, VerifyPasswordActivity.class);
+                    Intent intent = new Intent(this, InputPasswordActivity.class);
                     intent.putExtra("mode", InputPasswordActivity.MODE_INPUT);
                     startActivityForResult(intent, SETUP_PASSWORD);
                 } else {

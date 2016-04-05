@@ -191,10 +191,11 @@
         <activity android:name="com.watch.customer.ui.FindmeSettingActivity" android:screenOrientation="portrait"> </activity>
         <activity android:name="com.watch.customer.ui.RingtoneSelectActivity" android:screenOrientation="portrait"> </activity>
         <activity android:name="com.watch.customer.ui.PasswordSettingActivity" android:screenOrientation="portrait"> </activity>
-        <activity android:name="com.watch.customer.passlock.InputPasswordActivity" android:screenOrientation="portrait"
+        <activity android:name="com.watch.customer.passlock.VerifyPasswordActivity" android:screenOrientation="portrait"
                     android:launchMode="singleInstance" >
         </activity>
-        <activity android:name="com.watch.customer.passlock.VerifyPasswordActivity" android:screenOrientation="portrait"></activity>
+
+        <activity android:name="com.watch.customer.passlock.InputPasswordActivity" android:screenOrientation="portrait"></activity>
         <activity android:name="com.watch.customer.ui.MapSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.LocationRecordList" android:screenOrientation="portrait"> </activity>
 

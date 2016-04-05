@@ -80,7 +80,7 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
         mMenu = new Menu(new ColorDrawable(Color.WHITE), true);
         mMenu.addItem(new MenuItem.Builder().setWidth((int) getResources().getDimension(R.dimen.slv_item_bg_btn2_width) * 2)
                 .setBackground(new ColorDrawable(Color.RED))
-                .setText("Delete")
+                .setText(getResources().getString(R.string.system_delete))
                 .setDirection(MenuItem.DIRECTION_RIGHT)
                 .setTextColor(Color.BLACK)
                 .setTextSize((int) getResources().getDimension(R.dimen.txt_size))
