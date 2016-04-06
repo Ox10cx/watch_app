@@ -71,10 +71,12 @@
         android:name="com.watch.customer.app.MyApplication"
         android:allowBackup="true"
         android:icon="@android:drawable/sym_def_app_icon"
+        android:largeHeap="true"
         android:label="@string/system_name"
         android:theme="@style/AppTheme" >
         <activity android:name="com.watch.customer.ui.FirstActivity"
             android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
             android:icon="@android:drawable/sym_def_app_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -83,6 +85,7 @@
         </activity>
         <activity android:name="com.watch.customer.ui.MainActivity"
             android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
             android:launchMode="singleTop">
         </activity>
         <activity android:name="com.watch.customer.ui.AuthLoginActivity" android:screenOrientation="portrait" >
@@ -156,9 +159,9 @@
         </activity>
         <activity android:name="com.watch.customer.ui.PersonFeedbackActivity" >
         </activity>
-        <activity android:name="com.watch.customer.ui.PersonUpdatePasswordActivity" >
+        <activity android:name="com.watch.customer.ui.PersonUpdatePasswordActivity" android:screenOrientation="portrait" >
         </activity>
-        <activity android:name="com.watch.customer.ui.StaticPageActivity" >
+        <activity android:name="com.watch.customer.ui.StaticPageActivity" android:screenOrientation="portrait" >
         </activity>
         <activity android:name="com.watch.customer.ui.AboutUsActivity" >
         </activity>
@@ -170,6 +173,7 @@
         </activity>
 
         <activity android:name="com.watch.customer.ui.DeviceListActivity" android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
             >
         </activity>
         <activity android:name="com.watch.customer.ui.CameraActivity" android:screenOrientation="portrait">

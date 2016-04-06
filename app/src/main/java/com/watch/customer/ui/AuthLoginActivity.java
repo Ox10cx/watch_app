@@ -196,11 +196,19 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 	private boolean checkdata() {
 		boolean isright = false;
 		phone = phoneedit.getText().toString().trim();
+        // +86
+        if (phone.length() == 14) {
+            phone = phone.substring(3);
+        }
+
 		password = passwordedit.getText().toString().trim();
 
 		if (phone == null || phone.equals("")) {
 			showLongToast("电话号码不能为空");
-		} else if (password == null || password.equals("")) {
+        } else if (phone.length() != 11) {
+            showLongToast("手机号码长度必须为11位");
+        }
+        else if (password == null || password.equals("")) {
 			showLongToast("密码不能为空");
 		} else {
 			isright = true;

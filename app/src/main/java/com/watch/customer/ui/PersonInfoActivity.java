@@ -251,7 +251,9 @@ public class PersonInfoActivity extends BaseActivity implements
 //					   new UserDao(PersonMainActivity.this).deleteAll();
 								PreferenceUtil.getInstance(PersonInfoActivity.this).setUid("");
 								new UserDao(PersonInfoActivity.this).deleteAll();
-								startActivity(new Intent(PersonInfoActivity.this, AuthLoginActivity.class));
+                                Intent intent = new Intent(PersonInfoActivity.this, AuthLoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+								startActivity(intent);
 							}
 						}).setNegativeButton(R.string.cancel, null).create().show();
 

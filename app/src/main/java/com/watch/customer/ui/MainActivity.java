@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -436,6 +437,13 @@ public class MainActivity extends TabActivity {
         super.onDestroy();
         MyApplication.getInstance().removeActivity(this);
         unregisterReceiver(TabReceiver);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Log.e("hjq", "onConfigurationChanged");
     }
 
     public class MyLocationListenner implements BDLocationListener {

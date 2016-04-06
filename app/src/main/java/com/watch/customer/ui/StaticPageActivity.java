@@ -41,6 +41,7 @@ public class StaticPageActivity extends BaseActivity {
 	
 	   };
    };
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,8 +58,8 @@ public class StaticPageActivity extends BaseActivity {
 				// TODO Auto-generated method stub
 				String result=HttpUtil.post(HttpUtil.URL_STATICPAGE, 
 						new BasicNameValuePair(JsonUtil.CODE,JsonUtil.PROTOCOL));
-				Message msg=new Message();
-				msg.obj=result;
+				Message msg = new Message();
+				msg.obj = result;
 				mHandler.sendMessage(msg);
 			}
 		});

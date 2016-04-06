@@ -218,6 +218,11 @@ public class AuthRegisterActivity extends BaseActivity {
 
 	private boolean checkdata() {
 		phone = phoneedit.getText().toString().trim();
+		// +86
+		if (phone.length() == 14) {
+			phone = phone.substring(3);
+		}
+
 		String inputcode = codeedit.getText().toString().trim();
 		name = nameedit.getText().toString().trim();
 		password = passwordedit.getText().toString().trim();
