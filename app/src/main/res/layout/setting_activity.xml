@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/header"
@@ -57,14 +57,21 @@
             android:layout_marginStart="5dp"
             android:layout_centerVertical="true" />
 
-        <Switch
+        <com.watch.customer.util.SwitchButton
             android:id="@+id/switchNotDisturb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
-            android:textSize="18sp"
+            android:textSize="16sp"
+
+            style="@style/SwitchButtonStyle"
+            android:textColor="#FFFFFF"
+            app:kswTextOff="@string/str_off"
+            app:kswTextOn="@string/str_on"
+
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+             />
     </RelativeLayout>
 
     <LinearLayout

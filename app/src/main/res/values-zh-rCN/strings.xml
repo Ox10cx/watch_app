@@ -334,4 +334,6 @@
     <string name="str_continuous">连拍</string>
     <string name="str_interval">间隔</string>
     <string name="str_connect_first">请先连接蓝牙设备</string>
+    <string name="str_off">关闭</string>
+    <string name="str_on">打开</string>
 </resources>

@@ -22,8 +22,10 @@ import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.DialogUtil;
 import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
+import com.watch.customer.util.SwitchButton;
 import com.watch.customer.util.ThreadPoolManager;
 import com.watch.customer.util.UpdateManager;
+import android.support.v7.widget.SwitchCompat;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -76,7 +78,7 @@ public class SettingActivity  extends BaseActivity {
 
         setContentView(R.layout.setting_activity);
 
-        Switch sw = (Switch) findViewById(R.id.switchNotDisturb);
+        SwitchButton sw = (SwitchButton) findViewById(R.id.switchNotDisturb);
         sw.setOnClickListener(this);
 
         ImageView iv_back = (ImageView) findViewById(R.id.iv_back);
