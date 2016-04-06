@@ -17,6 +17,7 @@ import android.widget.TextView;
 //import cn.jpush.android.api.JPushInterface;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.UserDao;
 import com.watch.customer.model.Shop;
 import com.watch.customer.model.User;
@@ -78,6 +79,7 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 						PreferenceUtil.getInstance(AuthLoginActivity.this).setUid(user.getId());
 						PreferenceUtil.getInstance(AuthLoginActivity.this).getString(PreferenceUtil.PHONE, user.getPhone());
                         PreferenceUtil.getInstance(AuthLoginActivity.this).setToken(user.getToken());
+						MyApplication.getInstance().mToken = user.getToken();	// update the token info.
 
 						startActivity(new Intent(AuthLoginActivity.this, MainActivity.class));
 				
