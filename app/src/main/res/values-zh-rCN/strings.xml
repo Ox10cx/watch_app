@@ -37,10 +37,11 @@
     <string name="register_edittext_password">密码(6到16位)</string>
     <string name="register_edittext_confirm_password">确认密码</string>
     <string name="register_button_register">注册</string>
-    <string name="register_textview_warning">注册视为同意掌上餐厅的</string>
+    <string name="register_textview_warning">注册视为同意蓝牙防丢器的</string>
     <string name="register_textview_protocol">  <a href="">用户协议</a></string>
     <string name="register_protocol">用户协议</string>
-   
+
+    <string name="str_get_code">获取密码</string>
 
     <!-- menuways -->
     <string name="menuways_bookmenu">手机菜单</string>
@@ -332,4 +333,5 @@
     <string name="str_camera_setting">照相机设置</string>
     <string name="str_continuous">连拍</string>
     <string name="str_interval">间隔</string>
+    <string name="str_connect_first">请先连接蓝牙设备</string>
 </resources>

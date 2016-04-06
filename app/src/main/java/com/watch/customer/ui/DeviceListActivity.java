@@ -663,7 +663,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             i.putExtras(b);
             startActivityForResult(i, CHANGE_BLE_DEVICE_SETTING);
         } else {
-            Toast.makeText(this, "connect device first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.str_connect_first, Toast.LENGTH_SHORT).show();
         }
     }
 

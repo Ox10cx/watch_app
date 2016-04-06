@@ -54,20 +54,17 @@
             android:text="@string/str_no_distrub"
             android:id="@+id/textView"
             android:textSize="18sp"
-            android:layout_marginLeft="5dp"
-            android:layout_gravity="center_vertical"
+            android:layout_marginStart="5dp"
             android:layout_centerVertical="true" />
 
         <Switch
             android:id="@+id/switchNotDisturb"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_gravity="center_vertical"
-            android:showText="true"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
             android:textSize="18sp"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
     <LinearLayout

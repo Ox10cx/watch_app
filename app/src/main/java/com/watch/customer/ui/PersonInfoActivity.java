@@ -51,6 +51,8 @@ public class PersonInfoActivity extends BaseActivity implements
 	private TextView text_phone;
 	private TextView text_name;
 	private TextView text_sex;
+	private LinearLayout personLogout;
+
 	private UserDao mUserDao;
 	private User mUser;
 	private String userid;
@@ -133,6 +135,7 @@ public class PersonInfoActivity extends BaseActivity implements
 		};
 	};
 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -148,6 +151,9 @@ public class PersonInfoActivity extends BaseActivity implements
 		text_phone = (TextView) findViewById(R.id.text_phone);
 		text_name = (TextView) findViewById(R.id.text_name);
 		text_sex = (TextView) findViewById(R.id.text_sex);
+		personLogout = (LinearLayout) findViewById(R.id.personmainLogout);
+		personLogout.setOnClickListener(this);
+
 		updatePassword.setOnClickListener(this);
 		updateHead.setOnClickListener(this);
 		updateName.setOnClickListener(this);
@@ -234,6 +240,23 @@ public class PersonInfoActivity extends BaseActivity implements
 								}
 							}).create().show();
 			break;
+
+			case R.id.personmainLogout:
+				AlertDialog.Builder builder=new AlertDialog.Builder(this);
+				builder.setMessage("是否要注销当前账户")
+						.setPositiveButton(R.string.system_sure, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// TODO Auto-generated method stub
+//					   new UserDao(PersonMainActivity.this).deleteAll();
+								PreferenceUtil.getInstance(PersonInfoActivity.this).setUid("");
+								new UserDao(PersonInfoActivity.this).deleteAll();
+								startActivity(new Intent(PersonInfoActivity.this, AuthLoginActivity.class));
+							}
+						}).setNegativeButton(R.string.cancel, null).create().show();
+
+				break;
+
 		default:
 			break;
 		}
