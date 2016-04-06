@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.uacent.watchapp.R;
 import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
+import com.watch.customer.util.SwitchButton;
 
 /**
  * Created by Administrator on 16-3-11.
@@ -26,8 +27,8 @@ public class AntiLostSettingActivity extends BaseActivity {
     final static int SELECT_RINGTONE = 1;
     BtDevice mDevice;
     BtDeviceDao mDao;
-    Switch antiLostSwitch;
-    Switch lightSwitch;
+    SwitchButton antiLostSwitch;
+    SwitchButton lightSwitch;
     SeekBar mVolumeBar;
     AudioManager mAudioManager;
 
@@ -90,7 +91,7 @@ public class AntiLostSettingActivity extends BaseActivity {
             mBtnear.setBackgroundColor(getResources().getColor(R.color.btnbg_orange));
         }
 
-        antiLostSwitch = (Switch) findViewById(R.id.switchAntiLost);
+        antiLostSwitch = (SwitchButton) findViewById(R.id.switchAntiLost);
         if (mDevice.isAntiLostSwitch()) {
             antiLostSwitch.setChecked(true);
         } else {
@@ -105,7 +106,7 @@ public class AntiLostSettingActivity extends BaseActivity {
             }
         });
 
-        lightSwitch = (Switch) findViewById(R.id.switchLight);
+        lightSwitch = (SwitchButton) findViewById(R.id.switchLight);
         if (mDevice.isLostAlertSwitch()) {
             lightSwitch.setChecked(true);
         } else {

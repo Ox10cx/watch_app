@@ -13,6 +13,7 @@ import android.widget.Switch;
 import com.uacent.watchapp.R;
 import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
+import com.watch.customer.util.SwitchButton;
 
 /**
  * Created by Administrator on 16-3-11.
@@ -23,7 +24,7 @@ public class FindmeSettingActivity extends BaseActivity {
     BtDevice mDevice;
     BtDeviceDao mDao;
     private AudioManager mAudioManager;
-    private Switch lightSwitch;
+    private SwitchButton lightSwitch;
     private SeekBar mVolumeBar;
 
 
@@ -42,7 +43,7 @@ public class FindmeSettingActivity extends BaseActivity {
         ImageView ivBack = (ImageView) findViewById(R.id.iv_back);
         ivBack.setOnClickListener(this);
 
-        lightSwitch = (Switch) findViewById(R.id.switchLight);
+        lightSwitch = (SwitchButton) findViewById(R.id.switchLight);
         if (mDevice.isFindAlertSwitch()) {
             lightSwitch.setChecked(true);
         } else {
