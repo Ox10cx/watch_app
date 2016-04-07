@@ -16,6 +16,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
@@ -105,6 +106,7 @@ public class HttpUtil {
 		try {
 			post.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
             post.addHeader("Authorization", "Bearer " + token);
+			httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 20000);
 			HttpResponse response = httpClient.execute(post);
 			int status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {

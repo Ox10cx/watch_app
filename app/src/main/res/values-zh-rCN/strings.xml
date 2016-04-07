@@ -336,4 +336,6 @@
     <string name="str_connect_first">请先连接蓝牙设备</string>
     <string name="str_off">关闭</string>
     <string name="str_on">打开</string>
+    <string name="str_network_error">网络错误</string>
+    <string name="str_network_prompt">请检查是否可以正常连接网络</string>
 </resources>

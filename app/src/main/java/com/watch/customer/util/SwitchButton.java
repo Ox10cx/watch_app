@@ -829,6 +829,8 @@ public class SwitchButton extends CompoundButton {
 		super.onRestoreInstanceState(ss.getSuperState());
 	}
 
+
+
 	static class SavedState extends BaseSavedState {
 		CharSequence onText;
 		CharSequence offText;

@@ -20,6 +20,8 @@ public class MyApplication extends Application {
 	private LinkedList<Activity> activityList = new LinkedList<Activity>();
 	private static MyApplication instance;
 	public static String mToken = "";
+	public double latitude;
+	public double longitude;
 
 	@Override
 	public void onCreate() {

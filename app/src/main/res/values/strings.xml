@@ -324,7 +324,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName">1.9</string>
+    <string name="app_versionName">1.13</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>
@@ -342,4 +342,6 @@
     <string name="str_connect_first">connect device first</string>
     <string name="str_off">Off</string>
     <string name="str_on">On</string>
+    <string name="str_network_error">Network Error</string>
+    <string name="str_network_prompt">Please check wether the network connection is OK or not.</string>
 </resources>

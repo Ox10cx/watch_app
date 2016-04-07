@@ -34,6 +34,7 @@ import com.baidu.mapapi.model.LatLngBounds;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MyLocationOverlay;
 import com.uacent.watchapp.R;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.model.LocationRecord;
 
 import java.util.ArrayList;
@@ -90,6 +91,17 @@ public class LocationActivity  extends BaseActivity {
         option.setScanSpan(50);
         mLocClient.setLocOption(option);
         mLocClient.start();
+
+        if (MyApplication.getInstance().islocation == 1) {
+            LatLng ll = new LatLng(MyApplication.getInstance().latitude,
+                    MyApplication.getInstance().longitude);
+            MapStatus.Builder builder = new MapStatus.Builder();
+            builder.target(ll).zoom(18.0f);
+            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+
+            addMarker(MyApplication.getInstance().longitude, MyApplication.getInstance().latitude);
+
+        }
     }
 
     void hideZoomControl() {
@@ -110,7 +122,7 @@ public class LocationActivity  extends BaseActivity {
         }
     }
 
-    void addMarker(float longitude, float latitude) {
+    void addMarker(double longitude, double latitude) {
         //定义Maker坐标点
         LatLng point = new LatLng(latitude, longitude);
         //构建Marker图标

@@ -471,6 +471,8 @@ public class MainActivity extends TabActivity {
                 PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, "" + location.getLatitude());
                 PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, "" + location.getLongitude());
                 MyApplication.getInstance().islocation = 1;
+                MyApplication.getInstance().latitude = location.getLatitude();
+                MyApplication.getInstance().longitude = location.getLongitude();
                 //sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));
             } else {
                 Log.e("hjq", "location no found!!!");

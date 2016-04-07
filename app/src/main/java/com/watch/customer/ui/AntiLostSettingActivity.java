@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -97,12 +98,12 @@ public class AntiLostSettingActivity extends BaseActivity {
         } else {
             antiLostSwitch.setChecked(false);
         }
-        antiLostSwitch.setOnClickListener(new View.OnClickListener() {
+
+        antiLostSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                boolean ischecked = antiLostSwitch.isChecked();
-                Log.d("hjq", "is checked = " + ischecked);
-                mDevice.setAntiLostSwitch(ischecked);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("hjq", "is checked = " + isChecked);
+                mDevice.setAntiLostSwitch(isChecked);
             }
         });
 
@@ -113,12 +114,11 @@ public class AntiLostSettingActivity extends BaseActivity {
             lightSwitch.setChecked(false);
         }
 
-        lightSwitch.setOnClickListener(new View.OnClickListener() {
+        lightSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                boolean ischecked = lightSwitch.isChecked();
-                Log.d("hjq", "lightswitch is checked = " + ischecked);
-                mDevice.setLostAlertSwitch(ischecked);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("hjq", "lightswitch is checked = " + isChecked);
+                mDevice.setLostAlertSwitch(isChecked);
             }
         });
 

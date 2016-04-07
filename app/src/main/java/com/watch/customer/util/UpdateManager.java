@@ -131,21 +131,21 @@ public class UpdateManager {
 		mTextView.setText(updateMsg);
 		mProgress.setVisibility(View.VISIBLE);
 		builder.setView(v).setCancelable(false);
-		 builder.setPositiveButton(R.string.hide, new OnClickListener() {
+		builder.setPositiveButton(R.string.hide, new OnClickListener() {
 		 @Override
 		 public void onClick(DialogInterface dialog, int which) {
-		 downloadDialog.dismiss();
-		 initNotif();
-		 ishide = true;
+			 downloadDialog.dismiss();
+			 initNotif();
+			 ishide = true;
 		 }
-		 });
-		 builder.setNegativeButton(R.string.system_cancel, new OnClickListener() {
+		});
+		builder.setNegativeButton(R.string.system_cancel, new OnClickListener() {
 		 @Override
 		 public void onClick(DialogInterface dialog, int which) {
-		 downloadDialog.dismiss();
-		 interceptFlag = true;
+			 downloadDialog.dismiss();
+			 interceptFlag = true;
 		 }
-		 });
+		});
 		downloadDialog = builder.create();
 		downloadDialog.show();
 		downloadApk();
@@ -214,7 +214,7 @@ public class UpdateManager {
 	public void initNotif() {
 		downloadNM = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-		downloadNotification = new Notification(R.drawable.ic_launcher, apkname
+		downloadNotification = new Notification(/*R.drawable.ic_launcher*/android.R.drawable.sym_def_app_icon, apkname
 				+ mContext.getResources().getString(R.string.download),
 				System.currentTimeMillis());
 		downloadNotification.contentView = new RemoteViews(

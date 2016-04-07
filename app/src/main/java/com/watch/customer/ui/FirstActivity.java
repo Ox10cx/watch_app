@@ -19,6 +19,7 @@ import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
+import com.watch.customer.util.UpdateManager;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -40,14 +41,24 @@ public class FirstActivity extends BaseActivity {
 			closeLoadingDialog();
 			Log.e(TAG, result);
 
-			if (result.matches("Connection to .* refused")) {
+			if (result.matches("Connection to .* refused") || result.matches("Connect to.*timed out")) {
 				showLongToast(getString(R.string.network_error));
 				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						Log.i(TAG, "postDelayed2");
-						finish();
-						startActivity(new Intent(FirstActivity.this, MainActivity.class));
+						//finish();
+
+                        DialogUtil.showDialog(FirstActivity.this, getString(R.string.str_network_error),
+                               getString(R.string.str_network_prompt),
+                                getString(R.string.system_sure),
+                                null,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                       finish();
+                                    }
+                                }, null, true);
 					}
 				}, 1000);
 				return;
