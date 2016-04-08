@@ -136,11 +136,19 @@ public class DeviceListAdapter extends BaseAdapter {
         switch (status) {
             case BluetoothLeClass.BLE_STATE_CONNECTED: {
                 holderView.button.setText(R.string.alert);
+                if (data.get(position).isAlertService())
+                {
+                    holderView.button.setEnabled(true);
+                } else {
+                    holderView.button.setEnabled(false);
+                }
+
                 break;
             }
 
             case BluetoothLeClass.BLE_STATE_ALERTING: {
                 holderView.button.setText(R.string.stop_alert);
+                holderView.button.setEnabled(true);
                 break;
             }
 
@@ -151,6 +159,7 @@ public class DeviceListAdapter extends BaseAdapter {
             case BluetoothLeClass.BLE_STATE_INIT:
             default: {
                 holderView.button.setText(R.string.connect);
+                holderView.button.setEnabled(true);
                 break;
             }
         }

@@ -34,6 +34,9 @@ public class BtDevice implements Serializable {
         d.setAddress(this.getAddress());
         d.setName(this.getName());
 
+        d.setAlertService(this.isAlertService());
+        d.setReportAlert(this.isReportAlert());
+
         return d;
     }
 
@@ -219,6 +222,9 @@ public class BtDevice implements Serializable {
     public String getThumbnail() { return thumbnail; }
     public void setRssi(int s) { rssi = s; }
 
+    private boolean alertService;       // 是否支持报警服务
+    private boolean reportAlert;        // 是否主动由防丢器发起的报警
+
     @Override
     public String toString() {
         return "BtDevice{" +
@@ -235,6 +241,7 @@ public class BtDevice implements Serializable {
                 ", findAlertRingtone='" + findAlertRingtone + '\'' +
                 ", rssi=" + rssi +
                 ", status=" + status +
+                ", alertService = " + alertService +
                 '}';
     }
 
@@ -259,6 +266,8 @@ public class BtDevice implements Serializable {
         status = -1;
         lostAlert = false;
         position = -1;
+
+        alertService = false;
 
         if (name == null) {
             this.name = "unkown";
@@ -288,6 +297,24 @@ public class BtDevice implements Serializable {
 
         position = -1;
         lostAlert = false;
+        reportAlert = false;
+
+        alertService = false;
     }
 
+    public boolean isAlertService() {
+        return alertService;
+    }
+
+    public void setAlertService(boolean alertService) {
+        this.alertService = alertService;
+    }
+
+    public boolean isReportAlert() {
+        return reportAlert;
+    }
+
+    public void setReportAlert(boolean reportAlert) {
+        this.reportAlert = reportAlert;
+    }
 }

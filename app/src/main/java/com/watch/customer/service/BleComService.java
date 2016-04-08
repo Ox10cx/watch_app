@@ -373,11 +373,49 @@ public class BleComService extends Service {
             if (leDevice != null) {
                 displayGattServices(leDevice.getSupportedGattServices());
                 leDevice.enableKeyReport(true);     // 打开上报按键信息
+                boolean alertSupport = checkAlertService(leDevice.getSupportedGattServices());
+                synchronized (mCallbacks) {
+                    int n = mCallbacks.beginBroadcast();
+                    try {
+                        int i;
+                        for (i = 0; i < n; i++) {
+                            mCallbacks.getBroadcastItem(i).onAlertServiceDiscovery(device.getAddress(), alertSupport);
+                        }
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "remote call exception", e);
+                    }
+                    mCallbacks.finishBroadcast();
+                }
             } else {
                 Log.e("hjq", "address = " + device.getAddress() + " is null");
             }
         }
     };
+
+    boolean checkAlertService(List<BluetoothGattService> gattServices) {
+        if (gattServices == null) {
+            return false;
+        }
+
+        for (BluetoothGattService gattService : gattServices) {
+            final UUID serviceUUID = gattService.getUuid();
+            Log.e(TAG,"-->service uuid:" + gattService.getUuid());
+
+            if (!serviceUUID.equals(BluetoothAntiLostDevice.ALERT_SERVICE_UUID)) {
+                continue;
+            }
+
+            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                Log.e(TAG, "---->char uuid:" + gattCharacteristic.getUuid());
+                if (gattCharacteristic.getUuid().equals(BluetoothAntiLostDevice.ALERT_FUNC_UUID)) {
+                    Log.e(TAG, "support alert service");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * 收到BLE终端数据交互的事件

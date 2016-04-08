@@ -14,7 +14,7 @@ import android.widget.Scroller;
 /**
  * Created by yuyidong on 15/9/24.
  */
-class ItemMainLayout extends FrameLayout {
+public class ItemMainLayout extends FrameLayout {
     private static final int INTENTION_LEFT_OPEN = 1;
     private static final int INTENTION_LEFT_CLOSE = 2;
     private static final int INTENTION_LEFT_ALREADY_OPEN = 3;

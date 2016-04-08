@@ -151,13 +151,13 @@ public class BtDeviceSettingActivity extends BaseActivity {
         }
 
         @Override
-        public void onRead(String address, byte[] val) throws RemoteException {
-
+        public boolean onRead(String address, byte[] val) throws RemoteException {
+            return false;
         }
 
         @Override
-        public void onWrite(String address, byte[] val) throws RemoteException {
-
+        public boolean onWrite(String address, byte[] val) throws RemoteException {
+            return false;
         }
 
         @Override
@@ -166,6 +166,11 @@ public class BtDeviceSettingActivity extends BaseActivity {
         }
 
         public void onPositionChanged(String address, int rssi) throws RemoteException {
+
+        }
+
+        @Override
+        public void onAlertServiceDiscovery(String address, boolean support) throws RemoteException {
 
         }
 
@@ -294,6 +299,8 @@ public class BtDeviceSettingActivity extends BaseActivity {
             d.setName(mEdit.getText().toString());
             mDeviceDao.deleteById(d.getId());
             d.setStatus(mDevice.getStatus());
+            d.setAlertService(mOld.isAlertService());
+            d.setReportAlert(mOld.isReportAlert());
             Log.d("hjq", "d = " + d);
             mDeviceDao.insert(d);
             if (d.equals(mOld)) {

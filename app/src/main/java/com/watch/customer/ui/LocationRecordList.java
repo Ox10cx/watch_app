@@ -159,6 +159,10 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
         // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemClick   " + position);
 
+        if (position < 0) {
+            return;
+        }
+
         LocationRecord r = mListData.get(position);
         String longlat = r.getLong_lat();
         String[] array = longlat.split(",");

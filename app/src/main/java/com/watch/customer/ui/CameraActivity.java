@@ -529,12 +529,13 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
         }
 
         @Override
-        public void onRead(String address, byte[] val) throws RemoteException {
+        public boolean onRead(String address, byte[] val) throws RemoteException {
             Log.e("hjq", "onRead called in camera");
+            return false;
         }
 
         @Override
-        public void onWrite(String address, byte[] val) throws RemoteException {
+        public boolean onWrite(String address, byte[] val) throws RemoteException {
             Log.e("hjq", "onWrite called in camera");
             int key = val[0];
             if (key == 1) {
@@ -545,6 +546,8 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                     }
                 });
             }
+
+            return true;
         }
 
         @Override
@@ -554,6 +557,11 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
 
         public void onPositionChanged(String address, int position) throws RemoteException {
                 Log.d("hjq", "onPositionChanged called address = " + address + " newpos = " + position);
+        }
+
+        @Override
+        public void onAlertServiceDiscovery(String address, boolean support) throws RemoteException {
+
         }
     };
 

@@ -12,7 +12,7 @@ import android.widget.ImageView;
 /**
  * Created by yuyidong on 15/9/25.
  */
-class ItemCustomLayout extends FrameLayout {
+public class ItemCustomLayout extends FrameLayout {
     private ImageView mBGImage;
     private Drawable mDrawable;
     private Drawable mTransparentDrawable;

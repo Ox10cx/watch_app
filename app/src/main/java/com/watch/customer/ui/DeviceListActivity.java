@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import android.animation.StateListAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -33,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.xlistview.ItemMainLayout;
 import com.watch.customer.xlistview.Menu;
 import com.watch.customer.xlistview.MenuItem;
 import com.watch.customer.xlistview.SlideAndDragListView;
@@ -49,6 +51,8 @@ import com.watch.customer.util.PreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Administrator on 16-3-7.
@@ -62,11 +66,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private SlideAndDragListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
-    private ArrayList<Boolean> mAlertStatus;
     private Handler mHandler;
     private BtDeviceDao mDeviceDao;
     private IService mService;
-    private MediaPlayer mPlayer;
     boolean mScanningStopped;
     LocationDao mLocationDao;
     SharedPreferences mSharedPreferences;
@@ -168,7 +170,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         return controller;
     }
 
-
     void checkUI()
     {
         final Runnable fnCheck = new Runnable() {
@@ -187,6 +188,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         restart = true;
                     } else {
                         stopAnimation(i);
+                        stopAlertRingtone(d);
                     }
                 }
 
@@ -200,7 +202,31 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     }
 
     private void showItemViewAnimation(final View v, final int index) {
-        Animation myAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha_anim);
+        if (v.getAnimation() != null) {
+            Log.e("hjq", "animation is running");
+            return;
+        }
+
+        final Animation myAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha_anim);
+        myAnimation.setAnimationListener(new Animation.AnimationListener() {
+                                             @Override
+                                             public void onAnimationStart(Animation animation) {
+
+                                             }
+
+                                             @Override
+                                             public void onAnimationEnd(Animation animation) {
+                                                 if (v.getAnimation() != null) {
+                                                     v.startAnimation(myAnimation);
+                                                 }
+                                             }
+
+                                             @Override
+                                             public void onAnimationRepeat(Animation animation) {
+
+                                             }
+                                         }
+        );
         v.startAnimation(myAnimation);
     }
 
@@ -219,13 +245,12 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     void stopAnimation(final int position) {
         int wantedChild;
 
-        mAlertStatus.set(position, false);
-
         wantedChild = getActualPosition(position);
         View wantedView = mDeviceList.getChildAt(wantedChild);
         if (wantedView != null) {
-            wantedView.setTag(R.id.tag_second, true);
-            wantedView.setBackgroundColor(getResources().getColor(R.color.text_white));
+            ItemMainLayout layout = (ItemMainLayout)wantedView;
+            View v = layout.getItemCustomLayout().getCustomView();
+            v.setBackgroundColor(getResources().getColor(R.color.text_white));
             wantedView.clearAnimation();
         }
     }
@@ -235,47 +260,70 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
         wantedChild = getActualPosition(position);
         View wantedView = mDeviceList.getChildAt(wantedChild);
+        Log.e("hjq", "view = " + wantedView);
         if (wantedView != null) {
-            wantedView.setTag(R.id.tag_second, false);
-            wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
+            ItemMainLayout layout = (ItemMainLayout)wantedView;
+            View v = layout.getItemCustomLayout().getCustomView();
+            v.setBackgroundColor(getResources().getColor(R.color.textbg_red));
+
             showItemViewAnimation(wantedView, position);
         }
-
-        mAlertStatus.set(position, true);
 
         Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         long [] pattern = {100, 400, 100, 400}; // 停止 开启 停止 开启
         vibrator.vibrate(pattern, -1); //重复两次上面的pattern 如果只想震动一次，index设为-1
     }
 
-    private void playAlertRingtone(BtDevice d) {
-        if (mPlayer != null) {
-            mPlayer.release();
-            mPlayer = null;
-            Log.d(TAG, "the player is busy now");
+    Map<String, MediaPlayer> mPlayer = new HashMap<String, MediaPlayer>();
+
+    private void stopAlertRingtone(final BtDevice d) {
+        MediaPlayer player = mPlayer.get(d.getAddress());
+        if (player == null) {
+            Log.e("hjq", "warning: mediaplayer some thing error!");
             return;
         }
 
-        AudioManager mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        player.stop();
+        player.release();
+
+        mPlayer.remove(d.getAddress());
+    }
+
+
+    private void playAlertRingtone(final BtDevice d) {
+        MediaPlayer player = mPlayer.get(d.getAddress());
+        if (player != null) {
+            Log.e("hjq", "media player is ringing");
+            return;
+        }
+
+        AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getAlertVolume(), 0);
 
-        mPlayer = MediaPlayer.create(this, d.getAlertRingtone());
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        player = MediaPlayer.create(this, d.getAlertRingtone());
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                mPlayer.release();
-                mPlayer = null;
+                if (d.isLostAlert() && d.isAntiLostSwitch() || d.isReportAlert()) {
+                    int disturb = mSharedPreferences.getInt("disturb_status", 0);
+                    if (disturb == 0) {     // 免打扰模式没有打开，播放声音
+                        mediaPlayer.start();
+                    }
+                } else {
+                    mediaPlayer.release();
+                    mPlayer.remove(d.getAddress());
+                }
             }
         });
 
-        mPlayer.setVolume(1.0f, 1.0f);
-        mPlayer.start();
+        mPlayer.put(d.getAddress(), player);
+        player.setVolume(1.0f, 1.0f);
+        player.start();
     }
 
     private void fillListData() {
       //  mListData = mDeviceDao.queryAll();
         mListData = new ArrayList<BtDevice>(10);
-        mAlertStatus = new ArrayList<Boolean>(10);
 
         mDeviceListAdapter = new DeviceListAdapter(
                 DeviceListActivity.this, mListData, this);
@@ -408,7 +456,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     }
 
                     mListData.add(d);
-                    mAlertStatus.add(false);
                 }
                 mDeviceListAdapter.notifyDataSetChanged();
             }
@@ -454,8 +501,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         @Override
-        public void onRead(String address, byte[] val) throws RemoteException {
+        public boolean onRead(String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onRead called");
+
+            return false;
         }
 
         void startAlert(String address) {
@@ -465,6 +514,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     int disturb = mSharedPreferences.getInt("disturb_status", 0);
                     if (disturb == 0) {     // 免打扰模式没有打开，播放声音
                         playAlertRingtone(d);
+                        d.setReportAlert(true);
                     }
                     startAnimation(i);
                 }
@@ -472,7 +522,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         @Override
-        public void onWrite(final String address, byte[] val) throws RemoteException {
+        public boolean onWrite(final String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onWrite called");
             byte v = val[0];
             if (mTimeoutCheck == null) {
@@ -500,13 +550,15 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                             startAlert(address);
                         }
                     });
-                    return;
+                    return true;
                 }
                 if (v == 1) {
                     mKeydownFlag = true;
                     mHandler.postDelayed(mTimeoutCheck, 500);
                 }
             }
+
+            return true;
         }
 
         @Override
@@ -534,7 +586,24 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     }
                 }
             }
+
             checkAntiLost();
+        }
+
+        @Override
+        public void onAlertServiceDiscovery(String btaddr, boolean support) throws RemoteException {
+            for (int i = 0; i < mListData.size(); i++) {
+                BtDevice d = mListData.get(i);
+                if (d.getAddress().equals(btaddr)) {
+                    d.setAlertService(support);
+                   mHandler.post(new Runnable() {
+                       @Override
+                       public void run() {
+                            mDeviceListAdapter.notifyDataSetChanged();
+                       }
+                   });
+                }
+            }
         }
     };
 
@@ -587,15 +656,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     default:
                         break;
                 }
-
-                Log.d("hjq", "oldstatus = " + oldstatus + " lostalsert =" + d.isLostAlert());
+                Log.d("hjq", "oldstatus = " + oldstatus + " lostalert =" + d.isLostAlert());
                 // 丢失状态变化了，记录这个变化
                 if (oldstatus ^ d.isLostAlert()) {
-                    recordLostHistory(d, -1);
+                    recordLostHistory(d);
                 }
                 ret = true;
             }
-
         }
 
         if (ret) {
@@ -635,7 +702,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         showShortToast(getString(R.string.str_position_success));
     }
 
-    private void recordLostHistory(BtDevice d, int status) {
+    private void recordLostHistory(BtDevice d) {
         if (MyApplication.getInstance().islocation == 0) {
             mHandler.post(new Runnable() {
                 @Override
@@ -650,13 +717,12 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         String longitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LON, "22");
         String latitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LAT, "105");
         long datetime = new Date().getTime();
+        int status;
 
-        if (status == -1) {
-            if (d.isLostAlert()) {
-                status = LocationRecord.LOST;
-            } else {
-                status = LocationRecord.FOUND;
-            }
+        if (d.isLostAlert()) {
+            status = LocationRecord.LOST;
+        } else {
+            status = LocationRecord.FOUND;
         }
 
         LocationRecord r = new LocationRecord(-1, d.getAddress(), longitude + "," + latitude, address, datetime, status);
@@ -803,14 +869,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     public void onListItemClick(View v, int position) {
        // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemClick   " + position);
-        boolean status = mAlertStatus.get(position);
-        if (status) {
-            stopAnimation(position);
-            if (mPlayer != null) {
-                mPlayer.release();
-                mPlayer = null;
-            }
+        if (position < 0) {
+            return;
         }
+
+        stopAnimation(position);
+        BtDevice d = mListData.get(position);
+        d.setReportAlert(false);
+        stopAlertRingtone(d);
     }
 
     @Override
@@ -842,10 +908,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 switch (buttonPosition) {
                     case 0: {
                         BtDevice d = mListData.get(itemPosition);
+                        try {
+                            mService.disconnect(d.getAddress());
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
                         mDeviceDao.deleteById(d.getAddress());
                         stopAnimation(itemPosition);
+                        stopAlertRingtone(d);
+
                         mDeviceListAdapter.updateDataSet(itemPosition - mDeviceList.getHeaderViewsCount());
-                        mAlertStatus.remove(itemPosition - mDeviceList.getHeaderViewsCount());
 
                         return Menu.ITEM_SCROLL_BACK;
                     }
