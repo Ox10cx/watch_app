@@ -62,6 +62,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private SlideAndDragListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
     private ArrayList<BtDevice> mListData;
+    private ArrayList<Boolean> mAlertStatus;
     private Handler mHandler;
     private BtDeviceDao mDeviceDao;
     private IService mService;
@@ -218,6 +219,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     void stopAnimation(final int position) {
         int wantedChild;
 
+        mAlertStatus.set(position, false);
+
         wantedChild = getActualPosition(position);
         View wantedView = mDeviceList.getChildAt(wantedChild);
         if (wantedView != null) {
@@ -237,6 +240,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             wantedView.setBackgroundColor(getResources().getColor(R.color.textbg_red));
             showItemViewAnimation(wantedView, position);
         }
+
+        mAlertStatus.set(position, true);
 
         Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         long [] pattern = {100, 400, 100, 400}; // 停止 开启 停止 开启
@@ -270,6 +275,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private void fillListData() {
       //  mListData = mDeviceDao.queryAll();
         mListData = new ArrayList<BtDevice>(10);
+        mAlertStatus = new ArrayList<Boolean>(10);
 
         mDeviceListAdapter = new DeviceListAdapter(
                 DeviceListActivity.this, mListData, this);
@@ -402,11 +408,15 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                     }
 
                     mListData.add(d);
+                    mAlertStatus.add(false);
                 }
                 mDeviceListAdapter.notifyDataSetChanged();
             }
         });
     }
+
+    private boolean mKeydownFlag;
+    private Runnable mTimeoutCheck;
 
     private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
@@ -448,9 +458,55 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             Log.d("hjq", "onRead called");
         }
 
+        void startAlert(String address) {
+            for (int i = 0; i < mListData.size(); i++) {
+                BtDevice d = mListData.get(i);
+                if (d.getAddress().equals(address)) {
+                    int disturb = mSharedPreferences.getInt("disturb_status", 0);
+                    if (disturb == 0) {     // 免打扰模式没有打开，播放声音
+                        playAlertRingtone(d);
+                    }
+                    startAnimation(i);
+                }
+            }
+        }
+
         @Override
-        public void onWrite(String address, byte[] val) throws RemoteException {
+        public void onWrite(final String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onWrite called");
+            byte v = val[0];
+            if (mTimeoutCheck == null) {
+                mTimeoutCheck = new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (mTimeoutCheck) {
+                            mKeydownFlag = false;
+                        }
+                        Log.e("hjq", "one key down detect!");
+                        recordLocHistory(address);
+                    }
+                };
+            }
+
+            synchronized (mTimeoutCheck) {
+                if (mKeydownFlag && v == 1) {
+                    mHandler.removeCallbacks(mTimeoutCheck);
+                    mKeydownFlag = false;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                        /* turn on alert */
+                            Log.e("hjq", "double key down detect!");
+                            startAlert(address);
+                        }
+                    });
+                    return;
+                }
+                if (v == 1) {
+                    mKeydownFlag = true;
+                    mHandler.postDelayed(mTimeoutCheck, 500);
+                }
+            }
         }
 
         @Override
@@ -535,7 +591,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 Log.d("hjq", "oldstatus = " + oldstatus + " lostalsert =" + d.isLostAlert());
                 // 丢失状态变化了，记录这个变化
                 if (oldstatus ^ d.isLostAlert()) {
-                    recordLostHistory(d);
+                    recordLostHistory(d, -1);
                 }
                 ret = true;
             }
@@ -560,7 +616,26 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         return ret;
     }
 
-    private void recordLostHistory(BtDevice d) {
+    private void recordLocHistory(String btaddr) {
+        if (MyApplication.getInstance().islocation == 0) {
+            showShortToast(getString(R.string.str_wait_for_position));
+            return;
+        }
+
+        String address = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LOCATION, "广东省深圳市");
+        String longitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LON, "22");
+        String latitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LAT, "105");
+        long datetime = new Date().getTime();
+        int status = LocationRecord.FOUND;
+
+        LocationRecord r = new LocationRecord(-1, btaddr, longitude + "," + latitude, address, datetime, status);
+        int id = mLocationDao.insert(r);
+        r.setId(id);
+
+        showShortToast(getString(R.string.str_position_success));
+    }
+
+    private void recordLostHistory(BtDevice d, int status) {
         if (MyApplication.getInstance().islocation == 0) {
             mHandler.post(new Runnable() {
                 @Override
@@ -575,11 +650,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         String longitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LON, "22");
         String latitude = PreferenceUtil.getInstance(DeviceListActivity.this).getString(PreferenceUtil.LAT, "105");
         long datetime = new Date().getTime();
-        int status;
-        if (d.isLostAlert()) {
-            status = LocationRecord.LOST;
-        } else {
-            status = LocationRecord.FOUND;
+
+        if (status == -1) {
+            if (d.isLostAlert()) {
+                status = LocationRecord.LOST;
+            } else {
+                status = LocationRecord.FOUND;
+            }
         }
 
         LocationRecord r = new LocationRecord(-1, d.getAddress(), longitude + "," + latitude, address, datetime, status);
@@ -726,6 +803,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     public void onListItemClick(View v, int position) {
        // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemClick   " + position);
+        boolean status = mAlertStatus.get(position);
+        if (status) {
+            stopAnimation(position);
+            if (mPlayer != null) {
+                mPlayer.release();
+                mPlayer = null;
+            }
+        }
     }
 
     @Override
@@ -760,6 +845,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         mDeviceDao.deleteById(d.getAddress());
                         stopAnimation(itemPosition);
                         mDeviceListAdapter.updateDataSet(itemPosition - mDeviceList.getHeaderViewsCount());
+                        mAlertStatus.remove(itemPosition - mDeviceList.getHeaderViewsCount());
 
                         return Menu.ITEM_SCROLL_BACK;
                     }

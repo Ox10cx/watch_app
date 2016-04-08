@@ -158,6 +158,24 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
     public void onListItemClick(View v, int position) {
         // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemClick   " + position);
+
+        LocationRecord r = mListData.get(position);
+        String longlat = r.getLong_lat();
+        String[] array = longlat.split(",");
+        float longitude = 0f;
+        float latitude = 0f;
+        if (array.length == 2) {
+            longitude = Float.parseFloat(array[0]);
+            latitude = Float.parseFloat(array[1]);
+
+            Intent intent = new Intent();
+            intent.putExtra("longitude", longitude);
+            intent.putExtra("latitude", latitude);
+
+            setResult(RESULT_OK, intent);
+        }
+
+        finish();
     }
 
     @Override

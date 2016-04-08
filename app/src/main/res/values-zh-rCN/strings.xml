@@ -338,4 +338,8 @@
     <string name="str_on">打开</string>
     <string name="str_network_error">网络错误</string>
     <string name="str_network_prompt">请检查是否可以正常连接网络</string>
+    <string name="str_wait_for_position">等待定位!</string>
+    <string name="str_position_success">定位记录成功</string>
+
+    <string name="location">经纬度:</string>
 </resources>

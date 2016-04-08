@@ -50,7 +50,7 @@ public class SettingActivity  extends BaseActivity {
                     final String updatemsg = json.getString(JsonUtil.MSG);
 
                     DialogUtil.showDialog(SettingActivity.this, "发现新版本！",
-                            json.getString(JsonUtil.MSG) + ", 是否要更新？",
+                            json.getString(JsonUtil.MSG) + "是否要更新？",
                             getString(R.string.system_sure),
                             getString(R.string.system_cancel),
                             new DialogInterface.OnClickListener() {

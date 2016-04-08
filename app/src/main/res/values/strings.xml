@@ -344,4 +344,6 @@
     <string name="str_on">On</string>
     <string name="str_network_error">Network Error</string>
     <string name="str_network_prompt">Please check wether the network connection is OK or not.</string>
+    <string name="str_wait_for_position">waiting for positioning!</string>
+    <string name="str_position_success">position success!</string>
 </resources>
