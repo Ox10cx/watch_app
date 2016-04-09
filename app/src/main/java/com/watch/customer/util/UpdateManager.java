@@ -206,7 +206,6 @@ public class UpdateManager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	};
 

@@ -110,20 +110,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
                     break;
 
                 case editimage_what:
-                    BtDevice d;
-                    d = mDeviceDao.queryById(mDevice.getId());
-
-                    if (d != null) {
-                        d.setThumbnail(result);
-                        mDeviceDao.deleteById(d.getId());
-                        Log.d("hjq", "d = " + d);
-                        mDeviceDao.insert(d);
-                    } else {
-                        mDevice.setThumbnail(result);
-                        Log.d("hjq", "mDevice = " + mDevice);
-                        mDeviceDao.insert(mDevice);
-                    }
-
+                    mDevice.setThumbnail(result);
                     String path =  CommonUtil.getImageFilePath(result);
                     if (path != null) {
                         ImageLoaderUtil.displayImage("file://" + path, ivIcon, BtDeviceSettingActivity.this);
@@ -253,10 +240,6 @@ public class BtDeviceSettingActivity extends BaseActivity {
                         e.printStackTrace();
                     }
                 }
-
-
-//                Toast.makeText(getApplicationContext(), (String) item.get("text"),
-//                        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -290,45 +273,32 @@ public class BtDeviceSettingActivity extends BaseActivity {
     }
 
     void goBack() {
-        BtDevice d;
         int val;
 
+        mDevice.setName(mEdit.getText().toString());
+        Log.d("hjq", "mDevice = " + mDevice);
         Log.d("hjq", "mOld = " + mOld);
-        d = mDeviceDao.queryById(mDevice.getId());
-        if (d != null) {
-            d.setName(mEdit.getText().toString());
-            mDeviceDao.deleteById(d.getId());
-            d.setStatus(mDevice.getStatus());
-            d.setAlertService(mOld.isAlertService());
-            d.setReportAlert(mOld.isReportAlert());
-            Log.d("hjq", "d = " + d);
-            mDeviceDao.insert(d);
-            if (d.equals(mOld)) {
-                val = 0;
-            } else {
-                val = 1;
-            }
+
+        if (mDevice.equals(mOld)) {
+            val = 0;
         } else {
-            mDevice.setName(mEdit.getText().toString());
-            Log.d("hjq", "mDevice = " + mDevice);
-            mDeviceDao.insert(mDevice);
-
-            if (mDevice.equals(mOld)) {
-                val = 0;
-            } else {
-                val = 1;
-            }
-
-            d = mDevice;
+            val = 1;
         }
 
         Log.d("hjq", "val = " + val);
 
         Intent intent = new Intent();
         Bundle b = new Bundle();
-        b.putSerializable("device", d);
+        b.putSerializable("device", mDevice);
         b.putInt("ret", val);
         intent.putExtras(b);
+
+        ContentValues values = new ContentValues();
+        values.put("name", mDevice.getName());
+        values.put("thumbnail", mDevice.getThumbnail());
+
+        int index = mDeviceDao.update(mDevice, values);
+        Log.d("hjq", "index = " + index + " d = " + mDevice);
 
         setResult(RESULT_OK, intent);
         finish();

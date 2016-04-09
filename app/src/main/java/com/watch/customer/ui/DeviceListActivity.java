@@ -13,10 +13,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.Vibrator;
@@ -75,6 +77,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     private final String TAG = "hjq";
     private Menu mMenu;
+    private Handler myHandler;
+    HandlerThread mHandlerThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +120,10 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
         showLoadingDialog(getResources().getString(R.string.waiting));
+
+        mHandlerThread = new HandlerThread("torchThread");
+        mHandlerThread.start();
+        myHandler = new Handler(mHandlerThread.getLooper());
     }
 
     public void initMenu() {
@@ -186,9 +194,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         }
                         startAnimation(i);
                         restart = true;
+                        if (d.isLostAlert()) {
+                            flashTorch();
+                        }
                     } else {
                         stopAnimation(i);
                         stopAlertRingtone(d);
+                        ensureStopTorch();
                     }
                 }
 
@@ -289,7 +301,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         mPlayer.remove(d.getAddress());
     }
 
-
     private void playAlertRingtone(final BtDevice d) {
         MediaPlayer player = mPlayer.get(d.getAddress());
         if (player != null) {
@@ -298,9 +309,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getAlertVolume(), 0);
 
-        player = MediaPlayer.create(this, d.getAlertRingtone());
+        // 优先防丢报警
+        if (d.isLostAlert() && d.isAntiLostSwitch()) {
+            player = MediaPlayer.create(this, d.getAlertRingtone());
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getAlertVolume(), 0);
+        } else /* if ( d.isReportAlert()) */{
+            player = MediaPlayer.create(this, d.getFindAlertRingtone());
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getFindAlertVolume(), 0);
+        }
+
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -322,7 +340,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     }
 
     private void fillListData() {
-      //  mListData = mDeviceDao.queryAll();
         mListData = new ArrayList<BtDevice>(10);
 
         mDeviceListAdapter = new DeviceListAdapter(
@@ -340,6 +357,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         if (mConnection != null) {
             getApplicationContext().unbindService(mConnection);
         }
+
+        mHandlerThread.quit();
+
         super.onDestroy();
     }
 
@@ -353,7 +373,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         final BluetoothAdapter mBluetoothAdapter = mBluetoothManager.getAdapter();
 
         if (enable) {
-            // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -383,6 +402,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onPause() {
         super.onPause();
+
+        ensureStopTorch();
     }
 
     @Override
@@ -430,33 +451,27 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                boolean deviceFound = false;
                 int i;
                 BtDevice d;
 
                 for (i = 0; i < mListData.size(); i++) {
-                    if (mListData.get(i).getAddress().equals(address)) {
-                        deviceFound = true;
-                        break;
-                    }
-                }
-                if (deviceFound) {
                     d = mListData.get(i);
-                    d.setRssi(rssi);
-                } else {
-                    d = mDeviceDao.queryById(address);
-                    if (d == null) {
-                        d = new BtDevice();
-                        d.setAddress(address);
-                        d.setName(name);
+                    if (d.getAddress().equals(address)) {
                         d.setRssi(rssi);
-                        mDeviceDao.insert(d);
-                    } else {
-                        d.setRssi(rssi);
+                        return;
                     }
-
-                    mListData.add(d);
                 }
+
+                BtDevice device;
+
+                device = mDeviceDao.queryById(address);
+                if (device == null) {
+                    return;
+                }
+
+                device.setRssi(rssi);
+                mListData.add(device);
+
                 mDeviceListAdapter.notifyDataSetChanged();
             }
         });
@@ -465,18 +480,29 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private boolean mKeydownFlag;
     private Runnable mTimeoutCheck;
 
+    void registerDatabase(BtDevice device) {
+        BtDevice d;
+        d = mDeviceDao.queryById(device.getAddress());
+        if (d == null) {
+            mDeviceDao.insert(device);
+        }
+    }
+
     private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
         public void onConnect(String address) throws RemoteException {
+            final BtDevice d;
             synchronized (mListData) {
                 int position = mDeviceListAdapter.getmId();
                 Log.d("hjq", "onConnect called position = " + position);
-                mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+                d = mListData.get(position);
+                d.setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
             }
 
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    registerDatabase(d);
                     mDeviceListAdapter.notifyDataSetChanged();
                 }
             });
@@ -517,6 +543,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         d.setReportAlert(true);
                     }
                     startAnimation(i);
+                    if (d.isFindAlertSwitch()) {
+                        flashTorch();
+                    }
                 }
             }
         }
@@ -548,13 +577,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         /* turn on alert */
                             Log.e("hjq", "double key down detect!");
                             startAlert(address);
+
                         }
                     });
                     return true;
                 }
                 if (v == 1) {
                     mKeydownFlag = true;
-                    mHandler.postDelayed(mTimeoutCheck, 500);
+                    mHandler.postDelayed(mTimeoutCheck, 1000);
                 }
             }
 
@@ -877,6 +907,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         BtDevice d = mListData.get(position);
         d.setReportAlert(false);
         stopAlertRingtone(d);
+
+        ensureStopTorch();
     }
 
     @Override
@@ -916,6 +948,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                         mDeviceDao.deleteById(d.getAddress());
                         stopAnimation(itemPosition);
                         stopAlertRingtone(d);
+                        ensureStopTorch();
 
                         mDeviceListAdapter.updateDataSet(itemPosition - mDeviceList.getHeaderViewsCount());
 
@@ -935,4 +968,93 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     public void onItemDelete(View view, int position) {
 
     }
+
+    Boolean mOn = new Boolean("false");
+    Object mSync = new Object();
+    boolean mStop = false;
+    Camera mCamera;
+
+    Runnable flashRun = new Runnable() {
+        @Override
+        public void run() {
+            if (mStop && mOn) {
+                turnOffTorch();
+                return;
+            }
+
+            if (!mOn) {
+                if (!turnOnTorch()) {
+                    return;
+                }
+            } else {
+                turnOffTorch();
+            }
+
+            myHandler.postDelayed(this, 1000);
+        }
+    };
+
+    void ensureStopTorch(){
+        mStop = true;
+        if (mOn) {
+            myHandler.removeCallbacks(flashRun);
+            myHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    turnOffTorch();
+                }
+            });
+
+            synchronized (mSync) {
+                try {
+                    Log.e("hjq", "wait 1");
+                    mSync.wait();
+                    Log.e("hjq", "wait 2");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    void flashTorch() {
+        mStop = false;
+        myHandler.postDelayed(flashRun, 1000);
+    }
+
+    boolean turnOnTorch() {
+        Log.e("hjq", "turn on");
+        try {
+            mCamera = Camera.open(0);
+            Camera.Parameters p = mCamera.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+
+            mCamera.setParameters(p);
+            mCamera.startPreview();
+            mOn = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("hjq", "open camera error!");
+            return false;
+        }
+
+        return true;
+    }
+
+    void turnOffTorch() {
+        Log.e("hjq", "turn off");
+        Camera.Parameters p = mCamera.getParameters();
+        p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        mCamera.setParameters(p);
+        mCamera.stopPreview();
+        mCamera.release();
+        mCamera = null;
+        mOn = false;
+        Log.e("hjq", "notify 1");
+        synchronized (mSync) {
+            mSync.notify();
+        }
+        Log.e("hjq", "notify 2");
+    }
+
 }

@@ -296,10 +296,7 @@
     <!-- device list -->
     <string name="devicelist">设备列表</string>
     <string name="name1">测试设备1</string>
-    <string name="waiting">Please waiting...</string>
-
-    <item type="id" name="tag_first"></item>
-    <item type="id" name="tag_second"></item>
+    <string name="waiting">Please waiting…</string>
 
     <string name="location">Position:</string>
     <string name="network_error">network error</string>
@@ -324,7 +321,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName">1.15</string>
+    <string name="app_versionName">1.16</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>

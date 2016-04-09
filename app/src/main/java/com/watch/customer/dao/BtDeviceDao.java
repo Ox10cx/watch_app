@@ -66,6 +66,15 @@ public class BtDeviceDao {
         return id;
     }
 
+    public int update(BtDevice device, ContentValues cv) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        int index = (int) db.update(TABLE_NAME, cv, "id = ?", new String[]{device.getId()});
+        db.close();
+
+        return index;
+    }
+
     public int update(BtDevice device) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();

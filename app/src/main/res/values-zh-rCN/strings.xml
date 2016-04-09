@@ -327,7 +327,7 @@
     <string name="str_find_me">查找设置</string>
     <string name="str_disconnect">断开连接</string>
     <string name="str_device_alert">防丢器报警</string>
-    <string name="str_light">防丢器灯设置</string>
+    <string name="str_light">手机闪光灯</string>
     <string name="str_phone_alert">手机报警设置</string>
     <string name="str_ringtone">铃声选择</string>
     <string name="str_camera_setting">照相机设置</string>

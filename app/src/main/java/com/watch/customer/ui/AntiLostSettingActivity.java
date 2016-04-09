@@ -1,10 +1,12 @@
 package com.watch.customer.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -158,24 +160,47 @@ public class AntiLostSettingActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
 
-        // update the bt device.
-        mDao.deleteById(mDevice.getId());
-        Log.d("hjq", "d = " + mDevice);
-        mDao.insert(mDevice);
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            Log.e("hjq", "onBackPressed");
+
+            goBack();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void goBack() {
+        Intent intent = new Intent();
+        Bundle b = new Bundle();
+        b.putSerializable("device", mDevice);
+        intent.putExtras(b);
+
+        ContentValues cv = new ContentValues();
+        cv.put("alertRingtone", mDevice.getAlertRingtone());
+        cv.put("anitiLostSwitch", mDevice.isAntiLostSwitch() ? 1 : 0);
+        cv.put("lostAlertSwitch", mDevice.isLostAlertSwitch() ? 1 : 0);
+        cv.put("alertVolume", mDevice.getAlertVolume());
+
+        int index = mDao.update(mDevice, cv);
+        Log.d("hjq", "index = " + index + " d = " + mDevice);
+
+        //设置返回数据
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override
       public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back: {
-                Intent intent = new Intent();
-                Bundle b = new Bundle();
-                b.putSerializable("device", mDevice);
-                intent.putExtras(b);
-                //设置返回数据
-                setResult(RESULT_OK, intent);
-                finish();
+                goBack();
                 break;
             }
 
@@ -210,10 +235,6 @@ public class AntiLostSettingActivity extends BaseActivity {
 
                     //Toast.makeText(this, "audio id = " + id, Toast.LENGTH_SHORT).show();
                     mDevice.setAlertRingtone(id);
-
-                    mDao.deleteById(mDevice.getId());
-                    Log.d("hjq", "d = " + mDevice);
-                    mDao.insert(mDevice);
 
                     break;
                 }

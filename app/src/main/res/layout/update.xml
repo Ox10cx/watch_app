@@ -14,7 +14,10 @@
          android:layout_margin="20dp">
     <TextView android:id="@+id/update_msg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:textColor="@color/text_white"
+        />
     </ScrollView>
     <ProgressBar
         android:id="@+id/progress"

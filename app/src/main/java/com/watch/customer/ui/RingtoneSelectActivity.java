@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -108,21 +109,32 @@ public class RingtoneSelectActivity extends BaseActivity {
     }
 
     @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            Log.e("hjq", "onBackPressed");
+
+            goBack();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void goBack() {
+        Intent intent = new Intent();
+        Map<String, Object> map = (Map<String, Object>) mListView.getAdapter().getItem(lastPos);
+        intent.putExtra("audio_id", (int) map.get("audio_id"));
+        RingtoneSelectActivity.this.setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back: {
-                //数据是使用Intent返回
-                Intent intent = new Intent();
-                //把返回数据存入Intent
-
-                Map<String, Object> map = (Map<String, Object>) mListView.getAdapter().getItem(lastPos);
-                intent.putExtra("audio_id", (int) map.get("audio_id"));
-
-                //设置返回数据
-                RingtoneSelectActivity.this.setResult(RESULT_OK, intent);
-                //关闭Activity
-                RingtoneSelectActivity.this.finish();
-
+                goBack();
                 break;
             }
 

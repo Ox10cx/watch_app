@@ -1,10 +1,12 @@
 package com.watch.customer.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -64,7 +66,7 @@ public class FindmeSettingActivity extends BaseActivity {
         Log.d("hjq", "max volume = " + maxVolume);
         mVolumeBar = (SeekBar) findViewById(R.id.seekBarVolume);
         mVolumeBar.setMax(maxVolume);
-        mVolumeBar.setProgress(mDevice.getAlertVolume());
+        mVolumeBar.setProgress(mDevice.getFindAlertVolume());
         mVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -92,17 +94,45 @@ public class FindmeSettingActivity extends BaseActivity {
         mDao = new BtDeviceDao(this);
     }
 
+    void goBack() {
+        Intent intent = new Intent();
+        Bundle b = new Bundle();
+        b.putSerializable("device", mDevice);
+        intent.putExtras(b);
+
+        ContentValues cv = new ContentValues();
+
+        cv.put("findAlertRingtone", mDevice.getFindAlertRingtone());
+        cv.put("findAlertVolume", mDevice.getFindAlertVolume());
+        cv.put("alertFindSwitch", mDevice.isFindAlertSwitch() ? 1 : 0);
+
+        int index = mDao.update(mDevice, cv);
+        Log.d("hjq", "index = " + index + " d = " + mDevice);
+
+        //设置返回数据
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            Log.e("hjq", "onBackPressed");
+
+            goBack();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back: {
-                Intent intent = new Intent();
-                Bundle b = new Bundle();
-                b.putSerializable("device", mDevice);
-                intent.putExtras(b);
-                //设置返回数据
-                setResult(RESULT_OK, intent);
-                finish();
+                goBack();
                 break;
             }
 
@@ -134,14 +164,8 @@ public class FindmeSettingActivity extends BaseActivity {
                 case SELECT_RINGTONE: {
                     Bundle bundle = data.getExtras();
                     int id = bundle.getInt("audio_id");
-
                     //Toast.makeText(this, "audio id = " + id, Toast.LENGTH_SHORT).show();
                     mDevice.setFindAlertRingtone(id);
-
-                    mDao.deleteById(mDevice.getId());
-                    Log.d("hjq", "d = " + mDevice);
-                    mDao.insert(mDevice);
-
                     break;
                 }
 
