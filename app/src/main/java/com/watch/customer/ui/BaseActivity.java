@@ -1,6 +1,7 @@
 package com.watch.customer.ui;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.model.Shop;
 import com.watch.customer.util.DialogUtil;
+
+import java.util.List;
 
 public class BaseActivity extends Activity implements OnClickListener {
 	private Dialog dialog;
@@ -91,5 +94,16 @@ public class BaseActivity extends Activity implements OnClickListener {
 		Intent intent=new Intent(packageContext,cls);
 		intent.putExtra("object", shop);
 		startActivity(intent);
+	}
+
+	String getTopActivity()
+	{
+		ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE) ;
+		List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1) ;
+		if (runningTaskInfos != null) {
+			return (runningTaskInfos.get(0).topActivity).toString();
+		} else {
+			return null;
+		}
 	}
 }

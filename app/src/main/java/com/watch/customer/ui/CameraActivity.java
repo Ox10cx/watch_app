@@ -82,6 +82,8 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     boolean mCapturing = false;
     final Object mSync = new Object();
 
+    boolean mStopped = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,8 +168,6 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     @Override
     protected void onStop() {
         Log.d(TAG, "cameraactivity onstop");
-
-
 
         super.onStop();
     }
@@ -267,8 +267,13 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     void takePhoto() {
         mCount = mSharedPreferences.getInt("continous", 0);
         mInterval = mSharedPreferences.getInt("interval", 0);   // mInterval 单位为0.1s
+        mStopped = false;
 
         synchronized (mSync) {
+            if (mCapturing) {
+                Log.e("hjq", "camera is busying");
+                return;
+            }
             mCapturing = true;
         }
 
@@ -284,6 +289,12 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     @Override
     public void onFinish() {
         if (mCount != 0) {
+            if (mStopped) {
+                mCapturing = false;
+                mCount = 0;
+                return;
+            }
+
             myHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -308,6 +319,13 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
             synchronized (mSync) {
                 if (mCapturing) {
                     Toast.makeText(CameraActivity.this, R.string.str_camera_busy, Toast.LENGTH_SHORT).show();
+                    int id = v.getId();
+
+                   if (id ==  R.id.btn_shutter ||  id == R.id.btn_album || id == R.id.btn_camera_switch ||
+                           id == R.id.btn_setting || id == R.id.ib_flash || id == R.id.ib_flash_off ||
+                           id == R.id.ib_flash_auto || id == R.id.ib_flash_on) {
+                       mStopped = true;
+                   }
                     return;
                 }
             }
@@ -536,7 +554,14 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
 
         @Override
         public boolean onWrite(String address, byte[] val) throws RemoteException {
-            Log.e("hjq", "onWrite called in camera");
+
+            String active = getTopActivity();
+            Log.e("hjq", "onWrite called in camera act = " + active);
+
+            if (active != null && !active.contains("CameraActivity")){
+                return false;
+            }
+
             int key = val[0];
             if (key == 1) {
                 mHandler.post(new Runnable() {

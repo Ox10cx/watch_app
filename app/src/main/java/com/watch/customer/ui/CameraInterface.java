@@ -60,10 +60,11 @@ public class CameraInterface {
         Log.e(TAG, "Camera open index  ");
         try {
             mCamera = Camera.open(cameraPosition);
+            callback.cameraHasOpened();
+            Log.e(TAG, "Camera open over....");
         } catch (Exception e) {
+            e.printStackTrace();
         }
-        Log.e(TAG, "Camera open over....");
-        callback.cameraHasOpened();
     }
 
     public void switchCamera() {

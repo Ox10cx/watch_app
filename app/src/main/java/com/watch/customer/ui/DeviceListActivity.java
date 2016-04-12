@@ -466,7 +466,9 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
                 device = mDeviceDao.queryById(address);
                 if (device == null) {
-                    return;
+                    device = new BtDevice();
+                    device.setName(name);
+                    device.setAddress(address);
                 }
 
                 device.setRssi(rssi);
@@ -553,6 +555,12 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         @Override
         public boolean onWrite(final String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onWrite called");
+
+            String active = getTopActivity();
+            if (active != null && active.contains("CameraActivity")){
+                return false;
+            }
+
             byte v = val[0];
             if (mTimeoutCheck == null) {
                 mTimeoutCheck = new Runnable() {
@@ -996,8 +1004,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     void ensureStopTorch(){
         mStop = true;
+        myHandler.removeCallbacks(flashRun);
         if (mOn) {
-            myHandler.removeCallbacks(flashRun);
             myHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1026,18 +1034,26 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         Log.e("hjq", "turn on");
         try {
             mCamera = Camera.open(0);
-            Camera.Parameters p = mCamera.getParameters();
-            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-
-            mCamera.setParameters(p);
-            mCamera.startPreview();
-            mOn = true;
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("hjq", "open camera error!");
             return false;
         }
 
+        try {
+            Camera.Parameters p = mCamera.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+
+            mCamera.setParameters(p);
+            mCamera.startPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mCamera.release();
+            mCamera = null;
+            return false;
+        }
+
+        mOn = true;
         return true;
     }
 
