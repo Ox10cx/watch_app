@@ -342,4 +342,5 @@
     <string name="str_position_success">定位记录成功</string>
 
     <string name="location">经纬度:</string>
+    <string name="str_login_yesorno">是否登录?</string>
 </resources>

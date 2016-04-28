@@ -977,8 +977,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     }
 
-    Boolean mOn = new Boolean("false");
-    Object mSync = new Object();
+    boolean mOn = false;
+    final Object mSync = new Object();
     boolean mStop = false;
     Camera mCamera;
 
@@ -989,7 +989,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 turnOffTorch();
                 return;
             }
-
             if (!mOn) {
                 if (!turnOnTorch()) {
                     return;
@@ -997,7 +996,6 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             } else {
                 turnOffTorch();
             }
-
             myHandler.postDelayed(this, 1000);
         }
     };
@@ -1005,22 +1003,14 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     void ensureStopTorch(){
         mStop = true;
         myHandler.removeCallbacks(flashRun);
-        if (mOn) {
-            myHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    turnOffTorch();
-                }
-            });
-
-            synchronized (mSync) {
-                try {
-                    Log.e("hjq", "wait 1");
-                    mSync.wait();
-                    Log.e("hjq", "wait 2");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        synchronized (mSync) {
+            if (mOn) {
+                myHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        turnOffTorch();
+                    }
+                });
             }
         }
     }
@@ -1032,45 +1022,58 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     boolean turnOnTorch() {
         Log.e("hjq", "turn on");
-        try {
-            mCamera = Camera.open(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("hjq", "open camera error!");
-            return false;
+        synchronized (mSync) {
+            if (mOn) {
+                return true;
+            }
+
+            try {
+                mCamera = Camera.open(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("hjq", "open camera error!");
+                return false;
+            }
+
+            try {
+                Camera.Parameters p = mCamera.getParameters();
+                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                mCamera.setParameters(p);
+                mCamera.startPreview();
+            } catch (Exception e) {
+                e.printStackTrace();
+                mCamera.release();
+                mCamera = null;
+                return false;
+            }
+
+            mOn = true;
         }
 
-        try {
-            Camera.Parameters p = mCamera.getParameters();
-            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-
-            mCamera.setParameters(p);
-            mCamera.startPreview();
-        } catch (Exception e) {
-            e.printStackTrace();
-            mCamera.release();
-            mCamera = null;
-            return false;
-        }
-
-        mOn = true;
         return true;
     }
 
-    void turnOffTorch() {
+    boolean turnOffTorch() {
         Log.e("hjq", "turn off");
-        Camera.Parameters p = mCamera.getParameters();
-        p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-        mCamera.setParameters(p);
-        mCamera.stopPreview();
-        mCamera.release();
-        mCamera = null;
-        mOn = false;
-        Log.e("hjq", "notify 1");
         synchronized (mSync) {
-            mSync.notify();
+            if (!mOn) {
+                return false;
+            }
+
+            if (mCamera == null) {
+                return false;
+            }
+
+            Camera.Parameters p = mCamera.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            mCamera.setParameters(p);
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
+            mOn = false;
+
+            return true;
         }
-        Log.e("hjq", "notify 2");
     }
 
 }

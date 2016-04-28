@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.uacent.watchapp.R;
+import com.watch.customer.app.MyApplication;
 import com.watch.customer.passlock.AbstractAppLock;
 import com.watch.customer.passlock.AppLockManager;
 import com.watch.customer.util.CommonUtil;
@@ -170,6 +171,23 @@ public class SettingActivity  extends BaseActivity {
             }
 
             case R.id.ll_userinfo: {
+                if ("".equals(MyApplication.getInstance().mToken)) {
+                    DialogUtil.showNoTitleDialog(SettingActivity.this,
+                            R.string.str_login_yesorno, R.string.system_sure, R.string.system_cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    startActivity(new Intent(SettingActivity.this, AuthLoginActivity.class));
+                                }
+                            }, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                }
+                            }, true);
+                    return;
+                }
                 Intent intent = new Intent(SettingActivity.this, PersonInfoActivity.class);
                 startActivity(intent);
                 break;

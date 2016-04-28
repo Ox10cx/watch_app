@@ -343,4 +343,5 @@
     <string name="str_network_prompt">Please check wether the network connection is OK or not.</string>
     <string name="str_wait_for_position">waiting for positioning!</string>
     <string name="str_position_success">position success!</string>
+    <string name="str_login_yesorno">Want to login?</string>
 </resources>

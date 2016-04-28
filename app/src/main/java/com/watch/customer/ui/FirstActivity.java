@@ -57,6 +57,7 @@ public class FirstActivity extends BaseActivity {
                                     @Override
                                     public void onClick(DialogInterface arg0, int arg1) {
                                        finish();
+                                        startActivity(new Intent(FirstActivity.this, MainActivity.class));
                                     }
                                 }, null, true);
 					}
