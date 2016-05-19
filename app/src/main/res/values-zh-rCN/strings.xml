@@ -343,4 +343,12 @@
 
     <string name="location">经纬度:</string>
     <string name="str_login_yesorno">是否登录?</string>
+    <string name="str_map_select">地图选择</string>
+    <string name="str_disturb_show">警告：如果打开该选项，将不会收到声音丢失报警。</string>
+    <string name="str_bd_map">百度地图</string>
+    <string name="str_google_map">谷歌地图</string>
+
+    <string name="permission_rationale_location">将你的位置显示在地图上，需要授权访问我的位置.</string>
+    <string name="location_permission_denied">需要授权访问我的位置</string>
+    <string name="permission_required_toast">本程序需要访问位置权限</string>
 </resources>

@@ -10,7 +10,7 @@
 
     <!-- baidu_map base permission -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <!--<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- 可选 -->
@@ -203,11 +203,17 @@
         <activity android:name="com.watch.customer.passlock.InputPasswordActivity" android:screenOrientation="portrait"></activity>
         <activity android:name="com.watch.customer.ui.MapSelectActivity"> </activity>
         <activity android:name="com.watch.customer.ui.LocationRecordList" android:screenOrientation="portrait"> </activity>
+        <activity android:name="com.watch.customer.ui.MyGoogleMapActivity" android:screenOrientation="portrait"> </activity>
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="KF1Sp0yWSXX5mjt01kXOGDCb" >
         </meta-data>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDQkHPE0ZM3fXVZqHRLpofT3xckmV4N2uU" />
+
 
         <service
             android:name="com.baidu.location.f"

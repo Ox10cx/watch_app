@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Image;
 import android.os.Bundle;
@@ -56,6 +57,11 @@ public class MapSelectActivity extends BaseActivity {
                 mEditor.putString("map", "baidu");
                 mEditor.apply();
 
+                Intent i = new Intent();
+                i.setAction(MainActivity.MAP_SWITCH_ACTION);
+                i.putExtra("map", "baidu");
+                sendBroadcast(i);
+
                 break;
             }
 
@@ -67,6 +73,10 @@ public class MapSelectActivity extends BaseActivity {
                 mEditor.putString("map", "google");
                 mEditor.apply();
 
+                Intent i = new Intent();
+                i.setAction(MainActivity.MAP_SWITCH_ACTION);
+                i.putExtra("map", "google");
+                sendBroadcast(i);
                 break;
             }
 

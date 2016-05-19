@@ -134,14 +134,14 @@
         android:background="@drawable/shape"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginLeft="10dp"
         android:layout_margin="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Map Switch"
+            android:text="@string/str_map_select"
             android:id="@+id/textmap"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"

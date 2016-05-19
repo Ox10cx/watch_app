@@ -321,7 +321,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName">1.17</string>
+    <string name="app_versionName" translatable="false">1.17</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>
@@ -344,4 +344,12 @@
     <string name="str_wait_for_position">waiting for positioning!</string>
     <string name="str_position_success">position success!</string>
     <string name="str_login_yesorno">Want to login?</string>
+
+    <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
+    <string name="location_permission_denied">This app requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings..</string>
+    <string name="permission_required_toast">Location permission is required for this app.</string>
+    <string name="str_map_select">Map Select</string>
+    <string name="str_disturb_show">Waring: you will not be notified by voice if you turn on this option.</string>
+    <string name="str_bd_map">Baidu Map</string>
+    <string name="str_google_map">Google Map</string>
 </resources>

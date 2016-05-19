@@ -50,14 +50,14 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/title2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:text="vvvvip" />
 
             <TextView
-                android:id="@+id/detail"
+                android:id="@+id/detail2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
@@ -70,7 +70,7 @@
                 android:background="#dddddd" />
 
             <TextView
-                android:id="@+id/description"
+                android:id="@+id/description3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
@@ -89,7 +89,7 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/title3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
@@ -109,7 +109,7 @@
                 android:background="#dddddd" />
 
             <TextView
-                android:id="@+id/description"
+                android:id="@+id/description2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
@@ -128,14 +128,14 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/title4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:text="vvip" />
 
             <TextView
-                android:id="@+id/detail"
+                android:id="@+id/detail3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"

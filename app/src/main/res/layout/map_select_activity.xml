@@ -32,7 +32,7 @@
             android:id="@+id/device_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Map Select"
+            android:text="@string/str_map_select"
             android:textColor="@color/text_white"
             android:textSize="18sp"
             android:layout_weight="1"
@@ -52,7 +52,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Baidu Map"
+            android:text="@string/str_bd_map"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:layout_gravity="center_horizontal"
@@ -81,7 +81,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Google Map"
+            android:text="@string/str_google_map"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:layout_gravity="center_horizontal"

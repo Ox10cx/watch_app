@@ -15,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.uacent.watchapp.BuildConfig;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.passlock.AbstractAppLock;
@@ -100,6 +101,10 @@ public class SettingActivity  extends BaseActivity {
         LinearLayout ll_userinfo = (LinearLayout)findViewById(R.id.ll_userinfo);
         ll_userinfo.setOnClickListener(this);
 
+        if (BuildConfig.oversea.equals("1")) {
+            ll_userinfo.setVisibility(View.GONE);
+        }
+
         TextView txtStatus = (TextView) findViewById(R.id.textstatus);
 
         AbstractAppLock appLock = AppLockManager.getInstance().getCurrentAppLock();
@@ -143,16 +148,34 @@ public class SettingActivity  extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.switchNotDisturb: {
-                int disturb = mSharedPreferences.getInt("disturb_status", 0);
-                if (disturb == 0) {
-                    disturb = 1;
-                } else {
-                    disturb = 0;
-                }
+                SwitchButton sw = (SwitchButton)v;
+                boolean checked = sw.isChecked();
+                Log.e("hjq", "checked = " + checked);
+                if (checked) {
+                    DialogUtil.showNoTitleDialog(SettingActivity.this,
+                            R.string.str_disturb_show, R.string.system_sure, R.string.system_cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+                                    mEditor.putInt("disturb_status", 1);
+                                    mEditor.apply();
 
-                SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-                mEditor.putInt("disturb_status", disturb);
-                mEditor.apply();
+                                }
+                            }, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    SwitchButton sw = (SwitchButton) findViewById(R.id.switchNotDisturb);
+                                    sw.setChecked(false);
+                                }
+                            }, true);
+                } else {
+                    SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+                    mEditor.putInt("disturb_status", 0);
+                    mEditor.apply();
+                }
 
                 break;
             }

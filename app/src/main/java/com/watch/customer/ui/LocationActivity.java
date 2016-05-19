@@ -30,9 +30,6 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.model.LatLngBounds;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MyLocationOverlay;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.model.LocationRecord;
@@ -43,7 +40,7 @@ import java.util.ArrayList;
  * Created by Administrator on 16-3-7.
  */
 public class LocationActivity  extends BaseActivity {
-    private static final int LOCATION_GET_POSITION = 1;
+    public static final int LOCATION_GET_POSITION = 1;
     // 定位相关
     LocationClient mLocClient;
     public MyLocationListenner myListener = new MyLocationListenner();

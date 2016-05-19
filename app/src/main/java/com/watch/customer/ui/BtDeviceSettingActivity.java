@@ -29,9 +29,6 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;

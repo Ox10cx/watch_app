@@ -204,22 +204,27 @@ public class PersonInfoActivity extends BaseActivity implements
 								}
 							}).create().show();
 			break;
+
 		case R.id.personinformationSex:
 			final RadioGroup sexgroup = new RadioGroup(this);
 			RadioButton radioBtn1 = new RadioButton(this);
-			radioBtn1.setId(1);
+
+			int maleId = View.generateViewId();
+			int femaleId = View.generateViewId();
+
+			radioBtn1.setId(maleId);
 			radioBtn1.setText("男");
 			radioBtn1.setTextColor(Color.WHITE);
 			RadioButton radioBtn2 = new RadioButton(this);
-			radioBtn2.setId(0);
+			radioBtn2.setId(femaleId);
 			radioBtn2.setText("女");
 			radioBtn2.setTextColor(Color.WHITE);
 			sexgroup.addView(radioBtn1);
 			sexgroup.addView(radioBtn2);
 			if (mUser.getSex().equals("1")) {
-				sexgroup.check(1);
+				sexgroup.check(maleId);
 			} else {
-				sexgroup.check(0);
+				sexgroup.check(femaleId);
 			}
 			AlertDialog.Builder sexbuilder = new AlertDialog.Builder(this);
 			sexbuilder.setTitle("修改性别")

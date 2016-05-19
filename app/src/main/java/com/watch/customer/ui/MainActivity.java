@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
@@ -10,10 +11,18 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
@@ -28,6 +37,7 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.LocationClientOption.LocationMode;
+import com.google.android.gms.maps.model.LatLng;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.passlock.InputPasswordActivity;
@@ -43,9 +53,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 
 @SuppressWarnings("deprecation")
-public class MainActivity extends TabActivity {
+public class MainActivity extends TabActivity  implements LocationListener {
     public static final String TAG = MainActivity.class.getSimpleName();
     private TabHost mTabHost;
     private RadioGroup mTabButtonGroup;
@@ -61,6 +75,8 @@ public class MainActivity extends TabActivity {
 
 
     public static final String ACTION_TAB = "tabaction";
+    public static final String MAP_SWITCH_ACTION = "MapSwtichAction";
+
     private RadioButton rButton1, rButton2, rButton3;
     private RadioButton rButtonDevice;
     private RadioButton rButtonCamera;
@@ -72,38 +88,54 @@ public class MainActivity extends TabActivity {
     public MyLocationListenner myListener = new MyLocationListenner();
     public static boolean isForeground = false;
 
+    Intent mLocIntent;
+    TabHost.TabSpec mTabSpec;
+
     private int mCurrentIndex = -1;
 
     Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
-            String result = msg.obj.toString();
-            try {
-                final JSONObject json = new JSONObject(result);
-                if (json.getInt(JsonUtil.CODE) == 1) {
-                    Log.e("hjq", "msg is = " + json.getString(JsonUtil.MSG));
-                } else {
-                    final String path = json.getString(JsonUtil.PATH);
-                    final String updatemsg = json.getString(JsonUtil.MSG);
 
-                    DialogUtil.showDialog(MainActivity.this, "发现新版本！",
-                            json.getString(JsonUtil.MSG) + "是否要更新？",
-                            getString(R.string.system_sure),
-                            getString(R.string.system_cancel),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface arg0, int arg1) {
-                                    // TODO Auto-generated method stub
-                                    UpdateManager mUpdateManager = new UpdateManager(
-                                            MainActivity.this,
-                                            updatemsg,
-                                            HttpUtil.SERVER + path);
-                                    mUpdateManager.showDownloadDialog();
-                                }
-                            }, null, true);
+            if (msg.what == 0) {
+                String result = msg.obj.toString();
+                try {
+                    final JSONObject json = new JSONObject(result);
+                    if (json.getInt(JsonUtil.CODE) == 1) {
+                        Log.e("hjq", "msg is = " + json.getString(JsonUtil.MSG));
+                    } else {
+                        final String path = json.getString(JsonUtil.PATH);
+                        final String updatemsg = json.getString(JsonUtil.MSG);
+
+                        DialogUtil.showDialog(MainActivity.this, "发现新版本！",
+                                json.getString(JsonUtil.MSG) + "是否要更新？",
+                                getString(R.string.system_sure),
+                                getString(R.string.system_cancel),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        // TODO Auto-generated method stub
+                                        UpdateManager mUpdateManager = new UpdateManager(
+                                                MainActivity.this,
+                                                updatemsg,
+                                                HttpUtil.SERVER + path);
+                                        mUpdateManager.showDownloadDialog();
+                                    }
+                                }, null, true);
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } else if (msg.what == 1) {
+                Bundle b = msg.getData();
+
+                PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LOCATION, b.getString("address"));
+                PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, "" + b.getDouble("latitude"));
+                PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, "" + b.getDouble("longitude"));
+                MyApplication.getInstance().islocation = 1;
+                MyApplication.getInstance().latitude = b.getDouble("latitude");
+                MyApplication.getInstance().longitude = b.getDouble("longitude");
+
             }
         }
     };
@@ -119,17 +151,49 @@ public class MainActivity extends TabActivity {
         MyApplication.getInstance().addActivity(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_TAB);
+        intentFilter.addAction(MAP_SWITCH_ACTION);
         registerReceiver(TabReceiver, intentFilter);
-        mLocClient = new LocationClient(this);
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setLocationMode(LocationMode.Hight_Accuracy);
-        option.setCoorType("bd09ll");
-        option.setScanSpan(0);
-        option.setNeedDeviceDirect(true);
-        option.setIsNeedAddress(true);
-        mLocClient.setLocOption(option);
-        mLocClient.start();
+
+        // map check
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+
+        SharedPreferences mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
+        String map = mSharedPreferences.getString("map", "baidu");
+
+        if ("google".equals(map)) {
+            Location location = locationManager.getLastKnownLocation(bestProvider);
+            if (location != null) {
+                onLocationChanged(location);
+            }
+            locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
+        } else {
+            mLocClient = new LocationClient(this);
+            mLocClient.registerLocationListener(myListener);
+
+            LocationClientOption option = new LocationClientOption();
+            option.setLocationMode(LocationMode.Hight_Accuracy);
+            option.setCoorType("bd09ll");
+            option.setScanSpan(0);
+            option.setNeedDeviceDirect(true);
+            option.setIsNeedAddress(true);
+            mLocClient.setLocOption(option);
+            mLocClient.start();
+        }
+
 
         confirmBluetooth();
 
@@ -145,6 +209,7 @@ public class MainActivity extends TabActivity {
                                 new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(MainActivity.this)));
                         Message msg = new Message();
                         msg.obj = result;
+                        msg.what = 0;
                         mHandler.sendMessage(msg);
                     }
                 });
@@ -256,16 +321,28 @@ public class MainActivity extends TabActivity {
 
         Intent i_device = new Intent(this, DeviceListActivity.class);
         final Intent i_camera = new Intent(this, CameraActivity.class);
-        Intent i_location = new Intent(this, LocationActivity.class);
+        //Intent i_location = new Intent(this, LocationActivity.class);
+        Intent i_location = new Intent(this, MyGoogleMapActivity.class);
         Intent i_setting = new Intent(this, SettingActivity.class);
         Intent i_info = new Intent(this, InfoActivity.class);
+
+        SharedPreferences mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
+        String map = mSharedPreferences.getString("map", "baidu");
+        if ("baidu".equals(map)) {
+            i_location = new Intent(this, LocationActivity.class);
+        }
+
+        mLocIntent = i_location;
 
         mTabHost.addTab(mTabHost.newTabSpec(TAB_DEVICE).setIndicator(TAB_DEVICE)
                 .setContent(i_device));
         mTabHost.addTab(mTabHost.newTabSpec(TAB_CAMERA).setIndicator(TAB_CAMERA)
                 .setContent(i_info));
-        mTabHost.addTab(mTabHost.newTabSpec(TAB_LOCATION).setIndicator(TAB_LOCATION)
-                .setContent(i_location));
+
+        mTabSpec = mTabHost.newTabSpec(TAB_LOCATION).setIndicator(TAB_LOCATION)
+                .setContent(i_location);
+        mTabHost.addTab(mTabSpec);
+
         mTabHost.addTab(mTabHost.newTabSpec(TAB_SETTING).setIndicator(TAB_SETTING)
                 .setContent(i_setting));
         mTabHost.addTab(mTabHost.newTabSpec(TAB_INFO).setIndicator(TAB_INFO)
@@ -446,6 +523,31 @@ public class MainActivity extends TabActivity {
         Log.e("hjq", "onConfigurationChanged");
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        Log.e("hjq", "GOOGLE latitude = " + latitude + " longitude = " + longitude);
+
+        getAddressFromLocation(latitude, longitude, MainActivity.this, mHandler);
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+
     public class MyLocationListenner implements BDLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -509,6 +611,73 @@ public class MainActivity extends TabActivity {
         public void onReceive(Context context, Intent intent) {
             // TODO Auto-generated method stub
             MyApplication.getInstance().type = 2;
+
+            if (intent.getAction().equals(MAP_SWITCH_ACTION)) {
+                String map = intent.getStringExtra("map");
+
+                Intent i_location = new Intent(MainActivity.this, MyGoogleMapActivity.class);
+                if ("baidu".equals(map)) {
+                    i_location = new Intent(MainActivity.this, LocationActivity.class);
+                }
+
+                mLocIntent = i_location;
+                mTabSpec.setContent(i_location);
+            }
         }
     };
+
+
+    public static void getAddressFromLocation(final double latitude, final double longitude,
+                                              final Context context, final Handler handler) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                String result = null;
+                try {
+                    List<Address> addressList = geocoder.getFromLocation(
+                            latitude, longitude, 1);
+                    if (addressList != null && addressList.size() > 0) {
+                        Address address = addressList.get(0);
+                        StringBuilder sb = new StringBuilder();
+
+//                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+//                            sb.append(address.getAddressLine(i)).append("\n");
+//                        }
+                        sb.append(address.getAddressLine(0)).append("\t").append(address.getLocality()).append(address.getCountryName());
+                        result = sb.toString();
+                        Log.e("hjq", "result address =" + result);
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Unable connect to Geocoder", e);
+                } finally {
+                    Message message = Message.obtain();
+                    message.setTarget(handler);
+                    if (result != null) {
+                        message.what = 1;
+                        Bundle bundle = new Bundle();
+                        bundle.putDouble("longitude", longitude);
+                        bundle.putDouble("latitude", latitude);
+                        bundle.putString("address", result);
+//                        result = "Latitude: " + latitude + " Longitude: " + longitude +
+//                                "\n\nAddress:\n" + result;
+//                        bundle.putString("address", result);
+                        message.setData(bundle);
+                    } else {
+                        message.what = 1;
+                        Bundle bundle = new Bundle();
+                        result =  "Unable to get address for this lat-long.";
+//                        bundle.putString("address", result);
+                        bundle.putDouble("longitude", longitude);
+                        bundle.putDouble("latitude", latitude);
+                        bundle.putString("address", result);
+                        message.setData(bundle);
+                    }
+                    message.sendToTarget();
+                }
+            }
+        };
+
+        thread.start();
+    }
 }

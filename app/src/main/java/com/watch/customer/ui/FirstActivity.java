@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import com.uacent.watchapp.BuildConfig;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.UserDao;
@@ -123,51 +124,61 @@ public class FirstActivity extends BaseActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_first);
 
-        ArrayList<User> list = new UserDao(this).queryAll();
-		User user = null;
-
-        if (list != null && !list.isEmpty()) {
-            user = list.get(0);
-        }
-
-		Log.e("hjq", "user " + user);
-		if (user != null) {
-			phone = user.getPhone();
-			password = user.getPassword();
-
+        if (BuildConfig.oversea.equals("1")) {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-               //     showLoadingDialog();
-                    ThreadPoolManager.getInstance().addTask(new Runnable() {
-                        @Override
-                        public void run() {
-                            // TODO Auto-generated method stub
-                            Log.e(TAG, "begin post");
-                            String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-                                    new BasicNameValuePair(JsonUtil.PHONE, phone),
-                                    new BasicNameValuePair(JsonUtil.PASSWORD,
-                                            password));
-                     //       Log.e(TAG, "my result " + result);
-
-                            Message msg = new Message();
-                            msg.obj = result;
-                            msg.what = MSG_LOGIN;
-                            mHandler.sendMessage(msg);
-                        }
-                    });
+                    finish();
+                    startActivity(new Intent(FirstActivity.this, MainActivity.class));
                 }
             }, 3000);
-		} else {
-			new Handler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					Log.i(TAG, "postDelayed");
-					finish();
-					startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
-				}
-			}, 3000);
-		}
+        } else {
+            ArrayList<User> list = new UserDao(this).queryAll();
+            User user = null;
+
+            if (list != null && !list.isEmpty()) {
+                user = list.get(0);
+            }
+
+            Log.e("hjq", "user " + user);
+            if (user != null) {
+                phone = user.getPhone();
+                password = user.getPassword();
+
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //     showLoadingDialog();
+                        ThreadPoolManager.getInstance().addTask(new Runnable() {
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                Log.e(TAG, "begin post");
+                                String result = HttpUtil.post(HttpUtil.URL_LOGIN,
+                                        new BasicNameValuePair(JsonUtil.PHONE, phone),
+                                        new BasicNameValuePair(JsonUtil.PASSWORD,
+                                                password));
+                                //       Log.e(TAG, "my result " + result);
+
+                                Message msg = new Message();
+                                msg.obj = result;
+                                msg.what = MSG_LOGIN;
+                                mHandler.sendMessage(msg);
+                            }
+                        });
+                    }
+                }, 3000);
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(TAG, "postDelayed");
+                        finish();
+                        startActivity(new Intent(FirstActivity.this, AuthLoginActivity.class));
+                    }
+                }, 3000);
+            }
+        }
 	}
 
     @Override
