@@ -80,6 +80,11 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private Handler myHandler;
     HandlerThread mHandlerThread;
 
+    Map<String, Runnable> mTimer = new HashMap<>(20);
+    Object mLock = new Object();
+
+    final static int DISCOVER_SERVICE_TIMEOUT = 20 * 1000; // 20 S
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -493,30 +498,34 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
         public void onConnect(String address) throws RemoteException {
-            final BtDevice d;
-            synchronized (mListData) {
-                int position = mDeviceListAdapter.getmId();
-                Log.d("hjq", "onConnect called position = " + position);
-                d = mListData.get(position);
-                d.setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
-            }
-
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    registerDatabase(d);
-                    mDeviceListAdapter.notifyDataSetChanged();
-                }
-            });
+//            final BtDevice d;
+//            synchronized (mListData) {
+//                int position = mDeviceListAdapter.getmId();
+//                Log.d("hjq", "onConnect called position = " + position);
+//                d = mListData.get(position);
+//                d.setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+//            }
+//
+//            mHandler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    registerDatabase(d);
+//                    mDeviceListAdapter.notifyDataSetChanged();
+//                }
+//            });
         }
 
         @Override
         public void onDisconnect(String address) throws RemoteException {
             synchronized (mListData) {
                 Log.d("hjq", "onDisconnect called");
-                int position = mDeviceListAdapter.getmId();
-                mListData.get(position).setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
-                mListData.get(position).setPosition(BtDevice.LOST);
+                for (int i = 0; i < mListData.size(); i++) {
+                    BtDevice d = mListData.get(i);
+                    if (d.getAddress().equals(address)) {
+                        d.setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
+                        d.setPosition(BtDevice.LOST);
+                    }
+                }
             }
 
             mHandler.post(new Runnable() {
@@ -629,17 +638,31 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
 
         @Override
-        public void onAlertServiceDiscovery(String btaddr, boolean support) throws RemoteException {
-            for (int i = 0; i < mListData.size(); i++) {
-                BtDevice d = mListData.get(i);
-                if (d.getAddress().equals(btaddr)) {
-                    d.setAlertService(support);
-                   mHandler.post(new Runnable() {
-                       @Override
-                       public void run() {
-                            mDeviceListAdapter.notifyDataSetChanged();
-                       }
-                   });
+        public void onAlertServiceDiscovery(final String btaddr, boolean support) throws RemoteException {
+            synchronized (mLock) {
+                Runnable r = mTimer.get(btaddr);
+                if (r != null) {
+                    mTimer.remove(btaddr);
+                    mHandler.removeCallbacks(r);
+                }
+
+                for (int i = 0; i < mListData.size(); i++) {
+                    final BtDevice d = mListData.get(i);
+                    if (d.getAddress().equals(btaddr)) {
+                        if (support) {
+                            d.setAlertService(support);
+                            d.setStatus(BluetoothAntiLostDevice.BLE_STATE_CONNECTED);
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    registerDatabase(d);
+                                    mDeviceListAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        } else {
+                            mService.disconnect(btaddr);
+                        }
+                    }
                 }
             }
         }
@@ -768,7 +791,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         r.setId(id);
     }
 
-    public boolean connectBLE(String address)
+    public boolean connectBLE(final String address)
     {
         boolean ret = false;
 
@@ -777,6 +800,27 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
             if (ret) {
                 Log.d(TAG, "connect to " + address + " success");
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (mLock) {
+                            mTimer.remove(address);
+                            for (int i = 0; i < mListData.size(); i++) {
+                                BtDevice d = mListData.get(i);
+                                if (d.getAddress().equals(address)) {
+                                    Log.d(TAG, "get service list form " + address + " time out");
+                                    d.setStatus(BluetoothAntiLostDevice.BLE_STATE_INIT);
+                                    d.setPosition(BtDevice.LOST);
+                                }
+                            }
+                        }
+
+                        mDeviceListAdapter.notifyDataSetChanged();
+                    }
+                };
+
+                mTimer.put(address, r);
+                mHandler.postDelayed(r, DISCOVER_SERVICE_TIMEOUT);
             } else {
                 Log.d(TAG, "connect to " + address + " failed");
             }

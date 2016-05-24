@@ -1,6 +1,7 @@
 package com.watch.customer.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
@@ -61,6 +62,7 @@ import java.util.Locale;
 @SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity  implements LocationListener {
     public static final String TAG = MainActivity.class.getSimpleName();
+
     private TabHost mTabHost;
     private RadioGroup mTabButtonGroup;
 //    public static final String TAB_MAIN = "SHOPLIST_ACTIVITY";
@@ -90,6 +92,8 @@ public class MainActivity extends TabActivity  implements LocationListener {
 
     Intent mLocIntent;
     TabHost.TabSpec mTabSpec;
+
+    BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 
     private int mCurrentIndex = -1;
 
@@ -153,6 +157,7 @@ public class MainActivity extends TabActivity  implements LocationListener {
         intentFilter.addAction(ACTION_TAB);
         intentFilter.addAction(MAP_SWITCH_ACTION);
         registerReceiver(TabReceiver, intentFilter);
+        registerReceiver(mBtReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
         // map check
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -195,7 +200,7 @@ public class MainActivity extends TabActivity  implements LocationListener {
         }
 
 
-        confirmBluetooth();
+   //     confirmBluetooth();
 
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -514,6 +519,7 @@ public class MainActivity extends TabActivity  implements LocationListener {
         super.onDestroy();
         MyApplication.getInstance().removeActivity(this);
         unregisterReceiver(TabReceiver);
+        unregisterReceiver(mBtReceiver);
     }
 
     @Override
@@ -622,6 +628,27 @@ public class MainActivity extends TabActivity  implements LocationListener {
 
                 mLocIntent = i_location;
                 mTabSpec.setContent(i_location);
+            }
+        }
+    };
+
+    private final BroadcastReceiver mBtReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                if (btAdapter.getState() == BluetoothAdapter.STATE_TURNING_OFF) {
+                    // The user bluetooth is turning off yet, but it is not disabled yet.
+                    return;
+                }
+
+                if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+                    // The user bluetooth is already disabled.
+                    MyApplication.getInstance().exit();
+                    return;
+                }
             }
         }
     };

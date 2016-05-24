@@ -212,6 +212,7 @@ public class LocationRecordList extends BaseActivity implements  AdapterView.OnI
                     case 0: {
                         LocationRecord r = mListData.get(itemPosition);
                         mDao.deleteById(r.getId());
+                        mListData.remove(itemPosition);
                         mAdapter.notifyDataSetChanged();
 
                         return Menu.ITEM_SCROLL_BACK;

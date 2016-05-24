@@ -351,4 +351,5 @@
     <string name="permission_rationale_location">将你的位置显示在地图上，需要授权访问我的位置.</string>
     <string name="location_permission_denied">需要授权访问我的位置</string>
     <string name="permission_required_toast">本程序需要访问位置权限</string>
+    <string name="bt_not_enabled_leaving">蓝牙设备未打开</string>
 </resources>

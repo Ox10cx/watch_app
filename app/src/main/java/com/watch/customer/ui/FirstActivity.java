@@ -1,6 +1,8 @@
 package com.watch.customer.ui;
 
+import android.app.Activity;
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.uacent.watchapp.BuildConfig;
 import com.uacent.watchapp.R;
@@ -35,6 +38,8 @@ public class FirstActivity extends BaseActivity {
 	private String password;
 	private final String TAG = "hjq";
     private final int MSG_LOGIN = 0;
+    BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+    private static final int REQUEST_ENABLE_BT = 1;
 
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -117,13 +122,14 @@ public class FirstActivity extends BaseActivity {
 		}
 	};
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.activity_first);
+    @Override
+    public void onStart() {
+        super.onStart();
 
+
+    }
+
+    void launchMainActivity() {
         if (BuildConfig.oversea.equals("1")) {
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -179,7 +185,42 @@ public class FirstActivity extends BaseActivity {
                 }, 3000);
             }
         }
+    }
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		setContentView(R.layout.activity_first);
+
+        if (!btAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        } else {
+            launchMainActivity();
+        }
 	}
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT: {
+                if (resultCode == Activity.RESULT_OK) {
+                    // Bluetooth is now enabled, so set up a chat session
+                    launchMainActivity();
+                } else {
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {

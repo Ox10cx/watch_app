@@ -352,4 +352,5 @@
     <string name="str_disturb_show">Waring: you will not be notified by voice if you turn on this option.</string>
     <string name="str_bd_map">Baidu Map</string>
     <string name="str_google_map">Google Map</string>
+    <string name="bt_not_enabled_leaving">The bluetooth device is disabled.</string>
 </resources>

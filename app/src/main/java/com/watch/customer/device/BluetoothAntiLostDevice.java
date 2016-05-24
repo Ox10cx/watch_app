@@ -58,6 +58,11 @@ public class BluetoothAntiLostDevice extends BluetoothLeClass {
         //接受Characteristic被写的通知,收到蓝牙模块的数据后会触发mOnDataAvailable.onCharacteristicWrite()
         setCharacteristicNotification(KEY_SERVICE_UUID, KEY_FUNC_UUID, on);
 
+        BluetoothGattService service = mBluetoothGatt.getService(KEY_SERVICE_UUID);
+        if (service == null) {
+            return;
+        }
+
         BluetoothGattCharacteristic characteristic = mBluetoothGatt.getService(KEY_SERVICE_UUID).getCharacteristic(KEY_FUNC_UUID);
 
         if (characteristic != null) {

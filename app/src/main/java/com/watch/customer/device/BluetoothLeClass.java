@@ -128,9 +128,8 @@ public class BluetoothLeClass {
                 mBleStatus = BLE_STATE_CONNECTED;
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
-
+                boolean ret = mBluetoothGatt.discoverServices();
+                Log.i(TAG, "Attempting to start service discovery:" + ret);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 if (mOnDisconnectListener != null)
                     mOnDisconnectListener.onDisconnect(gatt);
