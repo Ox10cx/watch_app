@@ -53,83 +53,83 @@ public class DragListView<T> extends ListView implements View.OnDragListener {
             case DragEvent.ACTION_DRAG_ENTERED:
                 return true;
             case DragEvent.ACTION_DRAG_LOCATION:
-                //当前移动的item在ListView中的position
-                int position = pointToPosition((int) event.getX(), (int) event.getY());
-                //如果位置发生了改变
-                if (mBeforeCurrentPosition != position) {
-                    //有时候得到的position是-1(AdapterView.INVALID_POSITION)，忽略掉
-                    if (position >= 0) {
-                        //判断是往上了还是往下了
-                        mUp = position - mBeforeCurrentPosition <= 0;
-                        //记录移动之后上一次的位置
-                        mBeforeBeforePosition = mBeforeCurrentPosition;
-                        //记录当前位置
-                        mBeforeCurrentPosition = position;
-                    }
-                }
-                moveListViewUpOrDown(position);
-                //有时候为-1(AdapterView.INVALID_POSITION)的情况，忽略掉
-                if (position >= 0) {
-                    //判断是不是已经换过位置了，如果没有换过，则进去换
-                    if (position != mCurrentPosition) {
-                        if (mUp) {//往上
-                            int realPosition = position - getHeaderViewsCount();
-                            if (realPosition >= 0 && realPosition < mDataList.size()) {//这里判断就忽略了drag到header的情况
-                                //只是移动了一格
-                                if (position - mBeforeBeforePosition == -1) {
-                                    T t = mDataList.get(realPosition);
-                                    mDataList.set(realPosition, mDataList.get(realPosition + 1));
-                                    mDataList.set(realPosition + 1, t);
-                                } else {//一下子移动了好几个位置，其实可以和上面那个方法合并起来的
-                                    T t = mDataList.get(mBeforeBeforePosition - getHeaderViewsCount());
-                                    for (int i = mBeforeBeforePosition - getHeaderViewsCount(); i > realPosition; i--) {
-                                        mDataList.set(i, mDataList.get(i - 1));
-                                    }
-                                    mDataList.set(realPosition, t);
-                                }
-                                mSDAdapter.notifyDataSetChanged();
-                                //更新位置
-                                mCurrentPosition = position;
-                            }
-                        } else {
-                            //header部分不算，footer部分不算
-                            int realPosition = position - getHeaderViewsCount();
-                            if (realPosition > 0 && realPosition < mDataList.size()) {
-                                if (position - mBeforeBeforePosition == 1) {
-                                    T t = mDataList.get(realPosition);
-                                    mDataList.set(realPosition, mDataList.get(realPosition - 1));
-                                    mDataList.set(realPosition - 1, t);
-                                } else {
-                                    T t = mDataList.get(mBeforeBeforePosition - getHeaderViewsCount());
-                                    for (int i = mBeforeBeforePosition - getHeaderViewsCount(); i < realPosition; i++) {
-                                        mDataList.set(i, mDataList.get(i + 1));
-                                    }
-                                    mDataList.set(realPosition, t);
-                                }
-                                mSDAdapter.notifyDataSetChanged();
-                                //更新位置
-                                mCurrentPosition = position;
-                            }
-                        }
-                    }
-                }
-                if (mOnDragListener != null) {
-                    mOnDragListener.onDragViewMoving(mCurrentPosition);
-                }
+//                //当前移动的item在ListView中的position
+//                int position = pointToPosition((int) event.getX(), (int) event.getY());
+//                //如果位置发生了改变
+//                if (mBeforeCurrentPosition != position) {
+//                    //有时候得到的position是-1(AdapterView.INVALID_POSITION)，忽略掉
+//                    if (position >= 0) {
+//                        //判断是往上了还是往下了
+//                        mUp = position - mBeforeCurrentPosition <= 0;
+//                        //记录移动之后上一次的位置
+//                        mBeforeBeforePosition = mBeforeCurrentPosition;
+//                        //记录当前位置
+//                        mBeforeCurrentPosition = position;
+//                    }
+//                }
+//                moveListViewUpOrDown(position);
+//                //有时候为-1(AdapterView.INVALID_POSITION)的情况，忽略掉
+//                if (position >= 0) {
+//                    //判断是不是已经换过位置了，如果没有换过，则进去换
+//                    if (position != mCurrentPosition) {
+//                        if (mUp) {//往上
+//                            int realPosition = position - getHeaderViewsCount();
+//                            if (realPosition >= 0 && realPosition < mDataList.size()) {//这里判断就忽略了drag到header的情况
+//                                //只是移动了一格
+//                                if (position - mBeforeBeforePosition == -1) {
+//                                    T t = mDataList.get(realPosition);
+//                                    mDataList.set(realPosition, mDataList.get(realPosition + 1));
+//                                    mDataList.set(realPosition + 1, t);
+//                                } else {//一下子移动了好几个位置，其实可以和上面那个方法合并起来的
+//                                    T t = mDataList.get(mBeforeBeforePosition - getHeaderViewsCount());
+//                                    for (int i = mBeforeBeforePosition - getHeaderViewsCount(); i > realPosition; i--) {
+//                                        mDataList.set(i, mDataList.get(i - 1));
+//                                    }
+//                                    mDataList.set(realPosition, t);
+//                                }
+//                                mSDAdapter.notifyDataSetChanged();
+//                                //更新位置
+//                                mCurrentPosition = position;
+//                            }
+//                        } else {
+//                            //header部分不算，footer部分不算
+//                            int realPosition = position - getHeaderViewsCount();
+//                            if (realPosition > 0 && realPosition < mDataList.size()) {
+//                                if (position - mBeforeBeforePosition == 1) {
+//                                    T t = mDataList.get(realPosition);
+//                                    mDataList.set(realPosition, mDataList.get(realPosition - 1));
+//                                    mDataList.set(realPosition - 1, t);
+//                                } else {
+//                                    T t = mDataList.get(mBeforeBeforePosition - getHeaderViewsCount());
+//                                    for (int i = mBeforeBeforePosition - getHeaderViewsCount(); i < realPosition; i++) {
+//                                        mDataList.set(i, mDataList.get(i + 1));
+//                                    }
+//                                    mDataList.set(realPosition, t);
+//                                }
+//                                mSDAdapter.notifyDataSetChanged();
+//                                //更新位置
+//                                mCurrentPosition = position;
+//                            }
+//                        }
+//                    }
+//                }
+//                if (mOnDragListener != null) {
+//                    mOnDragListener.onDragViewMoving(mCurrentPosition);
+//                }
                 return true;
             case DragEvent.ACTION_DRAG_EXITED:
                 return true;
             case DragEvent.ACTION_DROP:
-                mSDAdapter.notifyDataSetChanged();
-                for (int i = 0; i < getLastVisiblePosition() - getFirstVisiblePosition(); i++) {
-                    if (getChildAt(i) instanceof ItemMainLayout) {
-                        ItemMainLayout view = (ItemMainLayout) getChildAt(i);
-                        setItemVisible(view);
-                    }
-                }
-                if (mOnDragListener != null) {
-                    mOnDragListener.onDragViewDown(mCurrentPosition);
-                }
+//                mSDAdapter.notifyDataSetChanged();
+//                for (int i = 0; i < getLastVisiblePosition() - getFirstVisiblePosition(); i++) {
+//                    if (getChildAt(i) instanceof ItemMainLayout) {
+//                        ItemMainLayout view = (ItemMainLayout) getChildAt(i);
+//                        setItemVisible(view);
+//                    }
+//                }
+//                if (mOnDragListener != null) {
+//                    mOnDragListener.onDragViewDown(mCurrentPosition);
+//                }
                 return true;
             case DragEvent.ACTION_DRAG_ENDED:
                 return true;

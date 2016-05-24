@@ -82,23 +82,23 @@ public class SlideAndDragListView<T> extends DragListView<T> implements WrapperA
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case MSG_WHAT_LONG_CLICK:
-                if (mState == STATE_LONG_CLICK) {//如果得到msg的时候state状态是Long Click的话
-                    //改为long click触发完成
-                    mState = STATE_LONG_CLICK_FINISH;
-                    //得到长点击的位置
-                    int position = msg.arg1;
-                    //找到那个位置的view
-                    View view = getChildAt(position - getFirstVisiblePosition());
-                    //如果设置了监听器的话，就触发
-                    if (mOnListItemLongClickListener != null) {
-                        mVibrator.vibrate(100);
-                        mOnListItemLongClickListener.onListItemLongClick(view, position);
-                    }
-                    boolean canDrag = scrollBackByDrag(position);
-                    if (canDrag && view instanceof ItemMainLayout) {
-                        setDragPosition(position);
-                    }
-                }
+//                if (mState == STATE_LONG_CLICK) {//如果得到msg的时候state状态是Long Click的话
+//                    //改为long click触发完成
+//                    mState = STATE_LONG_CLICK_FINISH;
+//                    //得到长点击的位置
+//                    int position = msg.arg1;
+//                    //找到那个位置的view
+//                    View view = getChildAt(position - getFirstVisiblePosition());
+//                    //如果设置了监听器的话，就触发
+//                    if (mOnListItemLongClickListener != null) {
+//                        mVibrator.vibrate(100);
+//                        mOnListItemLongClickListener.onListItemLongClick(view, position);
+//                    }
+//                    boolean canDrag = scrollBackByDrag(position);
+//                    if (canDrag && view instanceof ItemMainLayout) {
+//                        setDragPosition(position);
+//                    }
+//                }
                 break;
         }
         return true;
