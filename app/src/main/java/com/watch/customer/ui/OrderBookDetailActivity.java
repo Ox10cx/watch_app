@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -96,11 +97,17 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-						String result=HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS, 
-								new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
-								new BasicNameValuePair(JsonUtil.STATUS, "pay"),
-								new BasicNameValuePair(JsonUtil.PAY_TYPE, "1"));	
-					      Message msg=new Message();
+							String result= null;
+							try {
+								result = HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS,
+										new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
+										new BasicNameValuePair(JsonUtil.STATUS, "pay"),
+										new BasicNameValuePair(JsonUtil.PAY_TYPE, "1"));
+							} catch (IOException e) {
+								e.printStackTrace();
+								result = e.getMessage();
+							}
+							Message msg=new Message();
 					      msg.what=3;
 					      msg.obj=result;
 					      mHandler.sendMessage(msg);
@@ -129,11 +136,17 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-							String result=HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS, 
-									new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
-									new BasicNameValuePair(JsonUtil.STATUS, "pay"),
-									new BasicNameValuePair(JsonUtil.PAY_TYPE, "0"));
-							Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_UPDATEORDERSTATUS, 
+								String result= null;
+								try {
+									result = HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS,
+											new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
+											new BasicNameValuePair(JsonUtil.STATUS, "pay"),
+											new BasicNameValuePair(JsonUtil.PAY_TYPE, "0"));
+								} catch (IOException e) {
+									e.printStackTrace();
+									result = e.getMessage();
+								}
+								Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_UPDATEORDERSTATUS,
 									new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
 									new BasicNameValuePair(JsonUtil.STATUS, "pay"),
 									new BasicNameValuePair(JsonUtil.PAY_TYPE, "0")));
@@ -253,8 +266,14 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_ORDERDETAIL, 
-                    new BasicNameValuePair(JsonUtil.ORDER_ID,mOrderItem.getOrder_id()));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ORDERDETAIL,
+							new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.what=1;
 				msg.obj=result;
@@ -279,9 +298,15 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_POINTORSCHEDULELOCALPAYORDER,
-						new BasicNameValuePair(JsonUtil.LOCALPAY, mOrder.getTotal_price()),
-						new BasicNameValuePair(JsonUtil.ORDER_ID,mOrderItem.getOrder_id()));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_POINTORSCHEDULELOCALPAYORDER,
+							new BasicNameValuePair(JsonUtil.LOCALPAY, mOrder.getTotal_price()),
+							new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				msg.what=4;
@@ -316,10 +341,16 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 				String user_id=PreferenceUtil.getInstance(OrderBookDetailActivity.this).getUid();
 				String shibi=mOrder.getTotal_price();
 				String order_id=mOrderItem.getOrder_id();
-				String result=HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
-						new BasicNameValuePair(JsonUtil.USER_ID, user_id),
-						new BasicNameValuePair(JsonUtil.SHIBI, shibi),
-						new BasicNameValuePair(JsonUtil.ORDER_ID,order_id));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
+							new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+							new BasicNameValuePair(JsonUtil.SHIBI, shibi),
+							new BasicNameValuePair(JsonUtil.ORDER_ID, order_id));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				msg.what=2;
@@ -338,11 +369,17 @@ public class OrderBookDetailActivity extends BaseActivity implements OnClickList
 						new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
 						new BasicNameValuePair(JsonUtil.STATUS, "consumption"),
 						new BasicNameValuePair(JsonUtil.PAY_TYPE, "2")));
-				String result=HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS, 
-						new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
-						new BasicNameValuePair(JsonUtil.STATUS, "consumption"),
-						new BasicNameValuePair(JsonUtil.PAY_TYPE, "2"));	
-			      Message msg=new Message();
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS,
+								new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
+								new BasicNameValuePair(JsonUtil.STATUS, "consumption"),
+								new BasicNameValuePair(JsonUtil.PAY_TYPE, "2"));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
+					Message msg=new Message();
 			      msg.what=3;
 			      msg.obj=result;
 			      mHandler.sendMessage(msg);

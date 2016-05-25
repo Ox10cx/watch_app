@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -234,9 +235,15 @@ public class OrderMainActivity extends Activity implements OnClickListener,IXLis
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
-						new BasicNameValuePair(JsonUtil.USER_ID, uid),
-						new BasicNameValuePair(JsonUtil.TYPE, "schedule"));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
+							new BasicNameValuePair(JsonUtil.USER_ID, uid),
+							new BasicNameValuePair(JsonUtil.TYPE, "schedule"));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.what = book_what;
 				msg.obj = result;
@@ -247,9 +254,15 @@ public class OrderMainActivity extends Activity implements OnClickListener,IXLis
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
-						new BasicNameValuePair(JsonUtil.USER_ID, uid),
-						new BasicNameValuePair(JsonUtil.TYPE, "point"));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
+							new BasicNameValuePair(JsonUtil.USER_ID, uid),
+							new BasicNameValuePair(JsonUtil.TYPE, "point"));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.what = point_what;
 				msg.obj = result;
@@ -260,9 +273,15 @@ public class OrderMainActivity extends Activity implements OnClickListener,IXLis
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
-						new BasicNameValuePair(JsonUtil.USER_ID, uid),
-						new BasicNameValuePair(JsonUtil.TYPE, "group"));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ORDERLIST,
+							new BasicNameValuePair(JsonUtil.USER_ID, uid),
+							new BasicNameValuePair(JsonUtil.TYPE, "group"));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.what = deal_what;
 				msg.obj = result;

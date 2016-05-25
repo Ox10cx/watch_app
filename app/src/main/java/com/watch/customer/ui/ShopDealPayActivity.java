@@ -23,6 +23,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class ShopDealPayActivity extends BaseActivity implements OnClickListener {
 	private TextView orderidtv;
 	private TextView pricetv;
@@ -76,11 +78,17 @@ public class ShopDealPayActivity extends BaseActivity implements OnClickListener
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-					String result=HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS, 
-							new BasicNameValuePair(JsonUtil.ORDER_ID,order_id),
-							new BasicNameValuePair(JsonUtil.STATUS, "pay"),
-							new BasicNameValuePair(JsonUtil.PAY_TYPE, pay_type));
-					Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_UPDATEORDERSTATUS, 
+						String result= null;
+						try {
+							result = HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS,
+									new BasicNameValuePair(JsonUtil.ORDER_ID, order_id),
+									new BasicNameValuePair(JsonUtil.STATUS, "pay"),
+									new BasicNameValuePair(JsonUtil.PAY_TYPE, pay_type));
+						} catch (IOException e) {
+							e.printStackTrace();
+							result = e.getMessage();
+						}
+						Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_UPDATEORDERSTATUS,
 							new BasicNameValuePair(JsonUtil.ORDER_ID,order_id),
 							new BasicNameValuePair(JsonUtil.STATUS, "pay"),
 							new BasicNameValuePair(JsonUtil.PAY_TYPE, pay_type)));	
@@ -170,13 +178,18 @@ public class ShopDealPayActivity extends BaseActivity implements OnClickListener
 			String user_id = PreferenceUtil.getInstance(
 					ShopDealPayActivity.this).getUid();
 			String shibi = String.valueOf(curcoin);
-			String result = HttpUtil
-					.post(HttpUtil.URL_USESHIBIPAY,
-							new BasicNameValuePair(JsonUtil.USER_ID,
-									user_id), new BasicNameValuePair(
-									JsonUtil.SHIBI, shibi),
-							new BasicNameValuePair(JsonUtil.ORDER_ID,
-									order_id));
+			String result = null;
+			try {
+				result = HttpUtil
+                        .post(HttpUtil.URL_USESHIBIPAY,
+								new BasicNameValuePair(JsonUtil.USER_ID,
+										user_id), new BasicNameValuePair(
+										JsonUtil.SHIBI, shibi),
+								new BasicNameValuePair(JsonUtil.ORDER_ID,
+										order_id));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			Message msg = new Message();
 			msg.obj = result;
 			msg.what = 2;

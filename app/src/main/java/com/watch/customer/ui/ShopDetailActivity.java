@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -192,9 +193,15 @@ public class ShopDetailActivity extends BaseActivity implements OnClickListener 
 					Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_ISHOUSE, 
 					new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
 					new BasicNameValuePair(JsonUtil.USER_ID,user_id)));
-					String result=HttpUtil.post(HttpUtil.URL_ISHOUSE, 
-					new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
-					new BasicNameValuePair(JsonUtil.USER_ID,user_id));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_ISHOUSE,
+								new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
+								new BasicNameValuePair(JsonUtil.USER_ID, user_id));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg=new Message();
 					msg.obj=result;
 					msg.what=ishouse_what;
@@ -205,10 +212,15 @@ public class ShopDetailActivity extends BaseActivity implements OnClickListener 
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					String result = HttpUtil
-							.post(HttpUtil.URL_STORECOMMENT,
-									new BasicNameValuePair(JsonUtil.STORE_ID, mShop
-											.getId()));
+					String result = null;
+					try {
+						result = HttpUtil
+                                .post(HttpUtil.URL_STORECOMMENT,
+										new BasicNameValuePair(JsonUtil.STORE_ID, mShop
+												.getId()));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					Message msg = new Message();
 					msg.obj = result;
 					msg.what=comment_what;
@@ -276,10 +288,16 @@ public class ShopDetailActivity extends BaseActivity implements OnClickListener 
 					new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
 					new BasicNameValuePair(JsonUtil.USER_ID,user_id),
 					new BasicNameValuePair(JsonUtil.TYPE,type)));
-					String result=HttpUtil.post(HttpUtil.URL_ADDORDELUSERHOUSE, 
-					new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
-					new BasicNameValuePair(JsonUtil.USER_ID,user_id),
-					new BasicNameValuePair(JsonUtil.TYPE,type));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_ADDORDELUSERHOUSE,
+								new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
+								new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+								new BasicNameValuePair(JsonUtil.TYPE, type));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg=new Message();
 					msg.obj=result;
 					msg.what=addordel_what;

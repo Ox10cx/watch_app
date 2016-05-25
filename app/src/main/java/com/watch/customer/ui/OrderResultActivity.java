@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -167,13 +168,18 @@ public class OrderResultActivity extends BaseActivity implements OnClickListener
 			String user_id = PreferenceUtil.getInstance(
 					OrderResultActivity.this).getUid();
 			String shibi = String.valueOf(pricesum);
-			String result = HttpUtil
-					.post(HttpUtil.URL_USESHIBIPAY,
-							new BasicNameValuePair(JsonUtil.USER_ID,
-									user_id), new BasicNameValuePair(
-									JsonUtil.SHIBI, shibi),
-							new BasicNameValuePair(JsonUtil.ORDER_ID,
-									order_id));
+			String result = null;
+			try {
+				result = HttpUtil
+                        .post(HttpUtil.URL_USESHIBIPAY,
+								new BasicNameValuePair(JsonUtil.USER_ID,
+										user_id), new BasicNameValuePair(
+										JsonUtil.SHIBI, shibi),
+								new BasicNameValuePair(JsonUtil.ORDER_ID,
+										order_id));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			Message msg = new Message();
 			msg.obj = result;
 			msg.what = 2;

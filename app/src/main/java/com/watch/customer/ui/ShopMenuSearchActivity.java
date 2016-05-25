@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -122,10 +123,16 @@ public void onBackPressed() {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							String result=HttpUtil.post(HttpUtil.URL_SEARCHDISHESBYSTORE, 
-									new BasicNameValuePair(JsonUtil.STOREID, mShopId),
-									new BasicNameValuePair(JsonUtil.NAME, searchstr));
-						Log.e("hjq", "result="+result);
+							String result= null;
+							try {
+								result = HttpUtil.post(HttpUtil.URL_SEARCHDISHESBYSTORE,
+										new BasicNameValuePair(JsonUtil.STOREID, mShopId),
+										new BasicNameValuePair(JsonUtil.NAME, searchstr));
+							} catch (IOException e) {
+								e.printStackTrace();
+								result = e.getMessage();
+							}
+							Log.e("hjq", "result="+result);
 						Message msg=new Message();
 						msg.obj=result;
 						mHandler.sendMessage(msg);

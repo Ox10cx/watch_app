@@ -86,7 +86,13 @@ public class SelectCityActivity extends BaseActivity implements OnClickListener 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.get(HttpUtil.URL_GETALLCITY);
+				String result= null;
+				try {
+					result = HttpUtil.get(HttpUtil.URL_GETALLCITY);
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				mHandler.sendMessage(msg);

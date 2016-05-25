@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -82,8 +83,14 @@ public class PersonShopActivity extends BaseActivity implements IXListViewListen
 				String user_id=PreferenceUtil.getInstance(PersonShopActivity.this).getUid();
 				Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_MYHOUSE, 
 						new BasicNameValuePair(JsonUtil.USER_ID, user_id)));
-				String result=HttpUtil.post(HttpUtil.URL_MYHOUSE, 
-						new BasicNameValuePair(JsonUtil.USER_ID, user_id));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_MYHOUSE,
+							new BasicNameValuePair(JsonUtil.USER_ID, user_id));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				mHandler.sendMessage(msg);

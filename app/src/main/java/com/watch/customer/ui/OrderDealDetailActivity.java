@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -136,8 +137,14 @@ public class OrderDealDetailActivity extends BaseActivity implements
 				// TODO Auto-generated method stub
 				Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_GETGROUPBYORDERID, 
 	                    new BasicNameValuePair(JsonUtil.ORDER_ID,mOrderItem.getOrder_id())));
-				String result=HttpUtil.post(HttpUtil.URL_GETGROUPBYORDERID, 
-                    new BasicNameValuePair(JsonUtil.ORDER_ID,mOrderItem.getOrder_id()));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_GETGROUPBYORDERID,
+							new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.what=0;
 				msg.obj=result;
@@ -201,10 +208,16 @@ public class OrderDealDetailActivity extends BaseActivity implements
 					String user_id=PreferenceUtil.getInstance(OrderDealDetailActivity.this).getUid();
 					String shibi=mOrderdeal.getTotal_price();
 					String order_id=mOrderItem.getOrder_id();
-					String result=HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
-							new BasicNameValuePair(JsonUtil.USER_ID, user_id),
-							new BasicNameValuePair(JsonUtil.SHIBI, shibi),
-							new BasicNameValuePair(JsonUtil.ORDER_ID,order_id));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
+								new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+								new BasicNameValuePair(JsonUtil.SHIBI, shibi),
+								new BasicNameValuePair(JsonUtil.ORDER_ID, order_id));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg=new Message();
 					msg.obj=result;
 					msg.what=2;

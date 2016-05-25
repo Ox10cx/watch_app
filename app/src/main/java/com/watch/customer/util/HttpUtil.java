@@ -92,7 +92,7 @@ public class HttpUtil {
 	 *            需要的参数
 	 * @return 网络返回的结果数据
 	 */
-	public static String post(String url, NameValuePair... nameValuePairs) {
+	public static String post(String url, NameValuePair... nameValuePairs) throws IOException, ClientProtocolException {
 		HttpClient httpClient = new DefaultHttpClient();
 		String msg = "";
 		HttpPost post = new HttpPost(url);
@@ -118,15 +118,18 @@ public class HttpUtil {
 				msg = json.toString();
 			} else {
 				Log.e("hjq", "网络请求失败");
+                throw new IOException("post error");
 			}
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			msg = e.getMessage();
+			throw new ClientProtocolException(e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			msg = e.getMessage();
+			throw new IOException(e);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -141,7 +144,7 @@ public class HttpUtil {
 	 *            要访问的网址
 	 * @return 网络返回的结果数据
 	 */
-	public static String get(String url) {
+	public static String get(String url) throws IOException, ClientProtocolException {
 		HttpClient httpClient = new DefaultHttpClient();
 
 		String msg = "";
@@ -161,14 +164,18 @@ public class HttpUtil {
 				}
 			} else {
 				Log.e("hjq", "网络请求失败");
+                throw new IOException("get error");
 			}
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+            throw new ClientProtocolException(e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+            throw new IOException(e);
 		}
+
 		return msg;
 	}
 

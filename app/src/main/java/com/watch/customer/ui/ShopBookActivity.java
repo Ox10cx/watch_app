@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -403,14 +404,20 @@ public class ShopBookActivity extends BaseActivity {
 									new BasicNameValuePair(JsonUtil.ORDER_TIME, order_time),
 									new BasicNameValuePair(JsonUtil.IS_ROOM, is_room),
 									new BasicNameValuePair("userName", username)));
-							String result=HttpUtil.post(HttpUtil.URL_SUBMITLOCALORDER,
-									new BasicNameValuePair(JsonUtil.USER_ID, uid),
-									new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
-									new BasicNameValuePair(JsonUtil.PEOPLE, people),
-									new BasicNameValuePair(JsonUtil.PHONE, phone),
-									new BasicNameValuePair(JsonUtil.ORDER_TIME, order_time),
-									new BasicNameValuePair(JsonUtil.IS_ROOM, is_room),
-									new BasicNameValuePair("userName", username));
+							String result= null;
+							try {
+								result = HttpUtil.post(HttpUtil.URL_SUBMITLOCALORDER,
+										new BasicNameValuePair(JsonUtil.USER_ID, uid),
+										new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
+										new BasicNameValuePair(JsonUtil.PEOPLE, people),
+										new BasicNameValuePair(JsonUtil.PHONE, phone),
+										new BasicNameValuePair(JsonUtil.ORDER_TIME, order_time),
+										new BasicNameValuePair(JsonUtil.IS_ROOM, is_room),
+										new BasicNameValuePair("userName", username));
+							} catch (IOException e) {
+								e.printStackTrace();
+								result = e.getMessage();
+							}
 							Message msg=new Message();
 							msg.what=1;
 							msg.obj=result;
@@ -451,18 +458,24 @@ public class ShopBookActivity extends BaseActivity {
 									new BasicNameValuePair(JsonUtil.TOTAL_PRICE, total_price),
 									new BasicNameValuePair("userName", username),
 									new BasicNameValuePair(JsonUtil.TYPE, type)));
-			               
-							String result=HttpUtil.post(HttpUtil.URL_SUBMITORDER,
-									new BasicNameValuePair(JsonUtil.USER_ID, uid),
-									new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
-									new BasicNameValuePair(JsonUtil.PEOPLE, people),
-									new BasicNameValuePair(JsonUtil.PHONE, phone),
-									new BasicNameValuePair(JsonUtil.ORDER_TIME, order_time),
-									new BasicNameValuePair(JsonUtil.IS_ROOM, is_room),
-									new BasicNameValuePair(JsonUtil.DISHESLIST, disheslist),
-									new BasicNameValuePair(JsonUtil.TOTAL_PRICE, total_price),
-									new BasicNameValuePair("userName", username),
-									new BasicNameValuePair(JsonUtil.TYPE, type));
+
+							String result= null;
+							try {
+								result = HttpUtil.post(HttpUtil.URL_SUBMITORDER,
+										new BasicNameValuePair(JsonUtil.USER_ID, uid),
+										new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
+										new BasicNameValuePair(JsonUtil.PEOPLE, people),
+										new BasicNameValuePair(JsonUtil.PHONE, phone),
+										new BasicNameValuePair(JsonUtil.ORDER_TIME, order_time),
+										new BasicNameValuePair(JsonUtil.IS_ROOM, is_room),
+										new BasicNameValuePair(JsonUtil.DISHESLIST, disheslist),
+										new BasicNameValuePair(JsonUtil.TOTAL_PRICE, total_price),
+										new BasicNameValuePair("userName", username),
+										new BasicNameValuePair(JsonUtil.TYPE, type));
+							} catch (IOException e) {
+								e.printStackTrace();
+								result = e.getMessage();
+							}
 							Log.e("hjq", "result="+result);
 							Message msg=new Message();
 							msg.what=2;

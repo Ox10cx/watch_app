@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -216,7 +217,13 @@ public class ShopListActivity extends BaseActivity implements OnClickListener,
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.get(HttpUtil.URL_TYPELIST);
+				String result = null;
+				try {
+					result = HttpUtil.get(HttpUtil.URL_TYPELIST);
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.what = typelist_what;
 				msg.obj = result;
@@ -479,9 +486,15 @@ public class ShopListActivity extends BaseActivity implements OnClickListener,
 				}
 				Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_FINDSTOREBYALL,
 						pairs));
-				String result = HttpUtil.post(HttpUtil.URL_FINDSTOREBYALL,
-						pairs);
-				
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_FINDSTOREBYALL,
+							pairs);
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
+
 				Message msg = new Message();
 				msg.what = shoplist_what;
 				msg.obj = result;

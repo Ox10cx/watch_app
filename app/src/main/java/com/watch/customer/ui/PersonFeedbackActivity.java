@@ -18,6 +18,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class PersonFeedbackActivity extends BaseActivity {
 	private EditText contentEdit;
 	private EditText relateEdit;
@@ -71,9 +73,15 @@ public class PersonFeedbackActivity extends BaseActivity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					String result=HttpUtil.post(HttpUtil.URL_USERFEEDBACK, 
-						new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonFeedbackActivity.this).getUid()),
-						new BasicNameValuePair(JsonUtil.CONTENT,contentstr));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_USERFEEDBACK,
+								new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonFeedbackActivity.this).getUid()),
+								new BasicNameValuePair(JsonUtil.CONTENT, contentstr));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg=new Message();
 					msg.obj=result;
 					mHandler.sendMessage(msg);

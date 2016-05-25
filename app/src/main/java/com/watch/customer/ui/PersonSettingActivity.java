@@ -23,6 +23,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.ThreadPoolManager;
 import com.watch.customer.util.UpdateManager;
 
+import java.io.IOException;
+
 public class PersonSettingActivity extends BaseActivity implements OnClickListener {
 	private LinearLayout personAboutus;
 	private LinearLayout personClean;
@@ -127,8 +129,14 @@ public class PersonSettingActivity extends BaseActivity implements OnClickListen
 				public void run() {
 					// TODO Auto-generated method stub
 					Log.e("hjq", "version="+CommonUtil.getVersionName(PersonSettingActivity.this));
-					String result=HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
-					new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(PersonSettingActivity.this)));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
+								new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(PersonSettingActivity.this)));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg=new Message();
 					msg.obj=result;
 					mHandler.sendMessage(msg);

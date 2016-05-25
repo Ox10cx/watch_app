@@ -25,6 +25,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class ShopMenuCommentActivity extends BaseActivity implements
 		OnClickListener {
     private Button submitbtn;
@@ -103,12 +105,18 @@ public class ShopMenuCommentActivity extends BaseActivity implements
 						new BasicNameValuePair(JsonUtil.CONTENT, content),
 						new BasicNameValuePair(JsonUtil.SORCE, sorce),
 						new BasicNameValuePair(JsonUtil.STORE_ID, store_id)));
-						String result=HttpUtil.post(HttpUtil.URL_USERCOMMENT,
-						new BasicNameValuePair(JsonUtil.ORDER_ID,order_id),
-						new BasicNameValuePair(JsonUtil.USER_ID, user_id),
-						new BasicNameValuePair(JsonUtil.CONTENT, content),
-						new BasicNameValuePair(JsonUtil.SORCE, sorce),
-						new BasicNameValuePair(JsonUtil.STORE_ID, store_id));
+						String result= null;
+						try {
+							result = HttpUtil.post(HttpUtil.URL_USERCOMMENT,
+									new BasicNameValuePair(JsonUtil.ORDER_ID, order_id),
+									new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+									new BasicNameValuePair(JsonUtil.CONTENT, content),
+									new BasicNameValuePair(JsonUtil.SORCE, sorce),
+									new BasicNameValuePair(JsonUtil.STORE_ID, store_id));
+						} catch (IOException e) {
+							e.printStackTrace();
+							result = e.getMessage();
+						}
 						Message msg=new Message();
 						msg.obj=result;
 						mHandler.sendMessage(msg);

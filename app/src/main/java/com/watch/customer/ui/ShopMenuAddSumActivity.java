@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -237,11 +238,18 @@ public class ShopMenuAddSumActivity extends BaseActivity  {
 						Log.e("hjq",HttpUtil.getURlStr(HttpUtil.URL_ADDFOODBYORDERID,
 								new BasicNameValuePair(JsonUtil.DISHESLIST, disheslist),
 								new BasicNameValuePair(JsonUtil.ORDER_ID,mOrder.getOrder_id())));
-						String result=HttpUtil.post(HttpUtil.URL_ADDFOODBYORDERID,
-								new BasicNameValuePair(JsonUtil.DISHESLIST, disheslist),
-								new BasicNameValuePair(JsonUtil.ORDER_ID,mOrder.getOrder_id()  ));
-				
-						Message msg=new Message();
+
+                        String result= null;
+                        try {
+                            result = HttpUtil.post(HttpUtil.URL_ADDFOODBYORDERID,
+                                    new BasicNameValuePair(JsonUtil.DISHESLIST, disheslist),
+                                    new BasicNameValuePair(JsonUtil.ORDER_ID, mOrder.getOrder_id()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+							result = e.getMessage();
+                        }
+
+                        Message msg=new Message();
 						msg.obj=result;
 						mHandler.sendMessage(msg);
 					}

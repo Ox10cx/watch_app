@@ -21,6 +21,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class ShopDealRefundDetailActivity extends BaseActivity {
 	private TextView orderid;
 	private TextView totalprice;
@@ -117,16 +119,22 @@ public class ShopDealRefundDetailActivity extends BaseActivity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_DRAWBACKGROUP, 
-							new BasicNameValuePair(JsonUtil.USER_ID,uid),
-							new BasicNameValuePair(JsonUtil.ORDER_ID,mOrderDeal.getOrder_id()),
-							new BasicNameValuePair(JsonUtil.NAME,namestr),
-							new BasicNameValuePair(JsonUtil.PHONE,relatestr),
-							new BasicNameValuePair(JsonUtil.BANK,bankstr),
-							new BasicNameValuePair(JsonUtil.BANK_NAME,accountbankstr),
-							new BasicNameValuePair(JsonUtil.BANK_USER,accountpersonstr),
-							new BasicNameValuePair(JsonUtil.MAIL,emailstr));
-				Message msg=new Message();
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_DRAWBACKGROUP,
+								new BasicNameValuePair(JsonUtil.USER_ID, uid),
+								new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderDeal.getOrder_id()),
+								new BasicNameValuePair(JsonUtil.NAME, namestr),
+								new BasicNameValuePair(JsonUtil.PHONE, relatestr),
+								new BasicNameValuePair(JsonUtil.BANK, bankstr),
+								new BasicNameValuePair(JsonUtil.BANK_NAME, accountbankstr),
+								new BasicNameValuePair(JsonUtil.BANK_USER, accountpersonstr),
+								new BasicNameValuePair(JsonUtil.MAIL, emailstr));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
+					Message msg=new Message();
 				msg.obj=result;
 				mHandler.sendMessage(msg);
 				}

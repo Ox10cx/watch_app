@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -276,10 +277,16 @@ public class PersonInfoActivity extends BaseActivity implements
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_EDITPROFILE,
-						new BasicNameValuePair(JsonUtil.NAME, user.getName()),
-						new BasicNameValuePair(JsonUtil.SEX, user.getSex()),
-						new BasicNameValuePair(JsonUtil.USER_ID, user.getId()));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_EDITPROFILE,
+							new BasicNameValuePair(JsonUtil.NAME, user.getName()),
+							new BasicNameValuePair(JsonUtil.SEX, user.getSex()),
+							new BasicNameValuePair(JsonUtil.USER_ID, user.getId()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.obj = result;
 				msg.what = editmsg_what;

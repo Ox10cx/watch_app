@@ -26,6 +26,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 	private TextView upatepassbtn, registbtn;
 	private EditText phoneedit;
@@ -172,10 +174,16 @@ public class AuthLoginActivity extends BaseActivity implements OnClickListener {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-								new BasicNameValuePair(JsonUtil.PHONE, phone),
-								new BasicNameValuePair(JsonUtil.PASSWORD,
-										password));
+						String result = null;
+						try {
+							result = HttpUtil.post(HttpUtil.URL_LOGIN,
+									new BasicNameValuePair(JsonUtil.PHONE, phone),
+									new BasicNameValuePair(JsonUtil.PASSWORD,
+											password));
+						} catch (IOException e) {
+							e.printStackTrace();
+							result = e.getMessage();
+						}
 						Log.e("hjq", result);
 
 						Message msg = new Message();

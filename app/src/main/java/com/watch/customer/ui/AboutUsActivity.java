@@ -18,6 +18,8 @@ import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class AboutUsActivity extends BaseActivity {
    private TextView titletv;
    private TextView contenttv;
@@ -60,8 +62,14 @@ public class AboutUsActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_STATICPAGE,
-						new BasicNameValuePair(JsonUtil.CODE,"aboutus"));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_STATICPAGE,
+							new BasicNameValuePair(JsonUtil.CODE, "aboutus"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 				Message msg = new Message();
 				msg.obj = result;
 				mHandler.sendMessage(msg);

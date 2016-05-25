@@ -210,8 +210,14 @@ public class MainActivity extends TabActivity  implements LocationListener {
                     @Override
                     public void run() {
                         Log.e("hjq", "version=" + CommonUtil.getVersionName(MainActivity.this));
-                        String result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
-                                new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(MainActivity.this)));
+                        String result = null;
+                        try {
+                            result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
+                                    new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(MainActivity.this)));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            result = e.getMessage();
+                        }
                         Message msg = new Message();
                         msg.obj = result;
                         msg.what = 0;

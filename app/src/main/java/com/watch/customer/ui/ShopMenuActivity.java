@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -173,8 +174,14 @@ public class ShopMenuActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_FINDDISHESBYPOINT,
-						new BasicNameValuePair(JsonUtil.STOREID, mShop.getId()));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_FINDDISHESBYPOINT,
+							new BasicNameValuePair(JsonUtil.STOREID, mShop.getId()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.what=find_what;
 				msg.obj=result;

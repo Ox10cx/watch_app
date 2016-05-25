@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.Timer;
@@ -158,8 +159,14 @@ public class FindPasswordActivity extends BaseActivity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            String result = HttpUtil.get(HttpUtil.URL_FORGETPASSWORD
-                                    + "?mobile=" + phonestr);
+                            String result = null;
+                            try {
+                                result = HttpUtil.get(HttpUtil.URL_FORGETPASSWORD
+                                        + "?mobile=" + phonestr);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                result = e.getMessage();
+                            }
 
                             Message msg = new Message();
                             msg.what = getcode_what;
@@ -177,9 +184,15 @@ public class FindPasswordActivity extends BaseActivity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            String result = HttpUtil.post(HttpUtil.URL_FORGETPASSWORD,
-                                    new BasicNameValuePair(JsonUtil.PHONE, phonestr),
-                                    new BasicNameValuePair(JsonUtil.PASSWORD, passwordstr));
+                            String result = null;
+                            try {
+                                result = HttpUtil.post(HttpUtil.URL_FORGETPASSWORD,
+                                        new BasicNameValuePair(JsonUtil.PHONE, phonestr),
+                                        new BasicNameValuePair(JsonUtil.PASSWORD, passwordstr));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                result = e.getMessage();
+                            }
                             Message msg = new Message();
                             msg.what = save_what;
                             msg.obj = result;

@@ -19,6 +19,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class PersonUpdatePasswordActivity extends BaseActivity {
 	private EditText passwordEdit;
 	private EditText repasswordEdit;
@@ -82,11 +84,17 @@ public class PersonUpdatePasswordActivity extends BaseActivity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					String result=HttpUtil.post(HttpUtil.URL_RESETPASSWORD,
-							new BasicNameValuePair(JsonUtil.USER_ID, uid),
-							new BasicNameValuePair("oldpass", oldpassword),
-							new BasicNameValuePair("newpass", passwordstr),
-							new BasicNameValuePair("repassword", repasswordstr));
+					String result= null;
+					try {
+						result = HttpUtil.post(HttpUtil.URL_RESETPASSWORD,
+								new BasicNameValuePair(JsonUtil.USER_ID, uid),
+								new BasicNameValuePair("oldpass", oldpassword),
+								new BasicNameValuePair("newpass", passwordstr),
+								new BasicNameValuePair("repassword", repasswordstr));
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
 					Message msg = new Message();
 					msg.obj = result;
 					mHandler.sendMessage(msg);

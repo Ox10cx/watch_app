@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -207,8 +208,14 @@ public class ShopSearchActivity extends BaseActivity implements OnClickListener 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil.post(HttpUtil.URL_FINDSTOREBYNAME,
-						new BasicNameValuePair(JsonUtil.NAME, editstr));
+				String result = null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_FINDSTOREBYNAME,
+							new BasicNameValuePair(JsonUtil.NAME, editstr));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Log.e("hjq", HttpUtil.getURlStr(HttpUtil.URL_FINDSTOREBYNAME,
 						new BasicNameValuePair(JsonUtil.NAME, editstr)));
 				Log.e("hjq","result="+result);

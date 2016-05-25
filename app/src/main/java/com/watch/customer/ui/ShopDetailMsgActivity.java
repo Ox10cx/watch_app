@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -142,8 +143,14 @@ public class ShopDetailMsgActivity extends BaseActivity implements OnClickListen
 			public void run() {
 				// TODO Auto-generated method stub
 				String store_id=mShop.getId();
-				String result=HttpUtil.post(HttpUtil.URL_STORECOMMENT, 
-				new BasicNameValuePair(JsonUtil.STORE_ID,store_id));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_STORECOMMENT,
+							new BasicNameValuePair(JsonUtil.STORE_ID, store_id));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				msg.what=storecomment_what;
@@ -177,10 +184,16 @@ public void onClick(View v) {
 				new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
 				new BasicNameValuePair(JsonUtil.USER_ID,user_id),
 				new BasicNameValuePair(JsonUtil.TYPE,type)));
-				String result=HttpUtil.post(HttpUtil.URL_ADDORDELUSERHOUSE, 
-				new BasicNameValuePair(JsonUtil.STORE_ID,store_id),
-				new BasicNameValuePair(JsonUtil.USER_ID,user_id),
-				new BasicNameValuePair(JsonUtil.TYPE,type));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ADDORDELUSERHOUSE,
+							new BasicNameValuePair(JsonUtil.STORE_ID, store_id),
+							new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+							new BasicNameValuePair(JsonUtil.TYPE, type));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				msg.what=addordel_what;
@@ -195,8 +208,14 @@ public void onClick(View v) {
 			public void run() {
 				// TODO Auto-generated method stub
 				String store_id=mShop.getId();
-				String result=HttpUtil.post(HttpUtil.URL_STORECOMMENT, 
-				new BasicNameValuePair(JsonUtil.STORE_ID,store_id));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_STORECOMMENT,
+							new BasicNameValuePair(JsonUtil.STORE_ID, store_id));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.obj=result;
 				msg.what=storecomment_what;

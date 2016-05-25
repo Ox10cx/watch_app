@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -157,13 +158,19 @@ public class AuthRegisterActivity extends BaseActivity {
                     @Override
                     public void run() {
                         // TODO Auto-generated method stub
-                        String result = HttpUtil.post(HttpUtil.URL_REGISTER,
-                                new BasicNameValuePair(JsonUtil.NAME, name),
-                                new BasicNameValuePair(JsonUtil.PHONE, phone),
-                                new BasicNameValuePair(JsonUtil.SEX, sex),
-                                new BasicNameValuePair(JsonUtil.PASSWORD, password),
-                                new BasicNameValuePair(JsonUtil.REPASSWORD, password1));
-                        Message msg = new Message();
+						String result = null;
+						try {
+							result = HttpUtil.post(HttpUtil.URL_REGISTER,
+									new BasicNameValuePair(JsonUtil.NAME, name),
+									new BasicNameValuePair(JsonUtil.PHONE, phone),
+									new BasicNameValuePair(JsonUtil.SEX, sex),
+									new BasicNameValuePair(JsonUtil.PASSWORD, password),
+									new BasicNameValuePair(JsonUtil.REPASSWORD, password1));
+						} catch (IOException e) {
+							e.printStackTrace();
+							result = e.getMessage();
+						}
+						Message msg = new Message();
                         msg.what = regist_what;
                         msg.obj = result;
                         mHandler.sendMessage(msg);
@@ -186,9 +193,16 @@ public class AuthRegisterActivity extends BaseActivity {
                 @Override
                 public void run() {
                     // TODO Auto-generated method stub
-                    String result = HttpUtil.get(HttpUtil.URL_CHECKMOBILE
-                            + "?mobile=" + phone);
-                    Log.e(TAG, result);
+					String result = null;
+					try {
+						result = HttpUtil.get(HttpUtil.URL_CHECKMOBILE
+								+ "?mobile=" + phone);
+					} catch (IOException e) {
+						e.printStackTrace();
+						result = e.getMessage();
+					}
+
+					Log.e(TAG, result);
                     Message msg = new Message();
                     msg.what = getcode_what;
                     msg.obj = result;

@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -94,8 +95,14 @@ public class ShopDealActivity extends BaseActivity implements IXListViewListener
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_GETGROUPBYSTORE,
-						new BasicNameValuePair(JsonUtil.STORE_ID,mShop.getId()));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_GETGROUPBYSTORE,
+							new BasicNameValuePair(JsonUtil.STORE_ID, mShop.getId()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Log.e("hjq", result);
 				Message msg=new Message();
 				msg.obj=result;

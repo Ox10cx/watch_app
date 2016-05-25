@@ -29,6 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 //import cn.jpush.android.api.JPushInterface;
@@ -160,10 +161,16 @@ public class FirstActivity extends BaseActivity {
                             public void run() {
                                 // TODO Auto-generated method stub
                                 Log.e(TAG, "begin post");
-                                String result = HttpUtil.post(HttpUtil.URL_LOGIN,
-                                        new BasicNameValuePair(JsonUtil.PHONE, phone),
-                                        new BasicNameValuePair(JsonUtil.PASSWORD,
-                                                password));
+                                String result = null;
+                                try {
+                                    result = HttpUtil.post(HttpUtil.URL_LOGIN,
+                                            new BasicNameValuePair(JsonUtil.PHONE, phone),
+                                            new BasicNameValuePair(JsonUtil.PASSWORD,
+                                                    password));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    result = e.getMessage();
+                                }
                                 //       Log.e(TAG, "my result " + result);
 
                                 Message msg = new Message();

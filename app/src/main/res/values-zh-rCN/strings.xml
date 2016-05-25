@@ -352,4 +352,5 @@
     <string name="location_permission_denied">需要授权访问我的位置</string>
     <string name="permission_required_toast">本程序需要访问位置权限</string>
     <string name="bt_not_enabled_leaving">蓝牙设备未打开</string>
+    <string name="str_check_sw">正在检查版本..</string>
 </resources>

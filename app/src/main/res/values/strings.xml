@@ -2,70 +2,70 @@
 <resources>
 
     <!-- system -->
-    <string name="system_name">蓝牙防丢器</string>
-    <string name="system_image_back">返回</string>
+    <string name="system_name">BtAntiLost</string>
+    <string name="system_image_back">Back</string>
     <string name="system_image_logo">Logo</string>
-    <string name="system_image_setting">设置</string>
-    <string name="system_image_search">搜索</string>
+    <string name="system_image_setting">Setting</string>
+    <string name="system_image_search">Search</string>
     <string name="system_rmb">￥</string>
-    <string name="system_zfb">支付宝</string>
-    <string name="system_bankcard">银行卡</string>
-    <string name="system_shibi">食币</string>
-    <string name="system_backmomey">退款</string>
-    <string name="system_deal">团购</string>
-    <string name="system_submit">提交</string>
+    <string name="system_zfb">Alipay</string>
+    <string name="system_bankcard">Card</string>
+    <string name="system_shibi">Shibi</string>
+    <string name="system_backmomey">Return</string>
+    <string name="system_deal">Group</string>
+    <string name="system_submit">Submit</string>
     <string name="system_cancel">Cancel</string>
     <string name="system_sure">Confirm</string>
     <string name="system_sureifexit">Are you sure to exit?</string>
     <string name="system_exit">Exit</string>
     <string name="system_delete">Delete</string>
     <!-- auth.login -->
-    <string name="login_edittext_phone">手机号</string>
-    <string name="login_edittext_password">密码</string>
-    <string name="login_button_login">登录</string>
-    <string name="login_textview_forgetpassword">忘记密码？</string>
-    <string name="login_textview_register">注册账号</string>
-    <string name="login_success">登陆成功</string>
+    <string name="login_edittext_phone">Phone Number</string>
+    <string name="login_edittext_password">Password</string>
+    <string name="login_button_login">Login</string>
+    <string name="login_textview_forgetpassword">Forget password？</string>
+    <string name="login_textview_register">Register</string>
+    <string name="login_success">Login success</string>
     <!-- auth.register -->
-    <string name="register_edittext_phone">手机号码</string>
-    <string name="register_edittext_code">验证码</string>
-    <string name="register_button_code">获取验证码</string>
-    <string name="register_edittext_name">姓名</string>
-    <string name="register_radiobutton_sex">性别</string>
-    <string name="register_radiobutton_man">男</string>
-    <string name="register_radiobutton_woman">女</string>
-    <string name="register_edittext_password">密码(6到16位)</string>
-    <string name="register_edittext_confirm_password">确认密码</string>
-    <string name="register_button_register">注册</string>
-    <string name="register_textview_warning">注册视为同意蓝牙防丢器的</string>
-    <string name="register_textview_protocol">  <a href="">用户协议</a></string>
-    <string name="register_protocol">用户协议</string>
-    <string name="str_get_code">获取密码</string>
+    <string name="register_edittext_phone">Phone number</string>
+    <string name="register_edittext_code">Verify code</string>
+    <string name="register_button_code">Get code</string>
+    <string name="register_edittext_name">Name</string>
+    <string name="register_radiobutton_sex">Sex</string>
+    <string name="register_radiobutton_man">Male</string>
+    <string name="register_radiobutton_woman">Female</string>
+    <string name="register_edittext_password">Password(6 to 12)</string>
+    <string name="register_edittext_confirm_password">Confirm password</string>
+    <string name="register_button_register">Register</string>
+    <string name="register_textview_warning">Registering means you are agree with</string>
+    <string name="register_textview_protocol">  <a href="">the user protocol.</a></string>
+    <string name="register_protocol">user protocol</string>
+    <string name="str_get_code">get code</string>
 
     <!-- menuways -->
-    <string name="menuways_bookmenu">手机菜单</string>
+    <string name="menuways_bookmenu">Menu</string>
     <string name="menuways_shopmenu">现场点菜</string>
     <string name="menuways_submit">提交预定</string>
 
     <!-- main -->
     <string name="main_tabtext_shop">店铺</string>
     <string name="main_tabtext_order">订单</string>
-    <string name="main_tabtext_person">我的</string>
-    <string name="city_select">城市选择</string>
-    <string name="city_unknown">未知</string>
-    <string name="main_tabtext_device">设备</string>
-    <string name="main_tabtext_camera">拍照</string>
-    <string name="main_tabtext_location">定位</string>
-    <string name="main_tabtext_setting">设置</string>
-    <string name="main_tabtext_info">软件介绍</string>
+    <string name="main_tabtext_person">My</string>
+    <string name="city_select">select city</string>
+    <string name="city_unknown">Unknown</string>
+    <string name="main_tabtext_device">Device</string>
+    <string name="main_tabtext_camera">Camera</string>
+    <string name="main_tabtext_location">Location</string>
+    <string name="main_tabtext_setting">Setting</string>
+    <string name="main_tabtext_info">Info</string>
 
     <!-- shop list -->
-    <string name="shop_list_section_discount">折扣</string>
-    <string name="shop_list_section_type">类型</string>
-    <string name="shop_list_section_service">服务</string>
-    <string name="shop_list_image_fresh">刷新</string>
-    <string name="shop_list_curcity">当前城市：</string>
-    <string name="shop_list_city_exchange">切换</string>
+    <string name="shop_list_section_discount">discount</string>
+    <string name="shop_list_section_type">type</string>
+    <string name="shop_list_section_service">service</string>
+    <string name="shop_list_image_fresh">refresh</string>
+    <string name="shop_list_curcity">current city:</string>
+    <string name="shop_list_city_exchange">switch</string>
 
     <string-array name="discount_arr">
         <item>99</item>
@@ -259,43 +259,43 @@
     <string name="xlistview_footer_hint_normal">查看更多</string>
     <string name="xlistview_footer_hint_ready">松开载入更多</string>
     <!-- zhifubao -->
-    <string name="confirm_title">提示</string>
-    <string name="ensure">确定</string>
-    <string name="cancel">取消</string>
+    <string name="confirm_title">Title</string>
+    <string name="ensure">Confirm</string>
+    <string name="cancel">Cancel</string>
     <string name="content_description_icon">icon</string>
-    <string name="refresh">刷新</string>
-    <string name="processing">加载中</string>
-    <string name="download">下载</string>
-    <string name="download_fail">下载安装包失败</string>
+    <string name="refresh">Refresh</string>
+    <string name="processing">Loading</string>
+    <string name="download">Download</string>
+    <string name="download_fail">Download failed.</string>
     <string name="cancel_install_msp">你已取消安装移动快捷支付服务</string>
     <string name="cancel_install_alipay">你已取消安装支付宝钱包</string>
-    <string name="redo">重试</string>
+    <string name="redo">retry</string>
     <string name="install_msp">你尚未安装支付宝移动快捷支付服务，请立即安装</string>
     <string name="install_alipay">你尚未安装支付宝钱包，请立即安装</string>
-    <string name="software_update">软件版本更新</string>
-    <string name="hide">隐藏</string>
-    <string name="download_success">新版本软件下载成功</string>
-    <string name="aboutus_1">芜湖蓝格网络技术有限公司</string>
-    <string name="aboutus_2">客服热线：0533-5711768(400-096-0553)</string>
-    <string name="aboutus_3">掌上餐厅官网：http://www.zsctgw.com</string>
-    <string name="submit">已提交</string>
-    <string name="havepay">已付款</string>
+    <string name="software_update">software update</string>
+    <string name="hide">hide</string>
+    <string name="download_success">Download new software success.</string>
+    <string name="aboutus_1">Company</string>
+    <string name="aboutus_2">Phone</string>
+    <string name="aboutus_3">掌上餐厅官网：</string>
+    <string name="submit">submit</string>
+    <string name="havepay">paid</string>
     <string name="submit_msg">您的订单已提交，请等待商家确认，谢谢</string>
 
     <string name="ble_not_supported">Bluetooth Low Energy not supported</string>
-    <string name="disconnect">断开连接</string>
-    <string name="connect">连接</string>
-    <string name="connect_success">连接成功</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
+    <string name="connect_success">Connect success</string>
 
-    <string name="connected">已连接</string>
-    <string name="disconnected">未连接</string>
-    <string name="connecting">正在连接</string>
-    <string name="alert">告警</string>
-    <string name="stop_alert">停止告警</string>
-    <string name="prompt">左滑删除</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connecting">Connecting</string>
+    <string name="alert">Alert</string>
+    <string name="stop_alert">Stop alerting</string>
+    <string name="prompt">Slide left to delete</string>
     <!-- device list -->
-    <string name="devicelist">设备列表</string>
-    <string name="name1">测试设备1</string>
+    <string name="devicelist">Device List</string>
+    <string name="name1">Test device1</string>
     <string name="waiting">Please waiting…</string>
 
     <string name="location">Position:</string>
@@ -353,4 +353,5 @@
     <string name="str_bd_map">Baidu Map</string>
     <string name="str_google_map">Google Map</string>
     <string name="bt_not_enabled_leaving">The bluetooth device is disabled.</string>
+    <string name="str_check_sw">Checking latest software ....</string>
 </resources>

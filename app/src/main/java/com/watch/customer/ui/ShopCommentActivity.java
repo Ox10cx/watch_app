@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -84,10 +85,15 @@ public class ShopCommentActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result = HttpUtil
-						.post(HttpUtil.URL_STORECOMMENT,
-								new BasicNameValuePair(JsonUtil.STORE_ID, mShop
-										.getId()));
+				String result = null;
+				try {
+					result = HttpUtil
+                            .post(HttpUtil.URL_STORECOMMENT,
+									new BasicNameValuePair(JsonUtil.STORE_ID, mShop
+											.getId()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				Message msg = new Message();
 				msg.obj = result;
 				mHandler.sendMessage(msg);

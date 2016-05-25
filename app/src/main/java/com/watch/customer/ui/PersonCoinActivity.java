@@ -1,5 +1,6 @@
 package com.watch.customer.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -152,9 +153,15 @@ public class PersonCoinActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			String result=HttpUtil.post(HttpUtil.URL_GETSHIBIBYUSERID,
-						new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()));
-			Message msg=new Message();
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_GETSHIBIBYUSERID,
+							new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
+				Message msg=new Message();
 			msg.obj=result;
 			msg.what=getcoindetail_what;
 			mHandler.sendMessage(msg);
@@ -165,9 +172,15 @@ public class PersonCoinActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			String result=HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
-						new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()));
-			Message msg=new Message();
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_TOTALSHIBIBYUSERID,
+							new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
+				Message msg=new Message();
 			msg.obj=result;
 			msg.what=getmycoin_what;
 			mHandler.sendMessage(msg);
@@ -178,10 +191,16 @@ public class PersonCoinActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			String result=HttpUtil.post(HttpUtil.URL_ADDSHIBIBYUSERID,
-						new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()),
-						new BasicNameValuePair(JsonUtil.SHIBI,money));
-			Message msg=new Message();
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ADDSHIBIBYUSERID,
+							new BasicNameValuePair(JsonUtil.USER_ID, PreferenceUtil.getInstance(PersonCoinActivity.this).getUid()),
+							new BasicNameValuePair(JsonUtil.SHIBI, money));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
+				Message msg=new Message();
 			msg.obj=result;
 			msg.what=addcoin_what;
 			mHandler.sendMessage(msg);

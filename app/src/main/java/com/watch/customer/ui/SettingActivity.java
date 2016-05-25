@@ -33,6 +33,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 /**
  * Created by Administrator on 16-3-7.
  */
@@ -113,7 +115,7 @@ public class SettingActivity  extends BaseActivity {
         } else {
             txtStatus.setText(R.string.str_open);
         }
-        mSharedPreferences = getSharedPreferences("watch_app", 0);
+        mSharedPreferences = getSharedPreferences("watch_app_preference", 0);
 
         int disturb = mSharedPreferences.getInt("disturb_status", 0);
         if (disturb == 0) {
@@ -126,15 +128,21 @@ public class SettingActivity  extends BaseActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLoadingDialog("正在检查版本..");
+                showLoadingDialog(getString(R.string.str_check_sw));
                 ThreadPoolManager.getInstance().addTask(new Runnable() {
 
                     @Override
                     public void run() {
                         // TODO Auto-generated method stub
                         Log.e("hjq", "version=" + CommonUtil.getVersionName(SettingActivity.this));
-                        String result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
-                                new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(SettingActivity.this)));
+                        String result = null;
+                        try {
+                            result = HttpUtil.post(HttpUtil.URL_ANDROIDUPDATE,
+                                    new BasicNameValuePair(JsonUtil.VERSION, CommonUtil.getVersionName(SettingActivity.this)));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            result = e.getMessage();
+                        }
                         Message msg = new Message();
                         msg.obj = result;
                         mHandler.sendMessage(msg);

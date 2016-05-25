@@ -17,6 +17,8 @@ import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class StaticPageActivity extends BaseActivity {
    private TextView titletv;
    private TextView contenttv;
@@ -56,8 +58,14 @@ public class StaticPageActivity extends BaseActivity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_STATICPAGE, 
-						new BasicNameValuePair(JsonUtil.CODE,JsonUtil.PROTOCOL));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_STATICPAGE,
+							new BasicNameValuePair(JsonUtil.CODE, JsonUtil.PROTOCOL));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg = new Message();
 				msg.obj = result;
 				mHandler.sendMessage(msg);

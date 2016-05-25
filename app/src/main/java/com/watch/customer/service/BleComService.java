@@ -173,7 +173,7 @@ public class BleComService extends Service {
                         Log.d("hjq", "ble status = " + bleok);
                         if (!bleok) {
                             try {
-                                Thread.sleep(10000);
+                                Thread.sleep(6000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -235,13 +235,11 @@ public class BleComService extends Service {
                         }
 
                         try {
-                            Thread.sleep(10000);
+                            Thread.sleep(6000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
-
-
                 }
             });
 

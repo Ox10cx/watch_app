@@ -83,6 +83,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     Map<String, Runnable> mTimer = new HashMap<>(20);
     Object mLock = new Object();
 
+    Map<String, Runnable> mKeyChecker = new HashMap<>(10);
+
     final static int DISCOVER_SERVICE_TIMEOUT = 20 * 1000; // 20 S
 
     @Override
@@ -484,8 +486,8 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         });
     }
 
-    private boolean mKeydownFlag;
-    private Runnable mTimeoutCheck;
+    //private boolean mKeydownFlag;
+    private final Object mKeyLock = new Object();
 
     void registerDatabase(BtDevice device) {
         BtDevice d;
@@ -564,45 +566,48 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         @Override
         public boolean onWrite(final String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onWrite called");
-
             String active = getTopActivity();
             if (active != null && active.contains("CameraActivity")){
                 return false;
             }
 
             byte v = val[0];
-            if (mTimeoutCheck == null) {
-                mTimeoutCheck = new Runnable() {
+            Runnable  r = mKeyChecker.get(address);
+
+            if (r != null && v == 1) {
+                synchronized (mKeyLock) {
+                    mHandler.removeCallbacks(r);
+                    mKeyChecker.remove(address);
+                }
+
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (mTimeoutCheck) {
-                            mKeydownFlag = false;
-                        }
+                    /* turn on alert */
+                        Log.e("hjq", "double key down detect!");
+                        startAlert(address);
+                    }
+                });
+
+                return true;
+            }
+
+            if (r == null && v == 1) {
+                r = new Runnable() {
+                    @Override
+                    public void run() {
                         Log.e("hjq", "one key down detect!");
+                        synchronized (mKeyLock) {
+                            mKeyChecker.remove(address);
+                        }
                         recordLocHistory(address);
                     }
                 };
-            }
 
-            synchronized (mTimeoutCheck) {
-                if (mKeydownFlag && v == 1) {
-                    mHandler.removeCallbacks(mTimeoutCheck);
-                    mKeydownFlag = false;
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                        /* turn on alert */
-                            Log.e("hjq", "double key down detect!");
-                            startAlert(address);
-
-                        }
-                    });
-                    return true;
+                synchronized (mKeyLock) {
+                    mKeyChecker.put(address, r);
                 }
-                if (v == 1) {
-                    mKeydownFlag = true;
-                    mHandler.postDelayed(mTimeoutCheck, 1000);
-                }
+                mHandler.postDelayed(r, 1000);
             }
 
             return true;

@@ -33,6 +33,8 @@ import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 
+import java.io.IOException;
+
 public class OrderLocalDetailActivity extends BaseActivity implements OnClickListener {
 	private TextView order_id;
 	private TextView order_status;
@@ -197,8 +199,14 @@ public class OrderLocalDetailActivity extends BaseActivity implements OnClickLis
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				String result=HttpUtil.post(HttpUtil.URL_ORDERDETAIL, 
-                    new BasicNameValuePair(JsonUtil.ORDER_ID,getIntent().getStringExtra("order_id")));
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_ORDERDETAIL,
+							new BasicNameValuePair(JsonUtil.ORDER_ID, getIntent().getStringExtra("order_id")));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
 				Message msg=new Message();
 				msg.what=1;
 				msg.obj=result;
@@ -217,11 +225,17 @@ public class OrderLocalDetailActivity extends BaseActivity implements OnClickLis
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			String result=HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS, 
-					new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
-					new BasicNameValuePair(JsonUtil.STATUS, "pay"),
-					new BasicNameValuePair(JsonUtil.PAY_TYPE, "1"));	
-		      Message msg=new Message();
+				String result= null;
+				try {
+					result = HttpUtil.post(HttpUtil.URL_UPDATEORDERSTATUS,
+							new BasicNameValuePair(JsonUtil.ORDER_ID, mOrderItem.getOrder_id()),
+							new BasicNameValuePair(JsonUtil.STATUS, "pay"),
+							new BasicNameValuePair(JsonUtil.PAY_TYPE, "1"));
+				} catch (IOException e) {
+					e.printStackTrace();
+					result = e.getMessage();
+				}
+				Message msg=new Message();
 		      msg.what=4;
 		      msg.obj=result;
 		      mHandler.sendMessage(msg);
@@ -282,10 +296,16 @@ public class OrderLocalDetailActivity extends BaseActivity implements OnClickLis
 						String user_id=PreferenceUtil.getInstance(OrderLocalDetailActivity.this).getUid();
 						String shibi=money;
 						String order_id=orderidstr;
-						String result=HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
-								new BasicNameValuePair(JsonUtil.USER_ID, user_id),
-								new BasicNameValuePair(JsonUtil.SHIBI, shibi),
-								new BasicNameValuePair(JsonUtil.ORDER_ID,order_id));
+						String result= null;
+						try {
+							result = HttpUtil.post(HttpUtil.URL_USESHIBIPAY,
+									new BasicNameValuePair(JsonUtil.USER_ID, user_id),
+									new BasicNameValuePair(JsonUtil.SHIBI, shibi),
+									new BasicNameValuePair(JsonUtil.ORDER_ID, order_id));
+						} catch (IOException e) {
+							e.printStackTrace();
+							result = e.getMessage();
+						}
 						Message msg=new Message();
 						msg.obj=result;
 						msg.what=2;
@@ -298,10 +318,16 @@ public class OrderLocalDetailActivity extends BaseActivity implements OnClickLis
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							String result=HttpUtil.post(HttpUtil.URL_LOCALPAYORDER,
-									new BasicNameValuePair(JsonUtil.LOCALPAY, money),
-									new BasicNameValuePair(JsonUtil.PAY_TYPE, paytype+""),
-									new BasicNameValuePair(JsonUtil.ORDER_ID,orderidstr));
+							String result= null;
+							try {
+								result = HttpUtil.post(HttpUtil.URL_LOCALPAYORDER,
+										new BasicNameValuePair(JsonUtil.LOCALPAY, money),
+										new BasicNameValuePair(JsonUtil.PAY_TYPE, paytype + ""),
+										new BasicNameValuePair(JsonUtil.ORDER_ID, orderidstr));
+							} catch (IOException e) {
+								e.printStackTrace();
+								result = e.getMessage();
+							}
 							Message msg=new Message();
 							msg.obj=result;
 							msg.what=3;
