@@ -354,4 +354,5 @@
     <string name="str_google_map">Google Map</string>
     <string name="bt_not_enabled_leaving">The bluetooth device is disabled.</string>
     <string name="str_check_sw">Checking latest software ....</string>
+    <string name="str_current_position">Current Postion</string>
 </resources>

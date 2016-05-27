@@ -22,6 +22,7 @@ public class MyApplication extends Application {
 	public static String mToken = "";
 	public double latitude;
 	public double longitude;
+	public float radius;
 
 	@Override
 	public void onCreate() {

@@ -190,13 +190,20 @@ public class MainActivity extends TabActivity  implements LocationListener {
             mLocClient.registerLocationListener(myListener);
 
             LocationClientOption option = new LocationClientOption();
-            option.setLocationMode(LocationMode.Hight_Accuracy);
-            option.setCoorType("bd09ll");
-            option.setScanSpan(0);
-            option.setNeedDeviceDirect(true);
-            option.setIsNeedAddress(true);
+           // option.setLocationMode(LocationMode.Hight_Accuracy);
+
+            option.setOpenGps(true); // 打开gps
+            option.setCoorType("bd09ll"); // 设置坐标类型
+            option.setScanSpan(50);
             mLocClient.setLocOption(option);
             mLocClient.start();
+
+//            option.setCoorType("bd09ll");
+//            option.setScanSpan(0);
+//            option.setNeedDeviceDirect(true);
+//            option.setIsNeedAddress(true);
+//            mLocClient.setLocOption(option);
+//            mLocClient.start();
         }
 
 
@@ -582,15 +589,15 @@ public class MainActivity extends TabActivity  implements LocationListener {
                     PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.CITY, adds[1]);
                 }
                 PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LOCATION, addr);
-                PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, "" + location.getLatitude());
-                PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, "" + location.getLongitude());
-                MyApplication.getInstance().islocation = 1;
-                MyApplication.getInstance().latitude = location.getLatitude();
-                MyApplication.getInstance().longitude = location.getLongitude();
-                //sendBroadcast(new Intent(ShopListActivity.REFRESH_CITY));
-            } else {
-                Log.e("hjq", "location no found!!!");
             }
+
+            PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LAT, "" + location.getLatitude());
+            PreferenceUtil.getInstance(MainActivity.this).setString(PreferenceUtil.LON, "" + location.getLongitude());
+            MyApplication.getInstance().islocation = 1;
+            MyApplication.getInstance().radius = location.getRadius();
+            MyApplication.getInstance().latitude = location.getLatitude();
+            MyApplication.getInstance().longitude = location.getLongitude();
+            sendBroadcast(new Intent(LocationActivity.ACTION_UPDATE_POSITION));
         }
 
         public void onReceivePoi(BDLocation poiLocation) {

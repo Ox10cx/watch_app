@@ -353,4 +353,5 @@
     <string name="permission_required_toast">本程序需要访问位置权限</string>
     <string name="bt_not_enabled_leaving">蓝牙设备未打开</string>
     <string name="str_check_sw">正在检查版本..</string>
+    <string name="str_current_position">当前位置</string>
 </resources>

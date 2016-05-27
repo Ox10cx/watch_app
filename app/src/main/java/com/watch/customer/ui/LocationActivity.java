@@ -1,7 +1,11 @@
 package com.watch.customer.ui;
 
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,20 +46,18 @@ import java.util.ArrayList;
 public class LocationActivity  extends BaseActivity {
     public static final int LOCATION_GET_POSITION = 1;
     // 定位相关
-    LocationClient mLocClient;
-    public MyLocationListenner myListener = new MyLocationListenner();
     private MyLocationConfiguration.LocationMode mCurrentMode;
     BitmapDescriptor mCurrentMarker;
     private static final int accuracyCircleFillColor = 0xAAFFFF88;
     private static final int accuracyCircleStrokeColor = 0xAA00FF00;
 
+    public static final String ACTION_UPDATE_POSITION = "com.watch.customer.LocationActivity.UPDATE_POSITION_ACTION";
+
     MapView mMapView;
     BaiduMap mBaiduMap;
 
-    // UI相关
-    RadioGroup.OnCheckedChangeListener radioButtonListener;
-    Button requestLocButton;
-    boolean isFirstLoc = true; // 是否首次定位
+    boolean mCustomPos = false;
+
     private final String TAG = "hjq";
 
     @Override
@@ -65,6 +67,8 @@ public class LocationActivity  extends BaseActivity {
         Log.d(TAG, "location activity onCreate");
 
         setContentView(R.layout.activity_location);
+
+        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -80,25 +84,12 @@ public class LocationActivity  extends BaseActivity {
         Button bt_loc_history = (Button) findViewById(R.id.bt_location_history);
         bt_loc_history.setOnClickListener(this);
 
-        mLocClient = new LocationClient(this);
-        mLocClient.registerLocationListener(myListener);
-        LocationClientOption option = new LocationClientOption();
-        option.setOpenGps(true); // 打开gps
-        option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(50);
-        mLocClient.setLocOption(option);
-        mLocClient.start();
+        Button curBtn = (Button) findViewById(R.id.button1);
+        curBtn.setOnClickListener(this);
 
-        if (MyApplication.getInstance().islocation == 1) {
-            LatLng ll = new LatLng(MyApplication.getInstance().latitude,
-                    MyApplication.getInstance().longitude);
-            MapStatus.Builder builder = new MapStatus.Builder();
-            builder.target(ll).zoom(18.0f);
-            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+        registerReceiver(mLocationReceiver, new IntentFilter(ACTION_UPDATE_POSITION));
 
-            addMarker(MyApplication.getInstance().longitude, MyApplication.getInstance().latitude);
-
-        }
+        gotoCurrentPosition();
     }
 
     void hideZoomControl() {
@@ -131,44 +122,13 @@ public class LocationActivity  extends BaseActivity {
                 .icon(bitmap);
         //在地图上添加Marker，并显示
         mBaiduMap.addOverlay(option);
-    }
 
-    /**
-     * 定位SDK监听函数
-     */
-    public class MyLocationListenner implements BDLocationListener {
+        mCustomPos = true;
 
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            // map view 销毁后不在处理新接收的位置
-            Log.e("hjq", "onReceiveLocation");
-            if (location == null || mMapView == null) {
-                return;
-            }
-            MyLocationData locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                            // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(100).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
-            mBaiduMap.setMyLocationData(locData);
-
-            String addr = location.getAddrStr();
-            Log.e("hjq","addr2="+addr);
-            Log.e("hjq","lon2="+location.getLongitude());
-            Log.e("hjq", "lat2=" + location.getLatitude());
-
-            if (isFirstLoc) {
-                isFirstLoc = false;
-                LatLng ll = new LatLng(location.getLatitude(),
-                        location.getLongitude());
-                MapStatus.Builder builder = new MapStatus.Builder();
-                builder.target(ll).zoom(18.0f);
-                mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
-            }
-        }
-
-        public void onReceivePoi(BDLocation poiLocation) {
-        }
+        LatLng ll = new LatLng(latitude, longitude);
+        MapStatus.Builder builder = new MapStatus.Builder();
+        builder.target(ll).zoom(18.0f);
+        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
     }
 
     @Override
@@ -188,6 +148,29 @@ public class LocationActivity  extends BaseActivity {
         super.onResume();
     }
 
+    void gotoCurrentPosition() {
+        if (MyApplication.getInstance().islocation == 1) {
+            mCurrentMarker = null;
+            mBaiduMap
+                    .setMyLocationConfigeration(new MyLocationConfiguration(
+                            mCurrentMode, true, null));
+
+            double latitude = MyApplication.getInstance().latitude;
+            double longitude = MyApplication.getInstance().longitude;
+
+            MyLocationData locData = new MyLocationData.Builder()
+                    .accuracy(MyApplication.getInstance().radius)
+                    .direction(100).latitude(latitude)
+                    .longitude(longitude).build();
+            mBaiduMap.setMyLocationData(locData);
+
+            LatLng ll = new LatLng(latitude, longitude);
+            MapStatus.Builder builder = new MapStatus.Builder();
+            builder.target(ll).zoom(18.0f);
+            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -205,6 +188,12 @@ public class LocationActivity  extends BaseActivity {
                 break;
             }
 
+            case R.id.button1: {
+                mCustomPos = false;
+                gotoCurrentPosition();
+                break;
+            }
+
             default:
                 break;
         }
@@ -215,12 +204,11 @@ public class LocationActivity  extends BaseActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "location activity onDestroy");
-        // 退出时销毁定位
-        mLocClient.stop();
         // 关闭定位图层
         mBaiduMap.setMyLocationEnabled(false);
         mMapView.onDestroy();
         mMapView = null;
+        unregisterReceiver(mLocationReceiver);
         super.onDestroy();
     }
 
@@ -237,4 +225,17 @@ public class LocationActivity  extends BaseActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action.equals(ACTION_UPDATE_POSITION)) {
+                if (!mCustomPos) {
+                    gotoCurrentPosition();
+                }
+            }
+        }
+    };
 }
