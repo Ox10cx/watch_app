@@ -354,4 +354,8 @@
     <string name="bt_not_enabled_leaving">蓝牙设备未打开</string>
     <string name="str_check_sw">正在检查版本..</string>
     <string name="str_current_position">当前位置</string>
+    <string name="str_camera">相机</string>
+    <string name="str_bluetooth">蓝牙</string>
+    <string name="str_permission_prompt">你需要开放访问以下设备权限:</string>
+    <string name="str_permission_denied">所需权限被拒绝.</string>
 </resources>

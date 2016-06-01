@@ -20,10 +20,13 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
@@ -46,6 +49,7 @@ import com.watch.customer.util.CommonUtil;
 import com.watch.customer.util.DialogUtil;
 import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
+import com.watch.customer.util.PermissionUtils;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
 import com.watch.customer.util.UpdateManager;
@@ -55,6 +59,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -143,6 +148,8 @@ public class MainActivity extends TabActivity  implements LocationListener {
             }
         }
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,6 +247,7 @@ public class MainActivity extends TabActivity  implements LocationListener {
 //		    JPushInterface.init(this);
 //		}
     }
+
 
     void confirmBluetooth(){
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter

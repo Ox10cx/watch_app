@@ -1,13 +1,17 @@
 package com.watch.customer.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -31,6 +35,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 //import cn.jpush.android.api.JPushInterface;
 
@@ -41,6 +48,7 @@ public class FirstActivity extends BaseActivity {
     private final int MSG_LOGIN = 0;
     BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
     private static final int REQUEST_ENABLE_BT = 1;
+    public static final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 2;
 
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -127,7 +135,104 @@ public class FirstActivity extends BaseActivity {
     public void onStart() {
         super.onStart();
 
+    }
 
+    private boolean addPermission(List<String> permissionsList, String permission) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            permissionsList.add(permission);
+            // Check for Rationale Option
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS: {
+                Map<String, Integer> perms = new HashMap<String, Integer>();
+                // Initial
+                perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.BLUETOOTH, PackageManager.PERMISSION_GRANTED);
+                // Fill with results
+                for (int i = 0; i < permissions.length; i++)
+                    perms.put(permissions[i], grantResults[i]);
+                // Check for ACCESS_FINE_LOCATION
+                if (perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                    // All Permissions Granted
+                    Log.e("hjq", "all permissions are granted.");
+                    if (!btAdapter.isEnabled()) {
+                        Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+                    } else {
+                        launchMainActivity();
+                    }
+                } else {
+                    // Permission Denied
+                    Toast.makeText(FirstActivity.this, R.string.str_permission_denied, Toast.LENGTH_SHORT)
+                            .show();
+                    finish();
+                }
+
+                break;
+            }
+
+            default: {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+        }
+    }
+
+    private boolean checkMultiPermissions() {
+        List<String> permissionsNeeded = new ArrayList<String>();
+
+        final List<String> permissionsList = new ArrayList<String>();
+        if (!addPermission(permissionsList, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            permissionsNeeded.add(getString(R.string.str_gps));
+        }
+
+        if (!addPermission(permissionsList, Manifest.permission.CAMERA)) {
+            permissionsNeeded.add(getString(R.string.str_camera));
+        }
+
+        if (!addPermission(permissionsList, Manifest.permission.BLUETOOTH)) {
+            permissionsNeeded.add(getString(R.string.str_bluetooth));
+        }
+
+        if (permissionsList.size() == 0) {
+            return false;
+        }
+
+        // Need Rationale
+        String message = getString(R.string.str_permission_prompt) + permissionsNeeded.get(0);
+        for (int i = 1; i < permissionsNeeded.size(); i++) {
+            message = message + ", " + permissionsNeeded.get(i);
+        }
+
+        DialogUtil.showNoTitleDialog(FirstActivity.this, message, getString(R.string.system_sure), getString(R.string.system_cancel),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(FirstActivity.this, permissionsList.toArray(new String[permissionsList.size()]),
+                                REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                finish();
+                            }
+                        });
+                    }
+                }, false);
+
+        return true;
     }
 
     void launchMainActivity() {
@@ -196,10 +301,14 @@ public class FirstActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_first);
+
+        if (checkMultiPermissions()) {
+            return;
+        }
 
         if (!btAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);

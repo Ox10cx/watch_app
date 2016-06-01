@@ -1,12 +1,20 @@
 package com.watch.customer.ui;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,21 +45,28 @@ import com.baidu.mapapi.model.LatLng;
 import com.uacent.watchapp.R;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.model.LocationRecord;
+import com.watch.customer.util.DialogUtil;
+import com.watch.customer.util.PermissionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 16-3-7.
  */
 public class LocationActivity  extends BaseActivity {
     public static final int LOCATION_GET_POSITION = 1;
+    public static final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 2;
     // 定位相关
     private MyLocationConfiguration.LocationMode mCurrentMode;
     BitmapDescriptor mCurrentMarker;
-    private static final int accuracyCircleFillColor = 0xAAFFFF88;
+    private static final int accuracyCircleFillColor = 0xAABDE3DA;
     private static final int accuracyCircleStrokeColor = 0xAA00FF00;
 
     public static final String ACTION_UPDATE_POSITION = "com.watch.customer.LocationActivity.UPDATE_POSITION_ACTION";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     MapView mMapView;
     BaiduMap mBaiduMap;
@@ -90,6 +105,17 @@ public class LocationActivity  extends BaseActivity {
         registerReceiver(mLocationReceiver, new IntentFilter(ACTION_UPDATE_POSITION));
 
         gotoCurrentPosition();
+
+    }
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.e("hjq", "not granted");
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        }
     }
 
     void hideZoomControl() {
@@ -150,10 +176,17 @@ public class LocationActivity  extends BaseActivity {
 
     void gotoCurrentPosition() {
         if (MyApplication.getInstance().islocation == 1) {
-            mCurrentMarker = null;
+            mCurrentMarker = BitmapDescriptorFactory
+                    .fromResource(R.drawable.icon_geo);
             mBaiduMap
                     .setMyLocationConfigeration(new MyLocationConfiguration(
-                            mCurrentMode, true, null));
+                            mCurrentMode, true, mCurrentMarker,
+                            accuracyCircleFillColor, accuracyCircleStrokeColor));
+
+//            mCurrentMarker = null;
+//            mBaiduMap
+//                    .setMyLocationConfigeration(new MyLocationConfiguration(
+//                            mCurrentMode, true, null));
 
             double latitude = MyApplication.getInstance().latitude;
             double longitude = MyApplication.getInstance().longitude;

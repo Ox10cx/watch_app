@@ -25,8 +25,11 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import android.app.Service;
@@ -44,6 +47,8 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.watch.customer.service.BleComService;
 
 import java.util.List;
 import java.util.UUID;
@@ -232,9 +237,9 @@ public class BluetoothLeClass {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
-        mBluetoothGatt = device.connectGatt(mContext, false, mGattCallback);
+
+        mBluetoothGatt = device.connectGatt(mContext, false , mGattCallback);
+
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         return true;

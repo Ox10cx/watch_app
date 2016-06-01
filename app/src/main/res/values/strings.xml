@@ -355,4 +355,9 @@
     <string name="bt_not_enabled_leaving">The bluetooth device is disabled.</string>
     <string name="str_check_sw">Checking latest software ....</string>
     <string name="str_current_position">Current Postion</string>
+    <string name="str_gps" translatable="false">GPS</string>
+    <string name="str_bluetooth">Bluetooth</string>
+    <string name="str_camera">Camera</string>
+    <string name="str_permission_prompt">You need to grant access to </string>
+    <string name="str_permission_denied">Some Permission is Denied</string>
 </resources>
