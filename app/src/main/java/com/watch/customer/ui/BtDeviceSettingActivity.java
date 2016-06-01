@@ -350,13 +350,13 @@ public class BtDeviceSettingActivity extends BaseActivity {
     }
 
     public void getimage() {
-        CharSequence[] items = {"相册", "相机"}; // 设置显示选择框的内容
-        new AlertDialog.Builder(this).setTitle("选择图片来源")
+        CharSequence[] items = {getString(R.string.str_gallery), getString(R.string.str_camera)}; // 设置显示选择框的内容
+        new AlertDialog.Builder(this).setTitle(R.string.str_pic_source)
                 .setItems(items, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == SELECT_PICTURE) {
                             Intent choosePictureIntent = new Intent(Intent.ACTION_PICK,
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             startActivityForResult(choosePictureIntent, SELECT_PIC_BY_PICK_PHOTO);
                         } else {
                             takePhoto();
@@ -370,7 +370,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
         // 执行拍照前，应该先判断SD卡是否存在
         String SDState = Environment.getExternalStorageState();
         if (!SDState.equals(Environment.MEDIA_MOUNTED)) {
-            showShortToast("内存卡不存在");
+            showShortToast(getString(R.string.str_sd_not_exist));
             return;
         }
         try {
@@ -384,12 +384,12 @@ public class BtDeviceSettingActivity extends BaseActivity {
                 startActivityForResult(i, SELECT_PIC_BY_TACK_PHOTO);
 
             } else {
-                showShortToast("发生意外，无法写入相册");
+                showShortToast(getString(R.string.str_error_condition));
             }
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();
-            showShortToast("发生意外，无法写入相册");
+            showShortToast(getString(R.string.str_error_condition));
         }
     }
 

@@ -321,7 +321,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName" translatable="false">1.17</string>
+    <string name="app_versionName" translatable="false">1.18</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>
@@ -360,4 +360,8 @@
     <string name="str_camera">Camera</string>
     <string name="str_permission_prompt">You need to grant access to </string>
     <string name="str_permission_denied">Some Permission is Denied</string>
+    <string name="str_gallery">Gallery</string>
+    <string name="str_pic_source">Select image source</string>
+    <string name="str_sd_not_exist">The sd card dose not exist.</string>
+    <string name="str_error_condition">Error happens: it cannot be written into gallery.</string>
 </resources>
