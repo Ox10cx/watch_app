@@ -1,6 +1,5 @@
 package com.watch.customer.ui;
 
-import android.animation.StateListAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -11,7 +10,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
@@ -36,10 +34,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.uacent.watchapp.R;
-import com.watch.customer.xlistview.ItemMainLayout;
-import com.watch.customer.xlistview.Menu;
-import com.watch.customer.xlistview.MenuItem;
-import com.watch.customer.xlistview.SlideAndDragListView;
 import com.watch.customer.adapter.DeviceListAdapter;
 import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
@@ -50,6 +44,10 @@ import com.watch.customer.model.BtDevice;
 import com.watch.customer.model.LocationRecord;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.util.PreferenceUtil;
+import com.watch.customer.xlistview.ItemMainLayout;
+import com.watch.customer.xlistview.Menu;
+import com.watch.customer.xlistview.MenuItem;
+import com.watch.customer.xlistview.SlideAndDragListView;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,11 +57,11 @@ import java.util.Map;
 /**
  * Created by Administrator on 16-3-7.
  */
-public class DeviceListActivity  extends BaseActivity  implements View.OnClickListener,
+public class DeviceListActivity extends BaseActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener, DeviceListAdapter.OnItemClickCallback, SlideAndDragListView.OnListItemLongClickListener,
         SlideAndDragListView.OnDragListener, SlideAndDragListView.OnSlideListener,
         SlideAndDragListView.OnListItemClickListener, SlideAndDragListView.OnMenuItemClickListener,
-        SlideAndDragListView.OnItemDeleteListener{
+        SlideAndDragListView.OnItemDeleteListener {
     private static final int CHANGE_BLE_DEVICE_SETTING = 1;
     private SlideAndDragListView mDeviceList;
     private DeviceListAdapter mDeviceListAdapter;
@@ -113,7 +111,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             return;
         }
 
-        mDeviceList = (SlideAndDragListView)findViewById(R.id.devicelist);
+        mDeviceList = (SlideAndDragListView) findViewById(R.id.devicelist);
 
         mDeviceList.setOnItemClickListener(DeviceListActivity.this);
         mDeviceList.setLayoutAnimation(getAnimationController());
@@ -185,8 +183,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         return controller;
     }
 
-    void checkUI()
-    {
+    void checkUI() {
         final Runnable fnCheck = new Runnable() {
             @Override
             public void run() {
@@ -256,7 +253,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         // So that means your view is child #2 in the ViewGroup:
         if (wantedChild < 0 || wantedChild >= mDeviceList.getChildCount()) {
             Log.w("hjq", "Unable to get view for desired position, because it's not being displayed on screen.");
-            return  -1;
+            return -1;
         }
         return wantedChild;
     }
@@ -267,7 +264,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         wantedChild = getActualPosition(position);
         View wantedView = mDeviceList.getChildAt(wantedChild);
         if (wantedView != null) {
-            ItemMainLayout layout = (ItemMainLayout)wantedView;
+            ItemMainLayout layout = (ItemMainLayout) wantedView;
             View v = layout.getItemCustomLayout().getCustomView();
             v.setBackgroundColor(getResources().getColor(R.color.text_white));
             wantedView.clearAnimation();
@@ -281,15 +278,15 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         View wantedView = mDeviceList.getChildAt(wantedChild);
         Log.e("hjq", "view = " + wantedView);
         if (wantedView != null) {
-            ItemMainLayout layout = (ItemMainLayout)wantedView;
+            ItemMainLayout layout = (ItemMainLayout) wantedView;
             View v = layout.getItemCustomLayout().getCustomView();
             v.setBackgroundColor(getResources().getColor(R.color.textbg_red));
 
             showItemViewAnimation(wantedView, position);
         }
 
-        Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-        long [] pattern = {100, 400, 100, 400}; // 停止 开启 停止 开启
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        long[] pattern = {100, 400, 100, 400}; // 停止 开启 停止 开启
         vibrator.vibrate(pattern, -1); //重复两次上面的pattern 如果只想震动一次，index设为-1
     }
 
@@ -321,7 +318,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         if (d.isLostAlert() && d.isAntiLostSwitch()) {
             player = MediaPlayer.create(this, d.getAlertRingtone());
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getAlertVolume(), 0);
-        } else /* if ( d.isReportAlert()) */{
+        } else /* if ( d.isReportAlert()) */ {
             player = MediaPlayer.create(this, d.getFindAlertRingtone());
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, d.getFindAlertVolume(), 0);
         }
@@ -362,11 +359,16 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
     @Override
     protected void onDestroy() {
         if (mConnection != null) {
-            getApplicationContext().unbindService(mConnection);
+            try {
+                Log.i(TAG, "onDestroy->>unregisterCallback");
+                mService.unregisterCallback(mCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
-
+        getApplicationContext().unbindService(mConnection);
+        Log.i(TAG, "onDestroy->>unbindService");
         mHandlerThread.quit();
-
         super.onDestroy();
     }
 
@@ -444,7 +446,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
                 break;
 
             case R.id.testkey: {
-                Toast.makeText(this,  R.string.prompt, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.prompt, Toast.LENGTH_SHORT).show();
                 break;
             }
 
@@ -567,12 +569,12 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         public boolean onWrite(final String address, byte[] val) throws RemoteException {
             Log.d("hjq", "onWrite called");
             String active = getTopActivity();
-            if (active != null && active.contains("CameraActivity")){
+            if (active != null && active.contains("CameraActivity")) {
                 return false;
             }
 
             byte v = val[0];
-            Runnable  r = mKeyChecker.get(address);
+            Runnable r = mKeyChecker.get(address);
 
             if (r != null && v == 1) {
                 synchronized (mKeyLock) {
@@ -796,8 +798,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         r.setId(id);
     }
 
-    public boolean connectBLE(final String address)
-    {
+    public boolean connectBLE(final String address) {
         boolean ret = false;
 
         try {
@@ -842,7 +843,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onButtonClick(View view, int position) {
-        Button v = (Button)view;
+        Button v = (Button) view;
         BtDevice device = mListData.get(position);
         int status = device.getStatus();
 
@@ -879,7 +880,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
             }
         }
 
-       mDeviceListAdapter.notifyDataSetChanged();
+        mDeviceListAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -908,7 +909,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
                 if (changed == 1) {
                     int i;
-                    BtDevice d = (BtDevice)b.getSerializable("device");
+                    BtDevice d = (BtDevice) b.getSerializable("device");
                     for (i = 0; i < mListData.size(); i++) {
                         if (mListData.get(i).getAddress().equals(d.getAddress())) {
                             break;
@@ -930,13 +931,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onListItemLongClick(View view, int position) {
-       // Toast.makeText(DeviceListActivity.this, "onItemLongClick   position--->" + position, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(DeviceListActivity.this, "onItemLongClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemLongClick   " + position);
     }
 
     @Override
     public void onDragViewStart(int position) {
-       // Toast.makeText(DeviceListActivity.this, "onDragViewStart   position--->" + position, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(DeviceListActivity.this, "onDragViewStart   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onDragViewStart   " + position);
     }
 
@@ -954,7 +955,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onListItemClick(View v, int position) {
-       // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(DeviceListActivity.this, "onItemClick   position--->" + position, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onListItemClick   " + position);
         if (position < 0) {
             return;
@@ -970,13 +971,13 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onSlideOpen(View view, View parentView, int position, int direction) {
-     //   Toast.makeText(DeviceListActivity.this, "onSlideOpen   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
+        //   Toast.makeText(DeviceListActivity.this, "onSlideOpen   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onSlideOpen   " + position);
     }
 
     @Override
     public void onSlideClose(View view, View parentView, int position, int direction) {
-   //     Toast.makeText(DeviceListActivity.this, "onSlideClose   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
+        //     Toast.makeText(DeviceListActivity.this, "onSlideClose   position--->" + position + "  direction--->" + direction, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "onSlideClose   " + position);
     }
 
@@ -1049,7 +1050,7 @@ public class DeviceListActivity  extends BaseActivity  implements View.OnClickLi
         }
     };
 
-    void ensureStopTorch(){
+    void ensureStopTorch() {
         mStop = true;
         myHandler.removeCallbacks(flashRun);
         synchronized (mSync) {

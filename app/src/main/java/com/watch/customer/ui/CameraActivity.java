@@ -1,15 +1,13 @@
 package com.watch.customer.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Camera;
-import android.media.Image;
-import android.net.Uri;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -17,22 +15,15 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageButton;
-
-import android.app.Activity;
-import android.graphics.Point;
-import android.os.Bundle;
 import android.view.Menu;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -42,9 +33,7 @@ import com.uacent.watchapp.R;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.ui.CameraInterface.CamOpenOverCallback;
 import com.watch.customer.util.DisplayUtil;
-import com.watch.customer.util.FileUtil;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -449,8 +438,16 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
     @Override
     protected void onDestroy() {
         Log.d(TAG, "camera activity onDestroy");
-        mHandlerThread.quit();
+        if (mConnection != null) {
+            try {
+                Log.i(TAG, "onDestroy->>unregisterCallback");
+                mService.unregisterCallback(mCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         unbindService(mConnection);
+        Log.i(TAG, "onDestroy->>unbindService");
         super.onDestroy();
     }
 
