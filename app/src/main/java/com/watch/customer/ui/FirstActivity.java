@@ -1,7 +1,6 @@
 package com.watch.customer.ui;
 
 import android.app.Activity;
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.JsonUtil;
 import com.watch.customer.util.PreferenceUtil;
 import com.watch.customer.util.ThreadPoolManager;
-import com.watch.customer.util.UpdateManager;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -220,7 +218,6 @@ public class FirstActivity extends BaseActivity {
                     Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
                     finish();
                 }
-
                 break;
             }
 

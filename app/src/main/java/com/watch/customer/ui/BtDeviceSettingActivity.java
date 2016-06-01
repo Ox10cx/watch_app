@@ -19,30 +19,19 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.uacent.watchapp.R;
-import com.watch.customer.app.MyApplication;
 import com.watch.customer.dao.BtDeviceDao;
 import com.watch.customer.model.BtDevice;
 import com.watch.customer.service.BleComService;
 import com.watch.customer.util.CommonUtil;
-import com.watch.customer.util.DialogUtil;
-import com.watch.customer.util.HttpUtil;
 import com.watch.customer.util.ImageLoaderUtil;
-import com.watch.customer.util.JsonUtil;
-import com.watch.customer.util.PreferenceUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +58,8 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
     private IService mService;
 
-    /*** 使用照相机拍照获取图片
+    /***
+     * 使用照相机拍照获取图片
      */
     public static final int SELECT_PIC_BY_TACK_PHOTO = 1;
     /***
@@ -84,7 +74,9 @@ public class BtDeviceSettingActivity extends BaseActivity {
     public static final int CHANGE_FIND_ME_SETTING = 5;
 
     private Uri photoUri;
-    /** 通过centerIndex来决定采用那种存储方式 **/
+    /**
+     * 通过centerIndex来决定采用那种存储方式
+     **/
     private int centerIndex;
 
     private static final int[] text_array = {R.string.str_anti_lost, R.string.str_find_me, R.string.str_disconnect};
@@ -108,10 +100,10 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
                 case editimage_what:
                     mDevice.setThumbnail(result);
-                    String path =  CommonUtil.getImageFilePath(result);
+                    String path = CommonUtil.getImageFilePath(result);
                     if (path != null) {
                         ImageLoaderUtil.displayImage("file://" + path, ivIcon, BtDeviceSettingActivity.this);
-                    }  else {
+                    } else {
 
                     }
 
@@ -120,7 +112,9 @@ public class BtDeviceSettingActivity extends BaseActivity {
                 default:
                     break;
             }
-        };
+        }
+
+        ;
     };
     private ICallback.Stub mCallback = new ICallback.Stub() {
 
@@ -194,10 +188,10 @@ public class BtDeviceSettingActivity extends BaseActivity {
         ivIcon = (ImageView) findViewById(R.id.imageView);
         ivIcon.setOnClickListener(this);
 
-        String path =  CommonUtil.getImageFilePath(mDevice.getThumbnail());
+        String path = CommonUtil.getImageFilePath(mDevice.getThumbnail());
         if (path != null) {
             ImageLoaderUtil.displayImage("file://" + path, ivIcon, BtDeviceSettingActivity.this);
-        }  else {
+        } else {
 
         }
 
@@ -242,7 +236,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
         mDeviceDao = new BtDeviceDao(this);
 
-        Intent intent  = new Intent(this, BleComService.class);
+        Intent intent = new Intent(this, BleComService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -342,12 +336,21 @@ public class BtDeviceSettingActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        if (mConnection != null) {
+            try {
+                Log.i(TAG, "onDestroy->>unregisterCallback");
+                mService.unregisterCallback(mCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
         unbindService(mConnection);
+        Log.i(TAG, "onDestroy->>unbindService");
         super.onDestroy();
     }
 
     public void getimage() {
-        CharSequence[] items = { "相册", "相机" }; // 设置显示选择框的内容
+        CharSequence[] items = {"相册", "相机"}; // 设置显示选择框的内容
         new AlertDialog.Builder(this).setTitle("选择图片来源")
                 .setItems(items, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -408,8 +411,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
                     break;
 
                 case CHANGE_ANTI_LOST_SETTING:
-                case CHANGE_FIND_ME_SETTING:
-                {
+                case CHANGE_FIND_ME_SETTING: {
                     Bundle bundle = data.getExtras();
                     BtDevice device = (BtDevice) bundle.getSerializable("device");
                     mDevice = device;
@@ -450,6 +452,7 @@ public class BtDeviceSettingActivity extends BaseActivity {
         intent.putExtra("return-data", true);
         startActivityForResult(intent, CUT_PHOTO);
     }
+
     /**
      * 保存裁剪之后的图片数据
      *
