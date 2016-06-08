@@ -1,6 +1,7 @@
 package com.watch.customer.ui;
 
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -218,7 +220,10 @@ public class CameraInterface {
                 //设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
                 //图片竟然不能旋转了，故这里要旋转下
                 Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, degree);
-                FileUtil.saveBitmap(mContext, rotaBitmap);
+                String path = FileUtil.saveBitmap(mContext, rotaBitmap);
+                if (path != null) {
+                    addImageToGallery(path, mContext);
+                }
             }
 
             //再次进入预览
@@ -238,6 +243,17 @@ public class CameraInterface {
             mCamera.stopPreview();
             mCamera.release();
         }
+    }
+
+    public static void addImageToGallery(final String filePath, final Context context) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.MediaColumns.DATA, filePath);
+
+        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
 
     public void autoFocus(Camera.AutoFocusCallback cb){

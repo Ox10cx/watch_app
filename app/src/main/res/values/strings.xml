@@ -2,7 +2,7 @@
 <resources>
 
     <!-- system -->
-    <string name="system_name">BtAntiLost</string>
+    <string name="system_name">uTracing</string>
     <string name="system_image_back">Back</string>
     <string name="system_image_logo">Logo</string>
     <string name="system_image_setting">Setting</string>
@@ -321,7 +321,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName" translatable="false">1.18</string>
+    <string name="app_versionName" translatable="false">1.19</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>

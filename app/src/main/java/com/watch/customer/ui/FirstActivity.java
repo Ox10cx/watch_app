@@ -239,7 +239,8 @@ public class FirstActivity extends BaseActivity {
                 @Override
                 public void run() {
                     finish();
-                    startActivity(new Intent(FirstActivity.this, MainActivity.class));
+                   startActivity(new Intent(FirstActivity.this, MainActivity.class /*FlashActivity.class*/));
+                //    startActivity(new Intent(FirstActivity.this, FlashActivity.class));
                 }
             }, 3000);
         } else {

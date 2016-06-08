@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -326,8 +327,9 @@ public class CameraActivity  extends BaseActivity implements CamOpenOverCallback
                 }
 
                 case R.id.btn_album: {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    intent.setType("image/*");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, /*android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI*/Uri.parse(
+                            "content://media/internal/images/media"));
+                   // intent.setType("image/*");
                     startActivity(intent);
                     break;
                 }

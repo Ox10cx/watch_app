@@ -49,7 +49,7 @@ public class BleComService extends Service {
     private Map<String,List<Integer>> mlivingRssiData = new HashMap<String,List<Integer>>();
 
     private RemoteCallbackList<ICallback> mCallbacks = new RemoteCallbackList<ICallback>();
-    private boolean antiLostEnabled;
+    private boolean antiLostEnabled = false;
     private final Object mSync = new Object();
 
     public class LocalBinder extends Binder {
@@ -135,22 +135,20 @@ public class BleComService extends Service {
         }
     }
 
+    Thread fnAntiLost = null;
     // 15秒获取一次连接的rssi值并进行判断，是否掉线了。
     void setBleAntiLost(boolean enable) {
 
         Log.d("hjq", "set antilost enable = " + enable);
 
-        if (antiLostEnabled == enable) {
+        if (fnAntiLost != null && fnAntiLost.isAlive()) {
             return;
         }
 
-        antiLostEnabled = enable;
-
-        if (enable) {
-            Thread th = new Thread(new Runnable() {
+        fnAntiLost = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (antiLostEnabled) {
+                    while (true) {
                         mScaningRssi.clear();
                         boolean bleok = false;
                         for (String k : mActiveDevices.keySet()) {
@@ -162,7 +160,7 @@ public class BleComService extends Service {
                                 // 必须在此处同步回调函数，否则蓝牙协议栈会出错
                                 synchronized (mScaningRssi) {
                                     try {
-                                        mScaningRssi.wait();
+                                        mScaningRssi.wait(3000);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -170,7 +168,7 @@ public class BleComService extends Service {
                             }
                         }
 
-                        Log.d("hjq", "ble status = " + bleok);
+                        Log.e("hjq", "ble status = " + bleok);
                         if (!bleok) {
                             try {
                                 Thread.sleep(6000);
@@ -206,7 +204,7 @@ public class BleComService extends Service {
                             int rssi = rssidata.get(key).intValue();
                             int pos;
 
-                            Log.d("hjq", "rssi = " + rssi);
+                            Log.e("hjq", "rssi = " + rssi);
                             if (rssi < -100) {
                                 pos = BtDevice.LOST;
                             } else {
@@ -243,8 +241,7 @@ public class BleComService extends Service {
                 }
             });
 
-            th.start();
-        }
+        fnAntiLost.start();
     }
 
     /**

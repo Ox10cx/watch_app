@@ -192,6 +192,9 @@
         <activity android:name="com.watch.customer.ui.SelectPicPopupWindow" android:theme="@style/MyDialogStyleBottom" >
         </activity>
 
+        <activity android:name="com.watch.customer.ui.FlashActivity" android:theme="@style/MyDialogStyleBottom" >
+        </activity>
+
         <activity android:name="com.watch.customer.ui.AntiLostSettingActivity" android:screenOrientation="portrait"> </activity>
         <activity android:name="com.watch.customer.ui.FindmeSettingActivity" android:screenOrientation="portrait"> </activity>
         <activity android:name="com.watch.customer.ui.RingtoneSelectActivity" android:screenOrientation="portrait"> </activity>

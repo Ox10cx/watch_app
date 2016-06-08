@@ -10,10 +10,14 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.SurfaceTexture;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -49,9 +53,11 @@ import com.watch.customer.xlistview.Menu;
 import com.watch.customer.xlistview.MenuItem;
 import com.watch.customer.xlistview.SlideAndDragListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -84,6 +90,7 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
     Map<String, Runnable> mKeyChecker = new HashMap<>(10);
 
     final static int DISCOVER_SERVICE_TIMEOUT = 20 * 1000; // 20 S
+    private SurfaceTexture mPreviewTexture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +195,7 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
             @Override
             public void run() {
                 boolean restart = false;
+                boolean bStopTorch = true;
 
                 for (int i = 0; i < mListData.size(); i++) {
                     BtDevice d = mListData.get(i);
@@ -200,13 +208,18 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
                         restart = true;
                         if (d.isLostAlert()) {
                             flashTorch();
+                            bStopTorch = false;
                         }
                     } else {
                         stopAnimation(i);
                         stopAlertRingtone(d);
-                        ensureStopTorch();
                     }
                 }
+
+                if (bStopTorch) {
+                    ensureStopTorch();
+                }
+
 
                 if (restart) {
                     mHandler.postDelayed(this, 3000);
@@ -326,7 +339,8 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                if (d.isLostAlert() && d.isAntiLostSwitch() || d.isReportAlert()) {
+                if ((d.isLostAlert() && d.isAntiLostSwitch()) || d.isReportAlert()) {
+                    Log.e("hjq", "media player is ringing d = " + d);
                     int disturb = mSharedPreferences.getInt("disturb_status", 0);
                     if (disturb == 0) {     // 免打扰模式没有打开，播放声音
                         mediaPlayer.start();
@@ -501,7 +515,7 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
 
     private ICallback.Stub mCallback = new ICallback.Stub() {
         @Override
-        public void onConnect(String address) throws RemoteException {
+        public void onConnect(final String address) throws RemoteException {
 //            final BtDevice d;
 //            synchronized (mListData) {
 //                int position = mDeviceListAdapter.getmId();
@@ -517,6 +531,18 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
 //                    mDeviceListAdapter.notifyDataSetChanged();
 //                }
 //            });
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mDeviceListAdapter.notifyDataSetChanged();
+                    for (BtDevice d : mListData) {
+                        if (d.getAddress().equals(address)) {
+                            d.setLostAlert(false);
+                        }
+                    }
+                }
+            });
         }
 
         @Override
@@ -733,20 +759,20 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
             }
         }
 
-        if (ret) {
+//        if (ret) {
             try {
                 mService.setAntiLost(true);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
             checkUI();
-        } else {
-            try {
-                mService.setAntiLost(false);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
+//        } else {
+//            try {
+//                mService.setAntiLost(false);
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         return ret;
     }
@@ -1032,23 +1058,7 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
     boolean mStop = false;
     Camera mCamera;
 
-    Runnable flashRun = new Runnable() {
-        @Override
-        public void run() {
-            if (mStop && mOn) {
-                turnOffTorch();
-                return;
-            }
-            if (!mOn) {
-                if (!turnOnTorch()) {
-                    return;
-                }
-            } else {
-                turnOffTorch();
-            }
-            myHandler.postDelayed(this, 1000);
-        }
-    };
+    Runnable flashRun = null;
 
     void ensureStopTorch() {
         mStop = true;
@@ -1066,12 +1076,41 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
     }
 
     void flashTorch() {
+        Log.e("hjq", "start flashing, mStop = " + mStop);
+        if (!mStop) {
+            return;
+        }
+
+        flashRun = new Runnable() {
+            @Override
+            public void run() {
+                Log.e("hjq", "mstop = " + mStop + ", mOn = " + mOn);
+                if (mStop && mOn) {
+                    turnOffTorch();
+                    return;
+                }
+                if (!mOn) {
+                    if (!turnOnTorch()) {
+                        return;
+                    }
+                } else {
+                    turnOffTorch();
+                }
+                myHandler.postDelayed(this, 1000);
+            }
+        };
+
         mStop = false;
-        myHandler.postDelayed(flashRun, 1000);
+        boolean ret = myHandler.postDelayed(flashRun, 3000);
+        Log.e("hjq", "ret = " + ret + " isAlive = " + mHandlerThread.isAlive());
     }
 
     boolean turnOnTorch() {
         Log.e("hjq", "turn on");
+
+        int sdkVersion = Build.VERSION.SDK_INT;
+        Log.e("hjq", "SDK Version = " + sdkVersion);
+
         synchronized (mSync) {
             if (mOn) {
                 return true;
@@ -1087,8 +1126,26 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
 
             try {
                 Camera.Parameters p = mCamera.getParameters();
-                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+
+                List<String> pList = mCamera.getParameters().getSupportedFlashModes();
+
+                if (pList.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
+                    p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                    Log.e("hjq", "support torch mode");
+                } else {
+                    Log.e("hjq", "NOT support torch mode");
+                }
                 mCamera.setParameters(p);
+
+                if (sdkVersion > Build.VERSION_CODES.KITKAT) {
+                    mPreviewTexture = new SurfaceTexture(0);
+                    try {
+                        mCamera.setPreviewTexture(mPreviewTexture);
+                    } catch (IOException ex) {
+                        // Ignore
+                    }
+                }
+
                 mCamera.startPreview();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1105,6 +1162,7 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
 
     boolean turnOffTorch() {
         Log.e("hjq", "turn off");
+
         synchronized (mSync) {
             if (!mOn) {
                 return false;
@@ -1125,5 +1183,4 @@ public class DeviceListActivity extends BaseActivity implements View.OnClickList
             return true;
         }
     }
-
 }

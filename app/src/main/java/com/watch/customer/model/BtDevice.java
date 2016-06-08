@@ -242,6 +242,7 @@ public class BtDevice implements Serializable {
                 ", rssi=" + rssi +
                 ", status=" + status +
                 ", alertService = " + alertService +
+                ", lostAlert = " + lostAlert +
                 '}';
     }
 
