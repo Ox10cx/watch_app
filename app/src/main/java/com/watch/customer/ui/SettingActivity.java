@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -83,7 +84,39 @@ public class SettingActivity  extends BaseActivity {
         setContentView(R.layout.setting_activity);
 
         SwitchButton sw = (SwitchButton) findViewById(R.id.switchNotDisturb);
-        sw.setOnClickListener(this);
+       // sw.setOnClickListener(this);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                boolean checked = isChecked;
+                Log.e("hjq", "checked = " + checked);
+                if (checked) {
+                    DialogUtil.showNoTitleDialog(SettingActivity.this,
+                            R.string.str_disturb_show, R.string.system_sure, R.string.system_cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+                                    mEditor.putInt("disturb_status", 1);
+                                    mEditor.apply();
+
+                                }
+                            }, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    SwitchButton sw = (SwitchButton) findViewById(R.id.switchNotDisturb);
+                                    sw.setChecked(false);
+                                }
+                            }, true);
+                } else {
+                    SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+                    mEditor.putInt("disturb_status", 0);
+                    mEditor.apply();
+                }
+            }
+        });
 
         ImageView iv_back = (ImageView) findViewById(R.id.iv_back);
         iv_back.setOnClickListener(this);
