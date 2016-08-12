@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'overseakey'
             keyPassword 'overseaantilost'
-            storeFile file('D:/prog/java/AntiLost/oversea.keystore')
+            storeFile file('/oversea.keystore')
             storePassword 'overseaantilost'
         }
     }
