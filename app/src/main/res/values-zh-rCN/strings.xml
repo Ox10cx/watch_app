@@ -2,7 +2,8 @@
 <resources>
 
     <!-- system -->
-    <string name="system_name">蓝牙防丢器</string>
+    <string name="app_name">海豚防丢</string>
+    <string name="welcome_name">海豚防丢IC卡</string>
     <string name="system_image_back">返回</string>
     <string name="system_image_logo">Logo</string>
     <string name="system_image_setting">设置</string>

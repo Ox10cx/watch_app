@@ -1,13 +1,13 @@
 package com.watch.customer.alipay;
 
-import java.net.URLEncoder;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
 import com.alipay.android.app.sdk.AliPay;
 import com.uacent.watchapp.R;
+
+import java.net.URLEncoder;
 
 
 @SuppressWarnings("deprecation")
@@ -122,7 +122,7 @@ public class AlipayUtil {
 		sb.append(Keys.DEFAULT_SELLER);
 
 		sb.append("\"&app_id=\"");
-		sb.append(context.getString(R.string.system_name));
+		sb.append(context.getString(R.string.app_name));
 
 		// 商品展示的超链接。预留参数。 如果show_url值为空，可不传
 		// sb.append("\"&show_url=\"");

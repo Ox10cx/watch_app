@@ -73,7 +73,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:largeHeap="true"
-        android:label="@string/system_name"
+        android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity android:name="com.watch.customer.ui.FirstActivity"
             android:screenOrientation="portrait"

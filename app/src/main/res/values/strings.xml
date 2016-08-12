@@ -2,7 +2,8 @@
 <resources>
 
     <!-- system -->
-    <string name="system_name">uTracing</string>
+    <string name="app_name">海豚防丢</string>
+    <string name="welcome_name">海豚防丢IC卡</string>
     <string name="system_image_back">Back</string>
     <string name="system_image_logo">Logo</string>
     <string name="system_image_setting">Setting</string>
@@ -244,7 +245,7 @@
     <string name="person_feedback_rating">请选择您的评分：</string>
     <string name="person_feedback_edit_relatethint">请输入您的邮箱和电话(选填)</string>
     <string name="person_feedback_btn_send">发送</string>
-     <string name="person_feedback_btn_order_id">订单号：</string>
+    <string name="person_feedback_btn_order_id">订单号：</string>
     <!-- person updatepassword -->
     <string name="person_password_text_title">修改密码</string>
     <string name="person_password_text_enter">请输入新密码</string>
@@ -321,7 +322,7 @@
     <string name="str_reenter_pass">Re-enter your password</string>
     <string name="str_no_match">Not match, try again.</string>
 
-    <string name="app_versionName" translatable="false">1.20</string>
+    <string name="app_versionName" translatable="false">1.20.1</string>
 
     <string name="str_second">second</string>
     <string name="str_stretch">stretch</string>
